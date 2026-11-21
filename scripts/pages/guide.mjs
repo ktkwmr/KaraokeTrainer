@@ -14,7 +14,7 @@ export default {
     heading: "How to use Karaoke Trainer",
     nav: "How to use (guide)",
     description:
-      "Step-by-step guide to Karaoke Trainer: load a song file, turn the vocals down, sing and see your pitch over the original melody, read the results, loop the parts that went off, change the key, and find a key for your vocal range.",
+      "Step-by-step guide to Karaoke Trainer: load a song file, turn the vocals down, sing and see your pitch over the original melody, read the results, sing the parts that went off again, change the key, and find a key for your vocal range.",
     body: () => `
 <p class="lead">Karaoke Trainer shows the original singer's melody as a line and draws your pitch over it while you sing, so you can see where you went flat or sharp. This guide walks through each part of the screen.</p>
 
@@ -24,7 +24,7 @@ export default {
   <li><a href="#roll">Reading the melody line</a></li>
   <li><a href="#sing">Singing</a></li>
   <li><a href="#results">Looking back: how you sang</a></li>
-  <li><a href="#practice">Vocal volume, loop, and key</a></li>
+  <li><a href="#practice">Vocal volume and key</a></li>
   <li><a href="#range">Finding your key (optional)</a></li>
   <li><a href="#settings">Settings: how strict, delay, microphone</a></li>
   <li><a href="#phone">On a phone or tablet</a></li>
@@ -35,7 +35,7 @@ export default {
 <ol>
   <li><b>Load a song.</b> Tap “Choose a song file” and pick a song you have (MP3, WAV, M4A, FLAC…). Wait until the bar is full.</li>
   <li><b>Put on headphones and press “Sing”.</b> The song starts and your pitch is drawn over the grey melody line.</li>
-  <li><b>Press “Stop singing”.</b> See how much was on pitch, and tap a part that went off to practice it in a loop.</li>
+  <li><b>Press “Stop singing”.</b> See how much was on pitch, and tap a part that went off to sing it again.</li>
 </ol>
 <p>No song at hand? Press <b>“Try the demo song”</b>: a short song made for this app, which needs no download.</p>
 
@@ -82,17 +82,16 @@ export default {
   <li><b>On pitch</b> – the share of the time you were in the green range. It counts only where the original singer sings and you sang, so pauses do not count against you.</li>
   <li><b>Of the melody sung</b> – how much of the melody you sang at all.</li>
   <li><b>Average</b> – whether you tend to be higher (+) or lower (−) than the melody, in cents.</li>
-  <li><b>Where it went off</b> – the phrases that were furthest off, with how far and in which direction. <b>Tap one</b> and the app loops that phrase (with half a second before and after) and plays it, so you can sing it again and again.</li>
+  <li><b>Where it went off</b> – the phrases that were furthest off, with how far and in which direction. <b>Tap one</b> and the song plays from a second before that phrase, so you can sing it again right away.</li>
   <li><b>Listen and compare</b> – “Original vocal”, “My voice”, or “Both”, with the accompaniment. “Play from the start of the take” plays from where you started singing.</li>
   <li><b>Keep this recording</b> keeps it on this device with the song; <b>Save as WAV</b> saves a file. Otherwise the recording is gone when you sing again.</li>
 </ul>
 <p>The numbers are a guide for practice, not a score. The line and the list tell you more: where you go flat at the end of a long note, which jump you overshoot, which phrase starts late.</p>
 
-<h2 id="practice">Vocal volume, loop, and key</h2>
+<h2 id="practice">Vocal volume and key</h2>
 <ul>
   <li><b>Vocal</b> – 0% is karaoke (the accompaniment only), 100% is the original. In between, the singer becomes a quiet guide: useful while you are learning a song, then turn it down to 0%.</li>
   <li><b>Accompaniment</b> – the volume of everything else.</li>
-  <li><b>Loop A–B</b> – “Set A” at the start of a part, “Set B” at its end, and it repeats. “Set B” alone loops the last 5 seconds. “Clear” stops the loop.</li>
   <li><b>Key</b> – − / + moves the whole song down or up a semitone at a time, up to 6, without changing the tempo. The grey line moves with it. It takes a few seconds to prepare.</li>
 </ul>
 
@@ -130,7 +129,7 @@ export default {
     heading: "Karaoke Trainer の使い方",
     nav: "使い方ガイド",
     description:
-      "Karaoke Trainer の使い方。曲のファイルを読み込み、ボーカルを小さくして、歌うと原曲のメロディに自分の音程が重なって表示されます。答え合わせの見方、ズレたところのループ練習、キー変更、音域からおすすめキーを出す方法まで。",
+      "Karaoke Trainer の使い方。曲のファイルを読み込み、ボーカルを小さくして、歌うと原曲のメロディに自分の音程が重なって表示されます。答え合わせの見方、ズレたところの歌い直し、キー変更、音域からおすすめキーを出す方法まで。",
     body: () => `
 <p class="lead">Karaoke Trainer は、原曲の歌手のメロディを線で表示し、歌っている間あなたの音程をその上に描きます。どこで高すぎたか、低すぎたかが目でわかります。このガイドでは、画面の各部分を順に説明します。</p>
 
@@ -140,7 +139,7 @@ export default {
   <li><a href="#roll">メロディの線の見方</a></li>
   <li><a href="#sing">歌う</a></li>
   <li><a href="#results">答え合わせ</a></li>
-  <li><a href="#practice">ボーカルの音量、区間ループ、キー</a></li>
+  <li><a href="#practice">ボーカルの音量とキー</a></li>
   <li><a href="#range">自分に合うキーを探す（任意）</a></li>
   <li><a href="#settings">設定：判定の厳しさ・遅延・マイク</a></li>
   <li><a href="#phone">スマホ・タブレットで使う</a></li>
@@ -151,7 +150,7 @@ export default {
 <ol>
   <li><b>曲を読み込む。</b>「曲のファイルを選ぶ」を押して、手持ちの曲（MP3、WAV、M4A、FLAC など）を選びます。バーがいっぱいになるまで待ちます。</li>
   <li><b>ヘッドホンをつけて「歌う」を押す。</b>曲が始まり、グレーのメロディの線の上にあなたの音程が描かれます。</li>
-  <li><b>「歌うのをやめる」を押す。</b>音程が合っていた割合を確認し、ズレたところをタップしてループ練習します。</li>
+  <li><b>「歌うのをやめる」を押す。</b>音程が合っていた割合を確認し、ズレたところをタップして歌い直します。</li>
 </ol>
 <p>手元に曲がなければ、<b>「デモ曲で試す」</b>を押してください。このアプリのために作った短い曲で、ダウンロードも不要です。</p>
 
@@ -198,17 +197,16 @@ export default {
   <li><b>音程が合っていた</b> ― 緑の範囲に入っていた時間の割合です。原曲の歌手が歌っていて、あなたも歌った部分だけで数えるので、休んだところは減点になりません。</li>
   <li><b>メロディのうち歌えた部分</b> ― メロディのどれだけを歌ったか。</li>
   <li><b>平均</b> ― メロディより高め（＋）か低め（−）かの傾向（セント）。</li>
-  <li><b>ズレが大きかったところ</b> ― 一番ズレたフレーズと、どれだけ・どちらにズレたか。<b>タップすると</b>、そのフレーズ（前後0.5秒つき）をループして再生するので、何度でも歌い直せます。</li>
+  <li><b>ズレが大きかったところ</b> ― 一番ズレたフレーズと、どれだけ・どちらにズレたか。<b>タップすると</b>、そのフレーズの1秒前から曲が流れるので、すぐに歌い直せます。</li>
   <li><b>聴き比べ</b> ― 「原曲のボーカル」「自分の声」「両方」を、伴奏つきで。「録音の最初から再生」で、歌いはじめた位置から再生します。</li>
   <li><b>この録音を残す</b>で曲と一緒にこの端末に保存、<b>WAVで保存</b>でファイルに保存します。どちらもしなければ、もう一度歌うと録音は消えます。</li>
 </ul>
 <p>数字は練習の目安で、点数ではありません。線と一覧のほうが多くを教えてくれます。伸ばした音の終わりで下がる、跳ぶ音で行き過ぎる、歌い出しが遅れる、といったクセが見えてきます。</p>
 
-<h2 id="practice">ボーカルの音量、区間ループ、キー</h2>
+<h2 id="practice">ボーカルの音量とキー</h2>
 <ul>
   <li><b>ボーカル</b> ― 0%でカラオケ（伴奏だけ）、100%で原曲どおり。間にすると歌手の声が小さなガイドになります。覚えるまではガイドを残し、慣れたら0%に。</li>
   <li><b>伴奏</b> ― ボーカル以外の音量。</li>
-  <li><b>区間ループ A–B</b> ― 練習したいところの始まりで「Aを設定」、終わりで「Bを設定」を押すと繰り返します。「Bを設定」だけ押すと、直前の5秒をループします。「解除」で止めます。</li>
   <li><b>キー</b> ― − / ＋ で、テンポを変えずに曲全体を半音ずつ、最大6半音まで上げ下げします。グレーの線も一緒に動きます。準備に数秒かかります。</li>
 </ul>
 

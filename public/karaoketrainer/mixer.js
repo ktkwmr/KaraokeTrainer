@@ -1,6 +1,5 @@
 // AudioWorklet: plays the song's tracks in sync (0: vocals, 1: accompaniment, 2: your recording when you
-// compare) with a gain each, loops a section (A–B), and passes the microphone to the page with the song
-// position it was heard at. Doing both in one node keeps the microphone and the song on the same clock:
+// compare) with a gain each, and passes the microphone to the page with the song position it was heard at. Doing both in one node keeps the microphone and the song on the same clock:
 // the only offset left is the device's output + input latency, which the page subtracts (calibration).
 //
 // Tracks are 16-bit PCM at 44.1 kHz ([Int16Array L, R], or [mono] for the recording). On a cross-origin
@@ -11,7 +10,6 @@
 //   { type: "load", tracks, keep? }   (keep: same song, keep the position and play state)
 //   { type: "play" } / { type: "pause" } / { type: "seek", pos }  (pos in 44.1 kHz samples)
 //   { type: "gains", gains: [n] }
-//   { type: "loop", a, b }  (samples; a < 0: no loop)
 //   { type: "mic", on }     (send microphone blocks to the page)
 //   { type: "clicks", count, interval, start }  (calibration clicks, seconds; start: delay before the first)
 // Messages to the page:
@@ -36,8 +34,6 @@ class Player extends AudioWorkletProcessor {
     this.step = SRC_RATE / sampleRate;
     this.target = new Float32Array(MAX).fill(1);
     this.cur = new Float32Array(MAX).fill(1);
-    this.loopA = -1;
-    this.loopB = -1;
     this.frames = 0;
     this.reportAt = 0;
     this.mic = false;
@@ -66,7 +62,7 @@ class Player extends AudioWorkletProcessor {
       this.report();
     } else if (msg.type === "play") {
       if (this.tracks) {
-        if (this.pos >= this.length - 1) this.pos = this.loopA >= 0 ? this.loopA : 0;
+        if (this.pos >= this.length - 1) this.pos = 0;
         this.playing = true;
         this.report();
       }
@@ -78,9 +74,6 @@ class Player extends AudioWorkletProcessor {
       this.report();
     } else if (msg.type === "gains") {
       for (let s = 0; s < MAX; s++) this.target[s] = msg.gains[s] == null ? 0 : msg.gains[s];
-    } else if (msg.type === "loop") {
-      this.loopA = msg.a;
-      this.loopB = msg.b;
     } else if (msg.type === "mic") {
       this.mic = !!msg.on;
       this.micFill = 0;
@@ -130,8 +123,7 @@ class Player extends AudioWorkletProcessor {
           r += (R[p] + (R[p + 1] - R[p]) * f) * g;
         }
         this.pos += this.step;
-        if (this.loopA >= 0 && this.loopB > this.loopA && this.pos >= this.loopB) this.pos = this.loopA;
-        else if (this.pos >= last) { this.pos = last; ended = true; }
+        if (this.pos >= last) { this.pos = last; ended = true; }
       }
       // Calibration clicks (a short 1 kHz beep)
       if (this.clicks.length) {

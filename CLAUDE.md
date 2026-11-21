@@ -1,6 +1,6 @@
 # Karaoke Trainer
 
-手持ちの曲のファイルのボーカルを AI（Spleeter 2stems、ONNX Runtime Web）でブラウザの中で分離し、ボーカルのメロディの線（pitchy）を表示して、歌うとマイクの音程を重ねて描くカラオケ練習アプリ。答え合わせ（一致率・ズレた区間のループ・聴き比べ）、ボーカル音量・区間ループ・キー変更、任意のマイ音域とおすすめキー。公開 URL: https://ktkwmr.com/karaoketrainer/ （日本語: /karaoketrainer/ja/）
+手持ちの曲のファイルのボーカルを AI（Spleeter 2stems、ONNX Runtime Web）でブラウザの中で分離し、ボーカルのメロディの線（pitchy）を表示して、歌うとマイクの音程を重ねて描くカラオケ練習アプリ。答え合わせ（一致率・ズレた区間の歌い直し・聴き比べ）、ボーカル音量・キー変更、任意のマイ音域とおすすめキー。公開 URL: https://ktkwmr.com/karaoketrainer/ （日本語: /karaoketrainer/ja/）
 構成・開発・デプロイの詳細は README.md、元の仕様はユーザーの SPEC（カラオケ練習アプリ 仕様書）。
 
 ## 共通ベースライン

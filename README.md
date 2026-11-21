@@ -11,9 +11,9 @@ A free karaoke practice app in the browser: load a song file you have, AI separa
 
 - **Load a song file** (MP3, WAV, M4A, FLAC, Ogg…, up to 10 minutes). No URLs or YouTube: only files on your device. / **曲のファイルを読み込む**（10分まで）。URL や YouTube からの取り込みはなし。
 - **Vocal separation** with Spleeter 2stems (vocals / accompaniment) in the browser, then the **melody line** of the vocals (pitchy, every 10 ms). / ブラウザの中で **ボーカルを分離**し、ボーカルの **メロディの線** を取り出す。
-- **Mixer**: vocal 0–100% (0% = karaoke, in between = a quiet guide), accompaniment, A–B loop, key −6…+6 semitones (the line moves with it). / **ボーカル音量**（0%＝カラオケ）・伴奏・区間ループ・キー変更（線も連動）。
+- **Mixer**: vocal 0–100% (0% = karaoke, in between = a quiet guide), accompaniment, key −6…+6 semitones (the line moves with it). / **ボーカル音量**（0%＝カラオケ）・伴奏・キー変更（線も連動）。
 - **Sing and see your pitch** over the melody: green / yellow / red by how far off (±50 / ±100 cents by default, three settings). Singing an octave lower or higher counts as on pitch; the octave is found automatically. / **歌うと音程を重ねて表示**。オクターブ違いは正解。
-- **Results**: on-pitch share, sung share, average high/low, the phrases that went off (tap to loop), compare your recording with the original vocal, keep it or save WAV. / **答え合わせ**：一致率、ズレた区間（タップでループ）、聴き比べ、録音の保存。
+- **Results**: on-pitch share, sung share, average high/low, the phrases that went off (tap to sing it again), compare your recording with the original vocal, keep it or save WAV. / **答え合わせ**：一致率、ズレた区間（タップで歌い直し）、聴き比べ、録音の保存。
 - **My vocal range (optional)**: measure the lowest / highest note (and falsetto), then each song suggests a key. / **マイ音域（任意）** と曲ごとのおすすめキー。
 - **Delay correction** (measured with beeps, or by hand), microphone options, judging strictness. / 遅延補正、マイク設定、判定の厳しさ。
 - Songs are kept in IndexedDB (key: SHA-256 of the file), so they open at once and offline. PWA. English / Japanese. / 曲は IndexedDB に保存（次回はすぐに・オフラインでも）。PWA。日英。
