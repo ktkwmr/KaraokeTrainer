@@ -62,7 +62,12 @@ export default {
   <li><b>Your line</b> is coloured by how close you are: <b>green</b> within ±${G} cents, <b>yellow</b> within ±${Y} cents, <b>red</b> further off. 100 cents is one semitone.</li>
   <li>The note you are singing now, and how far it is from the melody, show at the top right.</li>
 </ul>
-<p>Tap the line to jump to that point of the song.</p>
+<ul>
+  <li><b>Zoom</b> – pinch the line (on a phone, or on a laptop's trackpad) to see more or fewer seconds at once; with a mouse, Ctrl + wheel. Only the time is zoomed.</li>
+  <li><b>Look around</b> – on a computer, scroll with two fingers on the trackpad: sideways moves in time, up and down moves to higher or lower notes (with a mouse, the wheel moves up and down and Shift + wheel moves in time). On a phone, drag sideways; move two fingers to go up or down.</li>
+  <li>While the song plays, the line follows it again when the playing position comes back to its place, or when you press ▶. Tap the line to jump to that point of the song.</li>
+  <li>The thin vertical lines and the times at the bottom move with the song, so you can see it playing even in the intro. Before the singing starts, the time until it does is shown (“Singing starts in 12 s”).</li>
+</ul>
 
 <h2 id="sing">Singing</h2>
 <ol>
@@ -92,6 +97,7 @@ export default {
 <ul>
   <li><b>Vocal</b> – 0% is karaoke (the accompaniment only), 100% is the original. In between, the singer becomes a quiet guide: useful while you are learning a song, then turn it down to 0%.</li>
   <li><b>Accompaniment</b> – the volume of everything else.</li>
+  <li><b>Mute</b> – the speaker button next to each slider turns that part off and on again without losing its volume.</li>
   <li><b>Key</b> – − / + moves the whole song down or up a semitone at a time, up to 6, without changing the tempo. The grey line moves with it. It takes a few seconds to prepare.</li>
 </ul>
 
@@ -177,7 +183,12 @@ export default {
   <li><b>あなたの線</b>は、メロディとの近さで色が変わります。<b>緑</b>は±${G}セント以内、<b>黄</b>は±${Y}セント以内、<b>赤</b>はそれより外れ。100セントが半音です。</li>
   <li>いま歌っている音と、メロディとのズレが右上に出ます。</li>
 </ul>
-<p>線をタップすると、曲のその位置に移ります。</p>
+<ul>
+  <li><b>拡大・縮小</b> ― 線をピンチすると（スマホや、ノートパソコンのトラックパッドで）、一度に見える秒数が変わります。マウスでは Ctrl＋ホイール。時間の方向だけが伸び縮みします。</li>
+  <li><b>前後・上下を見る</b> ― パソコンではトラックパッドの2本指のスクロールで、横に動かすと時間、縦に動かすと音の高さの方向に動きます（マウスはホイールで上下、Shift＋ホイールで時間）。スマホでは横にドラッグ、2本指を上下に動かすと音の高さの方向に動きます。</li>
+  <li>再生中は、再生位置が元の場所まで来るか ▶ を押すと、また曲について動きます。線をタップすると、曲のその位置に移ります。</li>
+  <li>細い縦線と下の時刻は曲に合わせて動くので、前奏でも再生中かどうかがわかります。歌い出しの前には、歌い出しまでの秒数（「歌い出しまで 12秒」）が出ます。</li>
+</ul>
 
 <h2 id="sing">歌う</h2>
 <ol>
@@ -207,6 +218,7 @@ export default {
 <ul>
   <li><b>ボーカル</b> ― 0%でカラオケ（伴奏だけ）、100%で原曲どおり。間にすると歌手の声が小さなガイドになります。覚えるまではガイドを残し、慣れたら0%に。</li>
   <li><b>伴奏</b> ― ボーカル以外の音量。</li>
+  <li><b>ミュート</b> ― 各スライダーの横のスピーカーのボタンで、音量を変えずにそのパートを消したり戻したりできます。</li>
   <li><b>キー</b> ― − / ＋ で、テンポを変えずに曲全体を半音ずつ、最大6半音まで上げ下げします。グレーの線も一緒に動きます。準備に数秒かかります。</li>
 </ul>
 

@@ -26,9 +26,10 @@
 - ONNX Runtime のバージョンは `separator.js` の `ORT_BASE` と `sw.js` の `ORT`。変えるときは両方を同じ PR で。
 - 音程検出は pitchy（`vendor/` にコピー。改変は import のパスと ES モジュール化だけ）。メロディの線は `pitch.js`（22.05 kHz、窓 1024、10 ms ごと、clarity 0.8、65〜1100 Hz、歌の 95 パーセンタイルより 35 dB 小さい所は無声、5 フレームのメディアン、70 ms 未満は捨てる）。マイクはページ側（`index.html` の `detect()`、窓 2048、clarity 0.88、3 つのメディアン）。
 - 再生とマイクは同じ AudioWorklet（`mixer.js`）。マイクの 1024 サンプルごとに、その時の曲の位置を付けてページに送る。残るずれは端末の遅延だけで、`store.latency`（設定の「遅延を測る」か手動。未設定なら `outputLatency + baseLatency + 30 ms`）を引く。
+- ロール（音程の線）の操作: ピンチ（タッチ・トラックパッド・Ctrl＋ホイール）で時間方向だけ拡大・縮小（`SPAN_MIN`〜`SPAN_MAX` 秒）。PC は2本指スクロールで横＝時間・縦＝音の高さ（Shift＋ホイールで時間）、タッチは横ドラッグで時間・2本指で上下と拡大縮小。スクロールすると追従をやめ、再生位置が追従の位置（幅の 45%）まで来るか ▶・シークで追従に戻る（ベースライン §9-16）。音の高さの端まで来たらホイールはページのスクロールに渡す。時間の縦線と時刻、歌い出しまでの秒数（3 秒以上あるとき）を出す。
 - 判定: ズレはオクターブを畳んで −600〜+600 セント（`fold()`）。オクターブ違いは正解。自分のオクターブは歌いはじめの 30 フレーム以上の差の中央値（手動でも選べる）。緑・黄の幅は `STRICT`（やさしい 75/150、ふつう 50/100、きびしい 25/50）。答え合わせは、原曲が歌っていて利用者も歌ったフレームだけで数える。ズレた区間は休み（0.4 秒以上）で区切り、休みのない 2 秒以上の区間は音の始まりで区切る。
 - 曲は IndexedDB（`karaoketrainer`、`index` と `songs`、キーはファイルの SHA-256 の先頭 128 ビット）に最近の `KEEP_SONGS`（8）曲まで。録音は「この録音を残す」を押したときだけ保存。SharedArrayBuffer は IndexedDB に入らないので普通の配列にコピーして保存する。
-- 設定は `localStorage` の `karaoketrainer-state`（`v: 1`）、マイ音域は `karaoketrainer-range`。音域は任意で、登録しなくても全機能が使える（おすすめキーの欄は控えめな案内だけ）。
+- 設定は `localStorage` の `karaoketrainer-state`（`v: 1`。ボーカル・伴奏の音量とミュートも）、マイ音域は `karaoketrainer-range`。音域は任意で、登録しなくても全機能が使える（おすすめキーの欄は控えめな案内だけ）。
 - キー変更は `keyshift.js`（Band Stem Mixer（ktkwmr/BandStemMixer、MIT、同じ作者）からのコピー。`makeFft` は `dsp.js` から）。片方で直した不具合はもう片方にも移す案を出す。
 - ページはクロスオリジン分離（`public/_headers` の COOP same-origin、COEP **credentialless**。ベースライン §6-6）。外部から読むファイルは CORS で。外部ホストを足したら `_headers` の CSP と、プライバシーの説明（`scripts/pages/privacy.mjs`、アプリ内の `privacy.body`、README）を同じ PR で直す。マイクは `Permissions-Policy: microphone=(self)`。
 - 大きなダウンロードの前の確認は `connectionRisk()`・`askNetwork()`（ベースライン §9-13）。分離の設定は `MODES`・`LADDER`（Band Stem Mixer と同じ考え方）。
