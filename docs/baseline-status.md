@@ -33,7 +33,7 @@
 | 2-15・2-16 | トップページへの追加 | ❌ | 公開後に `ktkwmr/ktkwmr.com` へ別の PR（`APPS`・`ICON`・`PREVIEW`・`robots.txt` の `Sitemap:`） |
 | 2-18 | 最初の push は `main` | ✅ | 初期コミット（LICENSE など）を `main` に push、既定ブランチ `main` を確認 |
 | 2-19 | 既存アプリのコピー | — | BandStemMixer はコピーせず、部品（`keyshift.js`、画面の共通部分、生成スクリプト）だけ流用 |
-| 2-20 | 大きなファイルの配信 | ✅ | モデルは 20 MiB ごとに分割（`fetch-model.mjs`、`--check` で 25 MiB 超を検出）、バージョン付きのフォルダ `spleeter-2stems-v1`、専用のキャッシュ `karaoketrainer-model-v1`。Git には入れずビルドで取得（⚠️ Cloudflare のビルド環境で GitHub から取得・`tar -xjf` できるかは未確認） |
+| 2-20 | 大きなファイルの配信 | ✅ | モデルは 20 MiB ごとに分割（`fetch-model.mjs`、`--check` で 25 MiB 超を検出）、バージョン付きのフォルダ `spleeter-2stems-v1`、専用のキャッシュ `karaoketrainer-model-v1`。Git には入れずビルドで取得（Windows 11 の PC では取得・`tar -xjf` での展開とも成功、各 37.5 MB を 2 つずつに分割。⚠️ Cloudflare のビルド環境では未確認） |
 | 3-1〜3-5 | PWA | ✅ | |
 | 3-8 | アイコン生成 | ✅ | `scripts/render-icons.mjs` |
 | 3-9 | SW が返すワーカーの COEP | ✅ | `sw.js` の `withWorkerHeaders` |

@@ -64,6 +64,15 @@ npx wrangler dev
 Then open http://localhost:8787/karaoketrainer/ . The build command downloads the model once (about 75 MB) into `public/karaoketrainer/models/`.
 （Windows の PowerShell では `npx.cmd wrangler dev`）
 
+If `wrangler dev` stops with `spawn UNKNOWN` on Windows (its local server `workerd.exe` could not start, for example blocked by Windows security), use the small Node server instead. It serves `public/` with the headers in `public/_headers`:
+Windows で `wrangler dev` が `spawn UNKNOWN` で止まるとき（ローカルサーバーの `workerd.exe` が起動できない。Windows のセキュリティに止められた場合など）は、Node だけのサーバーを使います。
+
+```bash
+node scripts/fetch-model.mjs && node scripts/test/serve.mjs 8788
+```
+
+Then open http://localhost:8788/karaoketrainer/ .
+
 Tests without the real model / 本物のモデルなしでの確認:
 
 ```bash
