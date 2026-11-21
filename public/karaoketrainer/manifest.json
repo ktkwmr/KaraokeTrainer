@@ -1,0 +1,16 @@
+{
+  "name": "Karaoke Trainer",
+  "short_name": "Karaoke Trainer",
+  "description": "Sing along with your own songs and see your pitch over the original melody. 手持ちの曲で歌って、原曲のメロディと自分の音程を重ねて見られるカラオケ練習アプリ",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

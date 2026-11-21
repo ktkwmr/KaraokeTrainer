@@ -1,0 +1,2858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Karaoke Trainer" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <title>Sing Along and See Your Pitch – Free Karaoke Pitch Checker &amp; Key Finder – Karaoke Trainer</title>
+  <meta name="description" content="Free karaoke practice app in your browser: load your own song file, AI removes or turns down the vocals, and as you sing, your pitch is drawn over the original melody so you see where you went flat or sharp. Find the key that suits your vocal range and change the key. No upload, no sign-up." />
+  <link rel="canonical" href="https://ktkwmr.com/karaoketrainer/" />
+  <link rel="alternate" hreflang="en" href="https://ktkwmr.com/karaoketrainer/" />
+  <link rel="alternate" hreflang="ja" href="https://ktkwmr.com/karaoketrainer/ja/" />
+  <link rel="alternate" hreflang="x-default" href="https://ktkwmr.com/karaoketrainer/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Karaoke Trainer" />
+  <meta property="og:title" content="Sing Along and See Your Pitch – Free Karaoke Pitch Checker &amp; Key Finder – Karaoke Trainer" />
+  <meta property="og:description" content="Sing along with your own song files and see your pitch over the original melody. AI vocal remover, key change, and a key finder for your range. Free, no upload, no sign-up." />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="ja_JP" />
+  <meta property="og:url" content="https://ktkwmr.com/karaoketrainer/" />
+  <meta property="og:image" content="https://ktkwmr.com/karaoketrainer/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Karaoke Trainer: the original melody as a grey line and the singer's pitch as a green and red line over it" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Karaoke Trainer",
+    "url": "https://ktkwmr.com/karaoketrainer/",
+    "description": "A browser app for karaoke practice: it separates the vocals of your own song file with AI on your device, draws your pitch over the original melody as you sing, shows where you went off, and suggests a key for your vocal range.",
+    "applicationCategory": "MultimediaApplication",
+    "inLanguage": "en",
+    "operatingSystem": "Any",
+    "browserRequirements": "Requires a modern web browser with WebAssembly and a microphone",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Person", "name": "ktkwmr" }
+  }
+  </script>
+  <style>
+    /* Layout: same as the other apps on ktkwmr.com. White toolbar, grey canvas with white panels (left: song / right: practice) */
+    :root {
+      color-scheme: light;
+      --ink: #000; --paper: #fff; --muted: #525252; --subtle: #737373; --line: #e5e5e5; --line-strong: #d4d4d4;
+      --hover-fill: #f5f5f5; --canvas: #f5f5f5; --press: #404040; --press-hover: #262626;
+      --paper-shadow: 0 1px 3px rgba(0,0,0,.08), 0 6px 20px rgba(0,0,0,.08);
+      --shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+      --radius: 8px; --ctl-h: 34px;
+      /* Pitch judgement colours (the only colours in the app): within the inner range / the outer range / off */
+      --good: #15803d; --near: #b45309; --off: #dc2626; --ref: #a3a3a3;
+      --mono: "Cascadia Mono", "Consolas", "SF Mono", Menlo, "MS Gothic", monospace;
+      --sans: "Segoe UI Variable Text", "Segoe UI", "Yu Gothic UI", "Meiryo UI", "Meiryo", system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      --pad-x: 20px;
+      --gl: max(var(--pad-x), env(safe-area-inset-left, 0px)); --gr: max(var(--pad-x), env(safe-area-inset-right, 0px));
+    }
+    @media (max-width: 900px) { :root { --pad-x: 16px; } }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; min-height: 100dvh; color: var(--ink); background: var(--canvas); font-family: var(--sans); font-size: 13px; line-height: 1.6; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+    button, select, input { font-family: inherit; }
+    :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+    /* Toolbar: sticky with an opaque background (iOS 26 status bar, WEBAPP_BASELINE §9-12) */
+    .topbar { position: sticky; top: 0; z-index: 900; background: var(--paper); border-bottom: 1px solid var(--line); padding: calc(10px + env(safe-area-inset-top, 0px)) var(--gr) 10px var(--gl); }
+    .toolbar { display: flex; align-items: center; gap: 12px 20px; }
+    .brand { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 14px; font-weight: 700; letter-spacing: .01em; white-space: nowrap; }
+    .brand svg { width: 28px; height: 28px; flex: 0 0 auto; }
+    .toolbar .end { margin-left: auto; display: flex; align-items: center; }
+    #settingsBtn { appearance: none; width: var(--ctl-h); height: var(--ctl-h); padding: 0; border: 1px solid transparent; border-radius: 50%; background: var(--paper); color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+    #settingsBtn svg { flex: none; width: 28px; height: 28px; }
+    #settingsBtn:active { background: var(--line); }
+    @media (hover: hover) { #settingsBtn:hover { background: var(--hover-fill); } }
+
+    .menu { position: fixed; z-index: 1000; min-width: 168px; padding: 4px; border: 1px solid var(--ink); border-radius: var(--radius); background: var(--paper); box-shadow: var(--shadow); }
+    .menu button, .menu a { display: block; width: 100%; height: 40px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; color: var(--ink); font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; white-space: nowrap; }
+    .menu a { line-height: 40px; text-decoration: none; }
+    .menu button:active, .menu a:active { background: var(--line); }
+    .menu button:focus-visible, .menu a:focus-visible { outline-offset: -2px; }
+    .menu .menu-sep { height: 1px; margin: 4px 6px; background: var(--line); }
+    @media (hover: hover) { .menu button:hover, .menu a:hover { background: var(--hover-fill); } }
+
+    /* Canvas and panels */
+    .canvas { padding: 16px var(--gr) calc(16px + env(safe-area-inset-bottom, 0px)) var(--gl); display: flex; flex-direction: column; gap: 12px; }
+    .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 16px; align-items: start; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+    .panel { min-width: 0; background: var(--paper); border: 1px solid var(--line-strong); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+    .panel.out { border-color: transparent; box-shadow: var(--paper-shadow); scroll-margin-top: calc(64px + env(safe-area-inset-top, 0px)); }
+    .panel-body { padding: 14px 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+    .foot { color: var(--subtle); font-size: 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .foot svg { flex: 0 0 auto; }
+
+    .intro { margin: 20px 0 8px; color: var(--muted); font-size: 14px; line-height: 1.8; }
+    .intro h1 { margin: 0 0 10px; color: var(--ink); font-size: 20px; line-height: 1.4; }
+    .intro p { margin: 0 0 10px; }
+    .intro b { color: var(--ink); }
+    .intro h2 { margin: 18px 0 6px; color: var(--ink); font-size: 15px; }
+    .intro ul { margin: 0 0 10px; padding-left: 1.3em; }
+    .intro a { color: var(--ink); }
+    .help-more { margin: 14px 0 0; font-size: 14px; }
+    .help-more a { color: var(--ink); font-weight: 600; }
+
+    /* Shared controls */
+    .hint { font-size: 12px; color: var(--subtle); margin: 0; }
+    .err { font-size: 12px; color: #b91c1c; margin: 0; font-weight: 600; }
+    .chip { appearance: none; height: var(--ctl-h); padding: 0 12px; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--paper); color: var(--ink); font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; touch-action: manipulation; text-decoration: none; }
+    .chip.sq { width: var(--ctl-h); padding: 0; }
+    .chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+    .chip:active:not(:disabled) { background: var(--line); }
+    .chip[aria-pressed="true"]:active:not(:disabled) { background: var(--press); }
+    .chip:disabled { opacity: .4; cursor: default; }
+    @media (hover: hover) {
+      .chip:hover:not(:disabled) { border-color: var(--ink); background: var(--hover-fill); }
+      .chip[aria-pressed="true"]:hover:not(:disabled) { background: var(--press-hover); }
+    }
+    .primary { appearance: none; height: var(--ctl-h); padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius); color: var(--paper); background: var(--ink); font-weight: 600; cursor: pointer; touch-action: manipulation; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+    .primary:active:not(:disabled) { background: var(--press); }
+    .primary:disabled { opacity: .35; cursor: default; }
+    @media (hover: hover) { .primary:hover:not(:disabled) { background: var(--press-hover); } }
+    .primary.big { height: 48px; font-size: 15px; width: 100%; }
+    .linkbtn { appearance: none; border: 0; padding: 0; background: none; color: var(--ink); font: inherit; font-size: 12px; font-weight: 600; text-decoration: underline; cursor: pointer; text-align: left; }
+    input[type=range] { width: 100%; accent-color: var(--ink); margin: 0; height: 28px; touch-action: manipulation; }
+    .check { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--ink); cursor: pointer; }
+    .check input { margin: 3px 0 0; accent-color: var(--ink); width: 16px; height: 16px; flex: none; }
+    .check small { display: block; color: var(--subtle); font-size: 12px; }
+    .sel { height: var(--ctl-h); padding: 0 8px; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--paper); color: var(--ink); font-size: 13px; font-weight: 600; max-width: 100%; }
+    .label { font-size: 12px; font-weight: 700; }
+
+    /* Song panel */
+    .drop { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 120px; padding: 16px; border: 1.5px dashed var(--line-strong); border-radius: 10px; text-align: center; cursor: pointer; color: var(--muted); position: relative; }
+    .drop svg { color: var(--ink); }
+    .drop b { color: var(--ink); font-size: 14px; }
+    .drop:focus-within { border-color: var(--ink); }
+    .drop.over { border-color: var(--ink); background: var(--hover-fill); }
+    @media (hover: hover) { .drop:hover { border-color: var(--ink); background: var(--hover-fill); } }
+    .drop input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    .song { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .song .name { font-size: 14px; font-weight: 700; overflow-wrap: anywhere; }
+    .song .meta { font-family: var(--mono); font-size: 12px; color: var(--subtle); }
+    .note { margin: 0; padding: 10px 12px; border-radius: var(--radius); background: var(--hover-fill); border: 1px solid var(--line-strong); color: var(--ink); font-size: 12px; line-height: 1.6; }
+    .model { font-size: 12px; color: var(--muted); display: flex; gap: 6px; align-items: flex-start; }
+    .model svg { flex: none; margin-top: 2px; }
+    .progress { display: flex; flex-direction: column; gap: 6px; }
+    .progress .stage { font-size: 13px; font-weight: 700; }
+    .progress .detail { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+    .bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+    .bar > div { height: 100%; width: 0; background: var(--ink); transition: width .2s; }
+    .bar.indet > div { width: 30%; animation: indet 1.2s ease-in-out infinite; }
+    @keyframes indet { 0% { transform: translateX(-100%); } 100% { transform: translateX(340%); } }
+    .progress .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .sect { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line); padding-top: 12px; }
+    .recent { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+    .recent li { display: flex; align-items: center; gap: 4px; border-bottom: 1px solid var(--line); }
+    .recent li:last-child { border-bottom: 0; }
+    .recent .open { appearance: none; flex: 1 1 auto; min-width: 0; border: 0; background: none; text-align: left; padding: 8px 4px; cursor: pointer; display: flex; flex-direction: column; color: var(--ink); border-radius: 6px; }
+    .recent .open b { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .recent .open span { font-size: 11px; color: var(--subtle); font-family: var(--mono); }
+    @media (hover: hover) { .recent .open:hover { background: var(--hover-fill); } }
+    .recent .del { appearance: none; flex: none; width: 32px; height: 32px; border: 0; background: none; color: var(--subtle); cursor: pointer; border-radius: 6px; font-size: 16px; }
+    .recent .del.armed { color: var(--paper); background: var(--off); font-size: 11px; font-weight: 700; width: auto; padding: 0 8px; }
+    @media (hover: hover) { .recent .del:hover:not(.armed) { background: var(--hover-fill); color: var(--ink); } }
+    .rangebox { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .rangebox b { font-family: var(--mono); font-size: 14px; }
+
+    /* Practice panel */
+    .empty { display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; border-bottom: 1px solid var(--line); background: var(--hover-fill); }
+    .empty b { font-size: 14px; }
+    .empty span { color: var(--muted); font-size: 12px; }
+    #practice.ghost { opacity: .55; filter: grayscale(1); pointer-events: none; user-select: none; -webkit-user-select: none; }
+    .rollwrap { position: relative; padding: 12px 16px 0; }
+    .roll { display: block; width: 100%; height: 340px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); touch-action: pan-y; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    @media (max-width: 900px) { .roll { height: min(56vh, 420px); } }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 6px 16px 0; font-size: 11px; color: var(--subtle); }
+    .legend i { display: inline-block; width: 16px; height: 4px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+    .live { position: absolute; top: 20px; right: 26px; display: flex; flex-direction: column; align-items: flex-end; pointer-events: none; }
+    .live b { font-family: var(--mono); font-size: 22px; line-height: 1.1; }
+    .live span { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+    .transport { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+    .play { appearance: none; width: 52px; height: 52px; flex: none; border: 0; border-radius: 50%; background: var(--ink); color: var(--paper); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; touch-action: manipulation; }
+    .play:active:not(:disabled) { background: var(--press); }
+    @media (hover: hover) { .play:hover:not(:disabled) { background: var(--press-hover); } }
+    .seek { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .time { font-family: var(--mono); font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; }
+    .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+    .row .label { min-width: 7em; }
+    .sing { appearance: none; height: 44px; padding: 0 18px; border: 2px solid var(--ink); border-radius: 22px; background: var(--paper); color: var(--ink); font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; touch-action: manipulation; }
+    .sing .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--off); }
+    .sing[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+    .sing[aria-pressed="true"] .dot { animation: blink 1s steps(2, start) infinite; }
+    @keyframes blink { to { visibility: hidden; } }
+    .sing:disabled { opacity: .4; cursor: default; }
+    .vol { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 300px; }
+    .vol .label { min-width: 0; flex: none; white-space: nowrap; }
+    .vol .val { font-family: var(--mono); font-size: 12px; color: var(--muted); min-width: 4ch; text-align: right; }
+    .keyval { font-family: var(--mono); font-size: 14px; font-weight: 700; min-width: 3ch; text-align: center; }
+    .badge { appearance: none; height: 28px; padding: 0 10px; border: 1px dashed var(--ink); border-radius: 14px; background: var(--paper); color: var(--ink); font-size: 12px; font-weight: 700; cursor: pointer; }
+    .badge.soft { border: 0; padding: 0; height: auto; background: none; color: var(--subtle); font-weight: 400; text-align: left; text-decoration: underline; cursor: pointer; white-space: normal; }
+    .loopval { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+    .keys { font-size: 12px; color: var(--subtle); padding: 10px 16px 14px; margin: 0; }
+    kbd { font-family: var(--mono); font-size: 11px; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; color: var(--muted); background: var(--paper); }
+    @media (pointer: coarse) { .keys { display: none; } }
+    @media (max-width: 560px) { .row .label { min-width: 0; width: 100%; } .vol { flex-basis: 100%; } }
+
+    /* Results */
+    .results { padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; background: #fafafa; }
+    .results h2 { margin: 0; font-size: 15px; }
+    .scores { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; }
+    .score b { font-family: var(--mono); font-size: 28px; line-height: 1; }
+    .score span { display: block; font-size: 12px; color: var(--muted); }
+    .worst { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+    .worst button { appearance: none; width: 100%; display: flex; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--paper); text-align: left; cursor: pointer; color: var(--ink); font-size: 13px; }
+    .worst button b { font-family: var(--mono); font-size: 12px; min-width: 9ch; }
+    .worst button i { font-style: normal; margin-left: auto; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    @media (hover: hover) { .worst button:hover { border-color: var(--ink); } }
+    .seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--radius); overflow: hidden; }
+    .seg button { appearance: none; height: var(--ctl-h); padding: 0 12px; border: 0; border-left: 1px solid var(--line-strong); background: var(--paper); color: var(--ink); font-size: 13px; font-weight: 600; cursor: pointer; }
+    .seg button:first-child { border-left: 0; }
+    .seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+    .chip, .play, .primary, .sing, #settingsBtn { transition: background-color .12s, border-color .12s, color .12s, transform .1s ease-out; }
+    .chip.is-pressed:not(:disabled), #settingsBtn.is-pressed { background: var(--line); transform: scale(.94); }
+    .play.is-pressed:not(:disabled), .primary.is-pressed:not(:disabled) { background: var(--press); transform: scale(.97); }
+    @media (prefers-reduced-motion: reduce) { .is-pressed { transform: none !important; } }
+
+    /* Dialogs */
+    dialog.msg { width: min(420px, calc(100vw - 32px)); border: 1px solid var(--ink); border-radius: 12px; padding: 24px 24px 20px; box-shadow: var(--shadow); background: var(--paper); color: var(--ink); font-family: var(--sans); }
+    dialog.msg:focus { outline: none; }
+    dialog.msg::backdrop { background: rgba(0, 0, 0, 0.55); }
+    dialog.msg h2 { margin: 0 0 8px; font-size: 16px; font-weight: 700; }
+    dialog.msg h3 { margin: 16px 0 6px; font-size: 13px; font-weight: 700; }
+    dialog.msg .dlg-actions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+    dialog.msg p.dlg-text { margin: 0 0 12px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+    dialog.msg p.dlg-size { margin: 0 0 18px; padding: 10px 12px; border-radius: var(--radius); background: var(--hover-fill); font-size: 13px; font-weight: 600; }
+    dialog.msg .dlg-icon { display: block; margin-bottom: 10px; }
+    dialog.help { width: min(480px, calc(100vw - 32px)); max-height: calc(100% - 32px); }
+    dialog.help[open] { display: flex; flex-direction: column; }
+    .help-body { flex: 0 1 auto; min-height: 0; overflow-y: auto; margin-bottom: 16px; -webkit-overflow-scrolling: touch; }
+    .help-list { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.7; color: var(--muted); }
+    .help-list li { margin-bottom: 10px; }
+    .help-list li:last-child { margin-bottom: 0; }
+    .help-list b { color: var(--ink); }
+    .help-list a { color: inherit; }
+    ul.help-list { list-style: disc; }
+    .stack { display: flex; flex-direction: column; gap: 8px; }
+    .setrow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .setrow input[type=range] { flex: 1 1 160px; width: auto; }
+    .setrow .val { font-family: var(--mono); font-size: 13px; min-width: 6ch; }
+    dialog.about { width: min(560px, calc(100vw - 32px)); height: min(640px, calc(100% - 32px)); }
+    dialog.about[open] { display: flex; flex-direction: column; }
+    dialog.msg p.about-license { margin: 0 0 12px; color: var(--subtle); font-size: 12px; }
+    .about-license a { color: inherit; }
+    .about-body { flex: 1 1 auto; min-height: 0; overflow: auto; margin-bottom: 16px; border: 1px solid var(--line); border-radius: var(--radius); -webkit-overflow-scrolling: touch; }
+    .about-body pre { margin: 0; padding: 12px; color: var(--muted); font-family: var(--mono); font-size: 11px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; user-select: text; }
+    /* Vocal range measurement */
+    .meter-note { text-align: center; padding: 14px 0 6px; }
+    .meter-note b { display: block; font-family: var(--mono); font-size: 40px; line-height: 1.1; }
+    .meter-note span { font-size: 12px; color: var(--muted); }
+    .kbd { display: block; width: 100%; height: 72px; margin: 6px 0 14px; }
+    .steps { display: flex; gap: 6px; margin: 0 0 12px; padding: 0; list-style: none; }
+    .steps li { flex: 1; height: 4px; border-radius: 2px; background: var(--line); }
+    .steps li.on { background: var(--ink); }
+    .toast { position: fixed; z-index: 1100; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: max-content; max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: var(--radius); background: var(--ink); color: var(--paper); font-size: 13px; font-weight: 600; line-height: 1.5; box-shadow: var(--shadow); }
+    @media (prefers-reduced-motion: reduce) { *, ::before, ::after { transition: none !important; animation: none !important; } }
+    /* Site footer (same look as the articles' .site-foot, WEBAPP_BASELINE §9-14) */
+    .site-foot { margin-top: 32px; border-top: 1px solid var(--line); font-size: 14px; line-height: 1.8; color: var(--muted); }
+    .site-foot .inner { max-width: 760px; margin: 0 auto; padding: 28px max(16px, env(safe-area-inset-right)) calc(32px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); box-sizing: border-box; }
+    .site-foot h2 { margin: 0 0 8px; padding: 0; font-size: 14px; color: var(--ink); }
+    .site-foot ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 2px 24px; margin: 0 0 24px; padding: 0; list-style: none; }
+    .site-foot a { color: inherit; text-decoration: none; }
+    .site-foot a:hover { text-decoration: underline; }
+    .site-foot .meta { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="toolbar">
+      <div class="brand">
+        <svg viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="7" fill="#000"></rect><path d="M4.5 18.5h4l2-4h4l2-5h4l2 3h1" fill="none" stroke="#8a8a8a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 19.5h4.2l2-4.6h3.6l2.4-4.4h3.8l2.4 3.2" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Karaoke Trainer</span>
+      </div>
+      <div class="end">
+        <button id="settingsBtn" type="button" aria-label="Menu" data-i18n-attr="aria-label:menu" aria-haspopup="menu" aria-expanded="false" aria-controls="settingsMenu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.89 5.11 L10.33 2.55 L13.67 2.55 L14.11 5.11 A7.2 7.2 0 0 1 15.38 5.64 L17.51 4.14 L19.86 6.49 L18.36 8.62 A7.2 7.2 0 0 1 18.89 9.89 L21.45 10.33 L21.45 13.67 L18.89 14.11 A7.2 7.2 0 0 1 18.36 15.38 L19.86 17.51 L17.51 19.86 L15.38 18.36 A7.2 7.2 0 0 1 14.11 18.89 L13.67 21.45 L10.33 21.45 L9.89 18.89 A7.2 7.2 0 0 1 8.62 18.36 L6.49 19.86 L4.14 17.51 L5.64 15.38 A7.2 7.2 0 0 1 5.11 14.11 L2.55 13.67 L2.55 10.33 L5.11 9.89 A7.2 7.2 0 0 1 5.64 8.62 L4.14 6.49 L6.49 4.14 L8.62 5.64 A7.2 7.2 0 0 1 9.89 5.11 Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="canvas">
+    <div class="layout">
+      <section class="panel" aria-label="Song" data-i18n-attr="aria-label:song">
+        <div class="panel-body">
+          <label class="drop" id="drop">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+            <b data-i18n="file.choose">Choose a song file</b>
+            <span data-i18n="file.hint">or drop it here · MP3, WAV, M4A, FLAC… up to 10 min</span>
+            <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.m4a,.aac,.flac,.ogg,.opus,.webm" />
+          </label>
+          <button class="chip" id="demoBtn" type="button" data-i18n="demo">Try the demo song</button>
+          <div class="song" id="songInfo" hidden>
+            <span class="name" id="songName"></span>
+            <span class="meta" id="songMeta"></span>
+          </div>
+          <div class="progress" id="progress" hidden>
+            <span class="stage" id="stage"></span>
+            <div class="bar" id="bar"><div></div></div>
+            <div class="row">
+              <span class="detail" id="detail"></span>
+              <button class="chip" id="cancelBtn" type="button" data-i18n="cancel">Cancel</button>
+            </div>
+            <p class="hint" data-i18n="keepOpen">Keep this screen open until it finishes. On a phone, it stops while the screen is off or another app is open.</p>
+          </div>
+          <p class="err" id="err" role="alert" hidden></p>
+          <div class="model">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
+            <span id="modelState" data-i18n="model.checking">Checking the AI model…</span>
+          </div>
+          <p class="hint" id="backend" hidden></p>
+          <div class="sect" id="recentSect" hidden>
+            <span class="label" data-i18n="recent">Recent songs (saved on this device)</span>
+            <ul class="recent" id="recent"></ul>
+          </div>
+          <div class="sect">
+            <div class="rangebox">
+              <span class="label" data-i18n="range.title">My vocal range (optional)</span>
+              <b id="rangeVal"></b>
+            </div>
+            <button class="linkbtn" id="rangeBtn" type="button" data-i18n="range.open">Measure my range to get a key suggestion</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel out" aria-label="Practice" data-i18n-attr="aria-label:practice">
+        <div class="empty" id="empty">
+          <b data-i18n="empty.title">Load a song and sing along</b>
+          <span data-i18n="empty">The grey line is the original singer's melody. Press “Sing” and your pitch is drawn over it: green when you are on pitch, yellow when close, red when off. Singing an octave lower or higher counts as on pitch.</span>
+        </div>
+        <div id="practice" class="ghost" inert>
+          <div class="rollwrap">
+            <canvas class="roll" id="roll" role="img" aria-label="The original melody (grey) and your pitch (coloured), scrolling with the song" data-i18n-attr="aria-label:roll"></canvas>
+            <div class="live" aria-live="off"><b id="liveNote"></b><span id="liveCents"></span></div>
+          </div>
+          <div class="legend">
+            <span><i style="background: var(--ref)"></i><span data-i18n="legend.ref">Original melody</span></span>
+            <span><i style="background: var(--good)"></i><span id="legendGood"></span></span>
+            <span><i style="background: var(--near)"></i><span id="legendNear"></span></span>
+            <span><i style="background: var(--off)"></i><span data-i18n="legend.off">Off pitch</span></span>
+          </div>
+          <div class="transport">
+            <button class="play" id="playBtn" type="button" aria-label="Play" title="Play" data-i18n-attr="aria-label:play;title:play">
+              <svg id="playIcon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"></path></svg>
+              <svg id="pauseIcon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" hidden><rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg>
+            </button>
+            <button class="chip sq" id="stopBtn" type="button" aria-label="Stop" title="Stop" data-i18n-attr="aria-label:stop;title:stop"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="1.5"></rect></svg></button>
+            <div class="seek">
+              <input type="range" id="seek" min="0" max="1" step="0.1" value="0" aria-label="Position" data-i18n-attr="aria-label:position" />
+              <div class="time"><span id="timeNow">0:00</span><span id="timeEnd">0:00</span></div>
+            </div>
+          </div>
+          <div class="row">
+            <button class="sing" id="singBtn" type="button" aria-pressed="false"><span class="dot" aria-hidden="true"></span><span id="singLabel" data-i18n="sing">Sing</span></button>
+            <select class="sel" id="octSel" aria-label="Your octave" data-i18n-attr="aria-label:oct.label">
+              <option value="auto" data-i18n="oct.auto">Octave: auto</option>
+              <option value="0" data-i18n="oct.same">Same octave as the original</option>
+              <option value="-1" data-i18n="oct.down">An octave lower</option>
+              <option value="1" data-i18n="oct.up">An octave higher</option>
+            </select>
+            <p class="hint" id="singHint" data-i18n="sing.hint">Use headphones: from a speaker, the microphone hears the song too.</p>
+          </div>
+          <div id="results" class="results" hidden aria-labelledby="resultsTitle">
+            <h2 id="resultsTitle" data-i18n="res.title">How you sang</h2>
+            <div class="scores">
+              <div class="score"><b id="resMatch">–</b><span data-i18n="res.match">on pitch (green)</span></div>
+              <div class="score"><b id="resSung">–</b><span data-i18n="res.sung">of the melody sung</span></div>
+              <div class="score"><b id="resBias">–</b><span data-i18n="res.bias">average: higher (+) / lower (−)</span></div>
+            </div>
+            <p class="hint" id="resNote"></p>
+            <div class="stack">
+              <span class="label" data-i18n="res.worst">Where it went off – tap to loop that part</span>
+              <ul class="worst" id="worst"></ul>
+            </div>
+            <div class="stack">
+              <span class="label" data-i18n="res.compare">Listen and compare (with the accompaniment)</span>
+              <div class="setrow">
+                <div class="seg" role="group" aria-label="Compare" data-i18n-attr="aria-label:res.compare">
+                  <button type="button" id="cmpOrig" aria-pressed="false" data-i18n="cmp.orig">Original vocal</button>
+                  <button type="button" id="cmpMine" aria-pressed="false" data-i18n="cmp.mine">My voice</button>
+                  <button type="button" id="cmpBoth" aria-pressed="false" data-i18n="cmp.both">Both</button>
+                </div>
+                <button class="chip" id="cmpPlay" type="button" data-i18n="cmp.play">Play from the start of the take</button>
+              </div>
+            </div>
+            <div class="setrow">
+              <button class="chip" id="keepBtn" type="button" data-i18n="res.keep">Keep this recording</button>
+              <button class="chip" id="wavBtn" type="button" data-i18n="res.wav">Save as WAV</button>
+              <button class="chip" id="resClose" type="button" data-i18n="res.close">Close</button>
+            </div>
+          </div>
+          <div class="row">
+            <label class="vol"><span class="label" data-i18n="vol.vocal">Vocal</span><input type="range" id="vocalVol" min="0" max="100" step="1" value="100" aria-describedby="vocalHint" /><span class="val" id="vocalVal">100%</span></label>
+            <label class="vol"><span class="label" data-i18n="vol.acc">Accompaniment</span><input type="range" id="accVol" min="0" max="100" step="1" value="100" /><span class="val" id="accVal">100%</span></label>
+            <p class="hint" id="vocalHint" data-i18n="vol.hint">Vocal 0% = karaoke (no singer), 100% = the original. In between, the singer becomes a quiet guide.</p>
+          </div>
+          <div class="row">
+            <span class="label" data-i18n="key.label">Key</span>
+            <button class="chip sq" id="keyDown" type="button" aria-label="Key down a semitone" data-i18n-attr="aria-label:key.down">−</button>
+            <span class="keyval" id="keyVal">0</span>
+            <button class="chip sq" id="keyUp" type="button" aria-label="Key up a semitone" data-i18n-attr="aria-label:key.up">+</button>
+            <button class="badge" id="keySuggest" type="button" hidden></button>
+            <span class="hint" id="keyBusy" hidden></span>
+          </div>
+          <div class="row">
+            <span class="label" data-i18n="loop.label">Loop A–B</span>
+            <button class="chip" id="loopA" type="button" data-i18n="loop.a">Set A</button>
+            <button class="chip" id="loopB" type="button" data-i18n="loop.b">Set B</button>
+            <button class="chip" id="loopClear" type="button" data-i18n="loop.clear">Clear</button>
+            <span class="loopval" id="loopVal"></span>
+          </div>
+          <p class="keys" data-i18n-html="keys"><kbd>Space</kbd> play / pause · <kbd>Home</kbd> stop · <kbd>R</kbd> sing on / off · <kbd>←</kbd> <kbd>→</kbd> 5 seconds back / forward</p>
+        </div>
+      </section>
+    </div>
+    <div class="foot"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><span data-i18n="foot">Your song and your voice are processed on this device and never uploaded. No account needed.</span></div>
+
+    <section class="intro" aria-labelledby="introTitle">
+      <h1 id="introTitle" data-i18n="intro.title">Karaoke practice: sing along and see your pitch over the original melody</h1>
+      <div data-i18n-html="intro.body"><p>Karaoke Trainer is a free practice tool for people who love singing, no sheet music needed. Load a song file you have, and AI separates the singer's voice from the accompaniment and turns the singer's melody into a <b>line</b>. Press “Sing” and your own pitch is drawn over it as you sing, so you can <b>see</b> where you went flat or sharp.</p><p>The <b>Vocal</b> slider goes from 0% (karaoke: the accompaniment only) to 100% (the original); in between, the singer becomes a quiet guide voice. You can loop a section (A–B) and change the key by up to 6 semitones up or down; the melody line moves with it. Singing an octave lower or higher than the original singer, as many men do with songs by women and the other way round, counts as on pitch.</p><p>When you stop, the app shows how much of the melody you sang on pitch, lists the parts that went off (tap one to practice it in a loop), and lets you listen to your recording against the original singer's voice. If you measure your vocal range once, each song also shows the key that suits your voice. You can skip that: the practice works without it.</p><p>Everything runs <b>in your browser</b>: your song and your voice are not uploaded anywhere. The first song downloads the AI model (about 75 MB, once); songs you loaded are kept on this device and open at once next time, even offline. Use headphones while singing. Supported files: MP3, WAV, M4A (AAC), FLAC, OGG and most formats your browser can play, up to 10 minutes. Free, no sign-up, no ads.</p><h2>Guides</h2><ul><li><a href="/karaoketrainer/guide/" target="_blank" rel="noopener">How to use Karaoke Trainer</a></li><li><a href="/karaoketrainer/faq/" target="_blank" rel="noopener">Frequently asked questions</a></li></ul></div>
+    </section>
+  </main>
+
+  <!-- Site footer (WEBAPP_BASELINE §9-14). Links out of the app open in a new tab -->
+  <footer class="site-foot">
+    <div class="inner">
+      <p class="meta" data-i18n-html="foot.meta"><span>Karaoke Trainer · © 2026 ktkwmr</span><a href="/karaoketrainer/privacy/" target="_blank" rel="noopener">Privacy policy</a><a href="/karaoketrainer/about/" target="_blank" rel="noopener">About this site</a><a href="https://github.com/ktkwmr/KaraokeTrainer" target="_blank" rel="noopener">Source code on GitHub</a><a href="https://github.com/ktkwmr/KaraokeTrainer/issues" target="_blank" rel="noopener">Feedback</a><a href="https://ktkwmr.com/" target="_blank" rel="noopener">More apps by ktkwmr</a></p>
+    </div>
+  </footer>
+
+  <dialog class="msg" id="netDlg" tabindex="-1" aria-labelledby="netTitle">
+    <svg class="dlg-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+    <h2 id="netTitle"></h2>
+    <p class="dlg-text" id="netBody"></p>
+    <p class="dlg-size" id="netSize"></p>
+    <div class="dlg-actions">
+      <button class="chip" id="netCancel" type="button" data-i18n="net.later">Not now</button>
+      <button class="primary" id="netOk" type="button" data-i18n="net.ok">Download and continue</button>
+    </div>
+  </dialog>
+
+  <dialog class="msg" id="phonesDlg" tabindex="-1" aria-labelledby="phonesTitle">
+    <svg class="dlg-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
+    <h2 id="phonesTitle" data-i18n="phones.title">Use headphones</h2>
+    <p class="dlg-text" data-i18n="phones.body">The app listens to your voice with the microphone. If the song plays from a speaker, the microphone hears the singer too and your line gets mixed up with theirs. Wired headphones work best (Bluetooth adds delay; you can correct it in Settings). Your voice is not sent anywhere.</p>
+    <label class="check"><input type="checkbox" id="phonesAgain" /><span data-i18n="phones.again">Don't show this again</span></label>
+    <div class="dlg-actions" style="margin-top: 16px">
+      <button class="chip" id="phonesCancel" type="button" data-i18n="cancel">Cancel</button>
+      <button class="primary" id="phonesOk" type="button" data-i18n="phones.ok">Start singing</button>
+    </div>
+  </dialog>
+
+  <dialog class="msg help" id="setDlg" tabindex="-1" aria-labelledby="setTitle">
+    <h2 id="setTitle" data-i18n="menu.settings">Settings</h2>
+    <div class="help-body">
+      <h3 data-i18n="set.judge">How strict</h3>
+      <div class="setrow">
+        <select class="sel" id="strictSel" aria-label="How strict" data-i18n-attr="aria-label:set.judge">
+          <option value="easy" data-i18n="set.easy">Easy (green ±75 cents, yellow ±150)</option>
+          <option value="normal" data-i18n="set.normal">Normal (green ±50 cents, yellow ±100)</option>
+          <option value="strict" data-i18n="set.strict">Strict (green ±25 cents, yellow ±50)</option>
+        </select>
+      </div>
+      <p class="hint" data-i18n="set.judge.hint">100 cents = one semitone (the step between two neighbouring keys on a piano).</p>
+      <h3 data-i18n="set.delay">Delay correction</h3>
+      <div class="setrow">
+        <input type="range" id="latency" min="0" max="500" step="5" value="100" aria-label="Delay correction" data-i18n-attr="aria-label:set.delay" />
+        <span class="val" id="latencyVal">100 ms</span>
+      </div>
+      <p class="hint" id="latencyNote"></p>
+      <div class="setrow" style="margin-top: 8px">
+        <button class="chip" id="calibBtn" type="button" data-i18n="calib.run">Measure the delay</button>
+        <span class="hint" id="calibState" aria-live="polite"></span>
+      </div>
+      <p class="hint" data-i18n="calib.hint">With your headphones on, press the button and say “ta” in time with each of the 8 beeps. If your line is drawn later (to the right) than the grey line when you sing in time, make the value larger.</p>
+      <h3 data-i18n="set.mic">Microphone</h3>
+      <div class="stack">
+        <label class="check"><input type="checkbox" id="micNs" /><span><span data-i18n="set.ns">Noise suppression</span><small data-i18n="set.ns.hint">Off is usually better for pitch: it can cut parts of the voice.</small></span></label>
+        <label class="check"><input type="checkbox" id="micEc" /><span><span data-i18n="set.ec">Echo cancellation</span><small data-i18n="set.ec.hint">Turn on only when you must use a speaker. Headphones are better.</small></span></label>
+        <label class="check"><input type="checkbox" id="micAgc" /><span><span data-i18n="set.agc">Automatic gain</span><small data-i18n="set.agc.hint">Evens out the level; can make quiet notes noisy.</small></span></label>
+      </div>
+      <p class="hint" data-i18n="set.lang">Language: follows your browser (Japanese page: /karaoketrainer/ja/).</p>
+    </div>
+    <div class="dlg-actions">
+      <button class="primary" id="setClose" type="button" data-i18n="close">Close</button>
+    </div>
+  </dialog>
+
+  <dialog class="msg help" id="rangeDlg" tabindex="-1" aria-labelledby="rangeTitle">
+    <h2 id="rangeTitle" data-i18n="range.title">My vocal range (optional)</h2>
+    <div class="help-body">
+      <ol class="steps" id="rangeSteps"><li></li><li></li><li></li></ol>
+      <p class="dlg-text" id="rangeText"></p>
+      <div class="meter-note"><b id="rangeNote">–</b><span id="rangeSub"></span></div>
+      <canvas class="kbd" id="rangeKbd" role="img" aria-label="Your vocal range on a keyboard" data-i18n-attr="aria-label:range.kbd"></canvas>
+      <p class="hint" data-i18n="range.local">Saved only on this device. It is used to suggest a key for each song.</p>
+    </div>
+    <div class="dlg-actions">
+      <button class="chip" id="rangeDel" type="button" data-i18n="range.del">Delete</button>
+      <button class="chip" id="rangeSkip" type="button" data-i18n="range.skip">Skip</button>
+      <button class="chip" id="rangeClose" type="button" data-i18n="close">Close</button>
+      <button class="primary" id="rangeGo" type="button"></button>
+    </div>
+  </dialog>
+
+  <dialog class="msg help" id="helpDlg" tabindex="-1" aria-labelledby="helpTitle">
+    <h2 id="helpTitle" data-i18n="menu.help">How to use</h2>
+    <div class="help-body">
+      <ol class="help-list" data-i18n-html="help.body"><li><b>Load a song</b> – Choose a song file you have (MP3, WAV, M4A, FLAC…, up to 10 minutes) or drop it on the box. The app separates the singer's voice from the accompaniment with AI and finds the melody. The first time it downloads the AI model (about 75 MB, once). Songs you loaded are kept on this device, so next time they open at once, even offline.</li><li><b>Listen</b> – Press ▶. The grey line is the singer's melody: higher on the screen is a higher note. Use the “Vocal” slider: 0% is karaoke, 100% is the original, in between the singer becomes a quiet guide.</li><li><b>Sing</b> – Put on headphones and press “Sing”. Your pitch is drawn as you sing: <b>green</b> = on pitch, <b>yellow</b> = close, <b>red</b> = off. Singing an octave lower or higher than the original counts as on pitch; the app finds your octave in the first few seconds (or choose it).</li><li><b>Look back</b> – When you stop (or the song ends), you see how much was on pitch, the parts that went off (tap one to loop it), and you can listen to your recording against the original singer. The recording is not kept unless you press “Keep this recording”.</li><li><b>Change the key</b> – − / + moves the song up or down by up to 6 semitones; the grey line moves with it.</li><li><b>Find your key (optional)</b> – Measure your vocal range once (⚙ → My vocal range) and each song shows a suggested key. You do not need it to practice.</li><li><b>If the line is late</b> – Bluetooth headphones and some devices add delay. Measure it in ⚙ → Settings → “Measure the delay”.</li><li><b>Use songs you may use</b> – Use song files you bought or recorded. The app does not take songs from YouTube or other sites.</li></ol>
+      <p class="help-more"><a href="/karaoketrainer/guide/" target="_blank" rel="noopener" data-i18n="help.more" data-i18n-attr="href:guide.url">Read the full guide →</a></p>
+    </div>
+    <div class="dlg-actions">
+      <button class="primary" id="helpClose" type="button" data-i18n="close">Close</button>
+    </div>
+  </dialog>
+
+  <dialog class="msg help" id="privacyDlg" tabindex="-1" aria-labelledby="privacyTitle">
+    <h2 id="privacyTitle" data-i18n="menu.privacy">Privacy</h2>
+    <div class="help-body">
+      <ul class="help-list" data-i18n-html="privacy.body"><li><b>Your song and your voice stay on your device</b> – The song file is separated and analyzed only in your browser. The microphone is used only while you sing or measure your range, and your voice is analyzed and recorded only in your browser. Nothing is sent to a server. This app has no accounts, cookies, or ads.</li><li><b>Downloads</b> – To separate a song, your browser downloads the AI model from this site and the ONNX Runtime library from jsDelivr (a CDN). Like any download, they receive your IP address and browser information. Nothing about your song or voice is sent.</li><li><b>Data saved in your browser</b> – The AI model, the songs you loaded (the separated vocals and accompaniment and the melody line, so they open at once next time), recordings you chose to keep, your vocal range if you measured it, your settings, and the app itself (to work offline). Delete songs with ⚙ → “Delete saved songs”, the model with ⚙ → “Delete the AI model”, your range in “My vocal range”, or clear this site's data in your browser settings.</li><li><b>Server logs and page views</b> – This site is hosted on Cloudflare. Standard access logs (such as IP address, time, and the requested page) are kept for operation and security. Cloudflare Web Analytics counts page views without cookies (the page URL, referrer, browser information, and page load time).</li><li><b>Contact</b> – Questions and feedback: <a href="https://github.com/ktkwmr/KaraokeTrainer/issues" target="_blank" rel="noopener">GitHub Issues</a>.</li><li><b>Full policy</b> – See the <a href="/karaoketrainer/privacy/" target="_blank" rel="noopener">privacy policy</a> and <a href="/karaoketrainer/about/" target="_blank" rel="noopener">about this site</a>.</li></ul>
+    </div>
+    <div class="dlg-actions">
+      <button class="primary" id="privacyClose" type="button" data-i18n="close">Close</button>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <div class="menu" id="settingsMenu" role="menu" aria-label="Menu" data-i18n-attr="aria-label:menu" hidden>
+    <button type="button" role="menuitem" id="menuHelp" data-i18n="menu.help">How to use</button>
+    <a role="menuitem" id="menuGuide" href="/karaoketrainer/guide/" target="_blank" rel="noopener" data-i18n="menu.guide" data-i18n-attr="href:guide.url">Guide &amp; FAQ</a>
+    <button type="button" role="menuitem" id="menuSettings" data-i18n="menu.settings">Settings</button>
+    <button type="button" role="menuitem" id="menuRange" data-i18n="menu.range">My vocal range</button>
+    <button type="button" role="menuitem" id="menuPrivacy" data-i18n="menu.privacy">Privacy</button>
+    <button type="button" role="menuitem" id="menuAbout" data-i18n="menu.about">About</button>
+    <a role="menuitem" id="menuApps" href="https://ktkwmr.com/" target="_blank" rel="noopener" data-i18n="menu.apps" data-i18n-attr="href:home.url">More apps</a>
+    <div class="menu-sep" role="separator"></div>
+    <button type="button" role="menuitem" id="menuSongs" data-i18n="menu.songs">Delete saved songs</button>
+    <button type="button" role="menuitem" id="menuModel" data-i18n="menu.model">Delete the AI model</button>
+  </div>
+
+  <dialog class="msg" id="confirmDlg" tabindex="-1" aria-labelledby="confirmTitle">
+    <h2 id="confirmTitle"></h2>
+    <p class="dlg-text" id="confirmBody"></p>
+    <div class="dlg-actions">
+      <button class="chip" id="confirmCancel" type="button" data-i18n="cancel">Cancel</button>
+      <button class="primary" id="confirmOk" type="button" data-i18n="del">Delete</button>
+    </div>
+  </dialog>
+
+  <dialog class="msg about" id="aboutDlg" tabindex="-1" aria-labelledby="aboutTitle">
+    <h2 id="aboutTitle" data-i18n="menu.about">About</h2>
+    <p class="about-license" data-i18n-html="about.license">© 2026 ktkwmr · Licensed under the <a href="https://github.com/ktkwmr/KaraokeTrainer/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> · <a href="/karaoketrainer/about/" target="_blank" rel="noopener">About this site</a></p>
+    <div class="about-body"><pre id="licenseText">Loading…</pre></div>
+    <div class="dlg-actions">
+      <button class="primary" id="aboutClose" type="button" data-i18n="close">Close</button>
+    </div>
+  </dialog>
+
+  <script>
+    (function () {
+      // ---------- English / Japanese ----------
+      // Text is set with data-i18n (textContent) / data-i18n-html (innerHTML, fixed strings below only) / data-i18n-attr (attributes)
+      const I18N = {
+        en: {
+          "menu": "Menu",
+          "song": "Song",
+          "practice": "Practice",
+          "file.choose": "Choose a song file",
+          "file.hint": "or drop it here · MP3, WAV, M4A, FLAC… up to 10 min",
+          "file.reading": "Reading…",
+          "file.meta": "{time} · {ch}",
+          "file.stereo": "stereo",
+          "file.mono": "mono",
+          "file.cached": "{time} · opened from this device",
+          "file.demo": "{time} · demo song (made up for this app)",
+          "demo": "Try the demo song",
+          "demo.name": "Demo song",
+          "cancel": "Cancel",
+          "close": "Close",
+          "del": "Delete",
+          "loading": "Loading…",
+          "keepOpen": "Keep this screen open until it finishes. On a phone, it stops while the screen is off or another app is open.",
+          "model.checking": "Checking the AI model…",
+          "model.ready": "The AI model is on this device (no download needed).",
+          "model.missing": "The first song downloads the AI model (about {mb} MB, once).",
+          "model.nocache": "This browser cannot keep the AI model, so it is downloaded each time (about {mb} MB).",
+          "stage.download": "Downloading the AI model…",
+          "stage.lib": "Loading the AI engine…",
+          "stage.init": "Preparing the AI model…",
+          "stage.separate": "Separating the vocals…",
+          "stage.pitch": "Finding the melody…",
+          "stage.retry": "Trying again with other settings…",
+          "stage.decode": "Reading the file…",
+          "stage.key": "Changing the key…",
+          "detail.download": "{loaded} / {total} MB",
+          "detail.downloadNoTotal": "{loaded} MB",
+          "detail.separate": "{pct}%",
+          "detail.eta": "{pct}% · about {eta} left",
+          "eta.min": "{n} min",
+          "eta.sec": "{n} s",
+          "backend.used": "Used: {name}",
+          "backend.webgpu": "GPU (WebGPU)",
+          "backend.wasm": "CPU, {n} threads",
+          "backend.wasm1": "CPU, 1 thread",
+          "backend.safe": "CPU, {n} threads (memory saving)",
+          "done": "Ready in {time}. Press ▶ or “Sing”.",
+          "opened": "Opened from this device.",
+          "canceled": "Canceled.",
+          "recent": "Recent songs (saved on this device)",
+          "recent.del": "Delete {name}",
+          "recent.confirm": "Delete?",
+          "recent.meta": "{time} · {date}",
+          "recent.take": " · recording kept",
+          "range.title": "My vocal range (optional)",
+          "range.open": "Measure my range to get a key suggestion",
+          "range.redo": "Measure again",
+          "range.none": "",
+          "range.kbd": "Your vocal range on a keyboard",
+          "range.local": "Saved only on this device. It is used to suggest a key for each song.",
+          "range.del": "Delete",
+          "range.skip": "Skip",
+          "range.step.low": "Step 1 of 3 – Sing the lowest note you can sing comfortably, on “ah”, and hold it. Press “Start” first; it listens for 4 seconds.",
+          "range.step.high": "Step 2 of 3 – Now the highest note you can sing in your normal voice (not falsetto), and hold it.",
+          "range.step.falsetto": "Step 3 of 3 (optional) – The highest note in falsetto (head voice). Press “Skip” if you do not use it.",
+          "range.step.done": "Your range. The key suggestion uses your normal voice (lowest to highest).",
+          "range.saved": "Your saved range. Measure again any time.",
+          "range.start": "Start",
+          "range.listening": "Listening… hold the note",
+          "range.again": "Try again",
+          "range.next": "Next",
+          "range.save": "Save",
+          "range.nothing": "No clear note was heard. Sing a little louder and closer to the microphone, and hold one note.",
+          "range.result": "{low} – {high}",
+          "range.falsetto": "falsetto up to {note}",
+          "range.deleted": "Your vocal range was deleted.",
+          "range.badOrder": "The highest note came out lower than the lowest. Please measure again.",
+          "empty.title": "Load a song and sing along",
+          "empty": "The grey line is the original singer's melody. Press “Sing” and your pitch is drawn over it: green when you are on pitch, yellow when close, red when off. Singing an octave lower or higher counts as on pitch.",
+          "roll": "The original melody (grey) and your pitch (coloured), scrolling with the song",
+          "legend.ref": "Original melody",
+          "legend.good": "Within ±{c} cents",
+          "legend.near": "Within ±{c} cents",
+          "legend.off": "Off pitch",
+          "play": "Play",
+          "pause": "Pause",
+          "stop": "Stop",
+          "position": "Position",
+          "sing": "Sing",
+          "sing.stop": "Stop singing",
+          "sing.hint": "Use headphones: from a speaker, the microphone hears the song too.",
+          "sing.nomic": "The microphone could not be used. Allow the microphone for this site in the browser settings, then try again.",
+          "sing.nomicApi": "This browser cannot use the microphone here.",
+          "oct.label": "Your octave",
+          "oct.auto": "Octave: auto",
+          "oct.autoIs": "Octave: auto ({v})",
+          "oct.same": "Same octave as the original",
+          "oct.down": "An octave lower",
+          "oct.up": "An octave higher",
+          "oct.short.0": "same",
+          "oct.short.-1": "lower",
+          "oct.short.1": "higher",
+          "oct.short.-2": "2 lower",
+          "oct.short.2": "2 higher",
+          "res.title": "How you sang",
+          "res.match": "on pitch (green)",
+          "res.sung": "of the melody sung",
+          "res.bias": "average: higher (+) / lower (−)",
+          "res.cents": "{n} cents",
+          "res.noteShort": "This take was short ({time}). Sing a whole verse or chorus for a clearer picture.",
+          "res.noteNone": "No singing was heard during the melody. Check the microphone, and sing along with the grey line.",
+          "res.noteOk": "Counted only where the original singer sings and you sang ({time} of melody). It is a rough guide, not a score.",
+          "res.worst": "Where it went off – tap to loop that part",
+          "res.none": "Nothing stood out. Nice!",
+          "res.high": "{n} cents high",
+          "res.low": "{n} cents low",
+          "res.missed": "mostly not sung",
+          "res.compare": "Listen and compare (with the accompaniment)",
+          "res.keep": "Keep this recording",
+          "res.kept": "Recording kept",
+          "res.keptToast": "The recording was saved on this device with the song.",
+          "res.keepFail": "Could not save (storage full?).",
+          "res.wav": "Save as WAV",
+          "res.close": "Close",
+          "cmp.orig": "Original vocal",
+          "cmp.mine": "My voice",
+          "cmp.both": "Both",
+          "cmp.play": "Play from the start of the take",
+          "vol.vocal": "Vocal",
+          "vol.acc": "Accompaniment",
+          "vol.hint": "Vocal 0% = karaoke (no singer), 100% = the original. In between, the singer becomes a quiet guide.",
+          "key.label": "Key",
+          "key.down": "Key down a semitone",
+          "key.up": "Key up a semitone",
+          "key.suggest": "Suggested for you: {v}",
+          "key.suggestOct": "Suggested: {v}, sung an octave {dir}",
+          "key.lower": "lower",
+          "key.higher": "higher",
+          "key.orig": "original key",
+          "key.wide": " (the melody is wider than your range)",
+          "key.noRange": "Measure your vocal range to see a suggested key",
+          "key.busy": "Changing the key… {pct}%",
+          "key.fail": "The key could not be changed: {msg}",
+          "loop.label": "Loop A–B",
+          "loop.a": "Set A",
+          "loop.b": "Set B",
+          "loop.clear": "Clear",
+          "loop.val": "{a} – {b}",
+          "loop.aOnly": "A {a} – set B",
+          "keys": "<kbd>Space</kbd> play / pause · <kbd>Home</kbd> stop · <kbd>R</kbd> sing on / off · <kbd>←</kbd> <kbd>→</kbd> 5 seconds back / forward",
+          "foot": "Your song and your voice are processed on this device and never uploaded. No account needed.",
+          "net.title.cellular": "You are on mobile data",
+          "net.title.saveData": "Data Saver is on",
+          "net.title.unknown": "Download the AI model?",
+          "net.body.cellular": "The first time, the app downloads the AI model that separates the vocals. Wi-Fi is recommended.",
+          "net.body.saveData": "The first time, the app downloads the AI model that separates the vocals. This is a large download.",
+          "net.body.unknown": "The first time, the app downloads the AI model that separates the vocals. If you are on mobile data, Wi-Fi is recommended.",
+          "net.size": "Download: about {mb} MB (once; kept on this device)",
+          "net.later": "Not now",
+          "net.ok": "Download and continue",
+          "phones.title": "Use headphones",
+          "phones.body": "The app listens to your voice with the microphone. If the song plays from a speaker, the microphone hears the singer too and your line gets mixed up with theirs. Wired headphones work best (Bluetooth adds delay; you can correct it in Settings). Your voice is not sent anywhere.",
+          "phones.again": "Don't show this again",
+          "phones.ok": "Start singing",
+          "menu.help": "How to use",
+          "menu.guide": "Guide & FAQ",
+          "menu.settings": "Settings",
+          "menu.range": "My vocal range",
+          "menu.privacy": "Privacy",
+          "menu.about": "About",
+          "menu.apps": "More apps",
+          "menu.songs": "Delete saved songs",
+          "menu.model": "Delete the AI model",
+          "songs.del.title": "Delete all saved songs?",
+          "songs.del.body": "This deletes the separated songs, melody lines, and kept recordings saved in this browser ({mb} MB). Your original files are not touched.",
+          "songs.del.done": "Saved songs deleted.",
+          "model.del.title": "Delete the AI model?",
+          "model.del.body": "This deletes the AI model (about {mb} MB) saved in this browser, to free up space. It is downloaded again the next time you load a new song.",
+          "model.del.done": "The AI model was deleted.",
+          "set.judge": "How strict",
+          "set.easy": "Easy (green ±75 cents, yellow ±150)",
+          "set.normal": "Normal (green ±50 cents, yellow ±100)",
+          "set.strict": "Strict (green ±25 cents, yellow ±50)",
+          "set.judge.hint": "100 cents = one semitone (the step between two neighbouring keys on a piano).",
+          "set.delay": "Delay correction",
+          "set.delay.auto": "Estimated for this device. Measure it for a better fit.",
+          "set.delay.measured": "Measured on this device.",
+          "set.delay.manual": "Set by hand.",
+          "set.mic": "Microphone",
+          "set.ns": "Noise suppression",
+          "set.ns.hint": "Off is usually better for pitch: it can cut parts of the voice.",
+          "set.ec": "Echo cancellation",
+          "set.ec.hint": "Turn on only when you must use a speaker. Headphones are better.",
+          "set.agc": "Automatic gain",
+          "set.agc.hint": "Evens out the level; can make quiet notes noisy.",
+          "set.lang": "Language: follows your browser (Japanese page: /karaoketrainer/ja/).",
+          "calib.run": "Measure the delay",
+          "calib.hint": "With your headphones on, press the button and say “ta” in time with each of the 8 beeps. If your line is drawn later (to the right) than the grey line when you sing in time, make the value larger.",
+          "calib.listen": "Say “ta” with each beep…",
+          "calib.done": "Measured: {ms} ms",
+          "calib.fail": "Could not measure. Say “ta” clearly with each beep, and try again.",
+          "err.decode": "This file could not be read. Try an MP3, WAV, M4A, or FLAC file.",
+          "err.tooLong": "This song is {time} long. Songs up to {max} minutes can be used.",
+          "err.offline": "You are offline. The AI model has not been downloaded yet, so a new song cannot be separated. Songs saved on this device can still be opened.",
+          "err.download": "The AI model could not be downloaded. Check the connection and try again.",
+          "err.memory": "Not enough memory to separate this song ({where}). Close other tabs and apps, or try a shorter song or a computer.",
+          "err.run": "Separation failed ({where}): {msg}",
+          "err.worker": "This browser could not start the separation. Try a recent Chrome, Edge, Safari, or Firefox.",
+          "err.audio": "Audio playback could not start in this browser.",
+          "err.crash": "The page was reloaded while separating ({where}), probably because the device ran out of memory. Close other apps and try again; a computer works best.",
+          "err.crashNext": " The next try uses lighter settings.",
+          "where.download": "while downloading the model",
+          "where.init": "while loading the model",
+          "where.separate": "while separating",
+          "where.pitch": "while finding the melody",
+          "err.license": "The license information could not be loaded. Check the connection and try again.",
+          "guide.url": "/karaoketrainer/guide/",
+          "home.url": "https://ktkwmr.com/",
+          "help.more": "Read the full guide →",
+          "about.license": "© 2026 ktkwmr · Licensed under the <a href=\"https://github.com/ktkwmr/KaraokeTrainer/blob/main/LICENSE\" target=\"_blank\" rel=\"noopener\">MIT License</a> · <a href=\"/karaoketrainer/about/\" target=\"_blank\" rel=\"noopener\">About this site</a>",
+          "help.body": "<li><b>Load a song</b> – Choose a song file you have (MP3, WAV, M4A, FLAC…, up to 10 minutes) or drop it on the box. The app separates the singer's voice from the accompaniment with AI and finds the melody. The first time it downloads the AI model (about 75 MB, once). Songs you loaded are kept on this device, so next time they open at once, even offline.</li><li><b>Listen</b> – Press ▶. The grey line is the singer's melody: higher on the screen is a higher note. Use the “Vocal” slider: 0% is karaoke, 100% is the original, in between the singer becomes a quiet guide.</li><li><b>Sing</b> – Put on headphones and press “Sing”. Your pitch is drawn as you sing: <b>green</b> = on pitch, <b>yellow</b> = close, <b>red</b> = off. Singing an octave lower or higher than the original counts as on pitch; the app finds your octave in the first few seconds (or choose it).</li><li><b>Look back</b> – When you stop (or the song ends), you see how much was on pitch, the parts that went off (tap one to loop it), and you can listen to your recording against the original singer. The recording is not kept unless you press “Keep this recording”.</li><li><b>Change the key</b> – − / + moves the song up or down by up to 6 semitones; the grey line moves with it.</li><li><b>Find your key (optional)</b> – Measure your vocal range once (⚙ → My vocal range) and each song shows a suggested key. You do not need it to practice.</li><li><b>If the line is late</b> – Bluetooth headphones and some devices add delay. Measure it in ⚙ → Settings → “Measure the delay”.</li><li><b>Use songs you may use</b> – Use song files you bought or recorded. The app does not take songs from YouTube or other sites.</li>",
+          "privacy.body": "<li><b>Your song and your voice stay on your device</b> – The song file is separated and analyzed only in your browser. The microphone is used only while you sing or measure your range, and your voice is analyzed and recorded only in your browser. Nothing is sent to a server. This app has no accounts, cookies, or ads.</li><li><b>Downloads</b> – To separate a song, your browser downloads the AI model from this site and the ONNX Runtime library from jsDelivr (a CDN). Like any download, they receive your IP address and browser information. Nothing about your song or voice is sent.</li><li><b>Data saved in your browser</b> – The AI model, the songs you loaded (the separated vocals and accompaniment and the melody line, so they open at once next time), recordings you chose to keep, your vocal range if you measured it, your settings, and the app itself (to work offline). Delete songs with ⚙ → “Delete saved songs”, the model with ⚙ → “Delete the AI model”, your range in “My vocal range”, or clear this site's data in your browser settings.</li><li><b>Server logs and page views</b> – This site is hosted on Cloudflare. Standard access logs (such as IP address, time, and the requested page) are kept for operation and security. Cloudflare Web Analytics counts page views without cookies (the page URL, referrer, browser information, and page load time).</li><li><b>Contact</b> – Questions and feedback: <a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">GitHub Issues</a>.</li><li><b>Full policy</b> – See the <a href=\"/karaoketrainer/privacy/\" target=\"_blank\" rel=\"noopener\">privacy policy</a> and <a href=\"/karaoketrainer/about/\" target=\"_blank\" rel=\"noopener\">about this site</a>.</li>",
+          "intro.title": "Karaoke practice: sing along and see your pitch over the original melody",
+          "intro.body": "<p>Karaoke Trainer is a free practice tool for people who love singing, no sheet music needed. Load a song file you have, and AI separates the singer's voice from the accompaniment and turns the singer's melody into a <b>line</b>. Press “Sing” and your own pitch is drawn over it as you sing, so you can <b>see</b> where you went flat or sharp.</p><p>The <b>Vocal</b> slider goes from 0% (karaoke: the accompaniment only) to 100% (the original); in between, the singer becomes a quiet guide voice. You can loop a section (A–B) and change the key by up to 6 semitones up or down; the melody line moves with it. Singing an octave lower or higher than the original singer, as many men do with songs by women and the other way round, counts as on pitch.</p><p>When you stop, the app shows how much of the melody you sang on pitch, lists the parts that went off (tap one to practice it in a loop), and lets you listen to your recording against the original singer's voice. If you measure your vocal range once, each song also shows the key that suits your voice. You can skip that: the practice works without it.</p><p>Everything runs <b>in your browser</b>: your song and your voice are not uploaded anywhere. The first song downloads the AI model (about 75 MB, once); songs you loaded are kept on this device and open at once next time, even offline. Use headphones while singing. Supported files: MP3, WAV, M4A (AAC), FLAC, OGG and most formats your browser can play, up to 10 minutes. Free, no sign-up, no ads.</p><h2>Guides</h2><ul><li><a href=\"/karaoketrainer/guide/\" target=\"_blank\" rel=\"noopener\">How to use Karaoke Trainer</a></li><li><a href=\"/karaoketrainer/faq/\" target=\"_blank\" rel=\"noopener\">Frequently asked questions</a></li></ul>",
+          "foot.meta": "<span>Karaoke Trainer · © 2026 ktkwmr</span><a href=\"/karaoketrainer/privacy/\" target=\"_blank\" rel=\"noopener\">Privacy policy</a><a href=\"/karaoketrainer/about/\" target=\"_blank\" rel=\"noopener\">About this site</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer\" target=\"_blank\" rel=\"noopener\">Source code on GitHub</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">Feedback</a><a href=\"https://ktkwmr.com/\" target=\"_blank\" rel=\"noopener\">More apps by ktkwmr</a>"
+        },
+        ja: {
+          "menu": "メニュー",
+          "song": "曲",
+          "practice": "練習",
+          "file.choose": "曲のファイルを選ぶ",
+          "file.hint": "またはここにドロップ・MP3、WAV、M4A、FLAC など・10分まで",
+          "file.reading": "読み込み中…",
+          "file.meta": "{time}・{ch}",
+          "file.stereo": "ステレオ",
+          "file.mono": "モノラル",
+          "file.cached": "{time}・この端末に保存した曲",
+          "file.demo": "{time}・デモ曲（このアプリ用に作った曲）",
+          "demo": "デモ曲で試す",
+          "demo.name": "デモ曲",
+          "cancel": "キャンセル",
+          "close": "閉じる",
+          "del": "削除",
+          "loading": "読み込み中…",
+          "keepOpen": "終わるまでこの画面を開いたままにしてください。スマホでは、画面が消えたりほかのアプリを開いたりすると止まります。",
+          "model.checking": "AIモデルを確認しています…",
+          "model.ready": "AIモデルはこの端末にあります（ダウンロード不要）。",
+          "model.missing": "最初の曲でAIモデルをダウンロードします（約{mb}MB、1回だけ）。",
+          "model.nocache": "このブラウザはAIモデルを保存できないため、毎回ダウンロードします（約{mb}MB）。",
+          "stage.download": "AIモデルをダウンロードしています…",
+          "stage.lib": "AIエンジンを読み込んでいます…",
+          "stage.init": "AIモデルを準備しています…",
+          "stage.separate": "ボーカルを分離しています…",
+          "stage.pitch": "メロディを取り出しています…",
+          "stage.retry": "別の設定でやり直しています…",
+          "stage.decode": "ファイルを読み込んでいます…",
+          "stage.key": "キーを変えています…",
+          "detail.download": "{loaded} / {total} MB",
+          "detail.downloadNoTotal": "{loaded} MB",
+          "detail.separate": "{pct}%",
+          "detail.eta": "{pct}%・残り約{eta}",
+          "eta.min": "{n}分",
+          "eta.sec": "{n}秒",
+          "backend.used": "使用：{name}",
+          "backend.webgpu": "GPU（WebGPU）",
+          "backend.wasm": "CPU・{n}スレッド",
+          "backend.wasm1": "CPU・1スレッド",
+          "backend.safe": "CPU・{n}スレッド（メモリ節約）",
+          "done": "{time}で準備できました。▶ か「歌う」を押してください。",
+          "opened": "この端末に保存した曲を開きました。",
+          "canceled": "キャンセルしました。",
+          "recent": "最近の曲（この端末に保存）",
+          "recent.del": "{name} を削除",
+          "recent.confirm": "削除？",
+          "recent.meta": "{time}・{date}",
+          "recent.take": "・録音あり",
+          "range.title": "マイ音域（任意）",
+          "range.open": "音域を測って、おすすめキーを表示する",
+          "range.redo": "測り直す",
+          "range.none": "",
+          "range.kbd": "鍵盤の上のあなたの音域",
+          "range.local": "この端末にだけ保存します。曲ごとのおすすめキーに使います。",
+          "range.del": "削除",
+          "range.skip": "スキップ",
+          "range.step.low": "1/3 ― 楽に出せる一番低い声を「あー」で出して、伸ばしてください。先に「開始」を押すと、4秒間聞き取ります。",
+          "range.step.high": "2/3 ― 次は、地声（裏声ではない声）で出せる一番高い声を伸ばしてください。",
+          "range.step.falsetto": "3/3（任意）― 裏声で出せる一番高い声。使わない場合は「スキップ」を押してください。",
+          "range.step.done": "あなたの音域です。おすすめキーは地声の範囲（一番低い声〜一番高い声）で計算します。",
+          "range.saved": "保存した音域です。いつでも測り直せます。",
+          "range.start": "開始",
+          "range.listening": "聞き取り中…声を伸ばしてください",
+          "range.again": "やり直す",
+          "range.next": "次へ",
+          "range.save": "保存",
+          "range.nothing": "はっきりした音が聞き取れませんでした。もう少し大きな声で、マイクに近づいて、1つの音を伸ばしてください。",
+          "range.result": "{low} 〜 {high}",
+          "range.falsetto": "裏声は {note} まで",
+          "range.deleted": "マイ音域を削除しました。",
+          "range.badOrder": "一番高い声が一番低い声より低くなりました。もう一度測ってください。",
+          "empty.title": "曲を読み込んで、一緒に歌いましょう",
+          "empty": "グレーの線が原曲の歌手のメロディです。「歌う」を押すと、あなたの音程が重ねて描かれます。合っていれば緑、惜しければ黄、外れると赤。1オクターブ下や上で歌っても正解になります。",
+          "roll": "原曲のメロディ（グレー）とあなたの音程（色付き）。曲に合わせてスクロールします",
+          "legend.ref": "原曲のメロディ",
+          "legend.good": "±{c}セント以内",
+          "legend.near": "±{c}セント以内",
+          "legend.off": "外れ",
+          "play": "再生",
+          "pause": "一時停止",
+          "stop": "停止",
+          "position": "再生位置",
+          "sing": "歌う",
+          "sing.stop": "歌うのをやめる",
+          "sing.hint": "ヘッドホンを使ってください。スピーカーだと、マイクが曲の音も拾います。",
+          "sing.nomic": "マイクを使えませんでした。ブラウザの設定でこのサイトのマイクを許可してから、もう一度お試しください。",
+          "sing.nomicApi": "このブラウザでは、ここでマイクを使えません。",
+          "oct.label": "あなたのオクターブ",
+          "oct.auto": "オクターブ：自動",
+          "oct.autoIs": "オクターブ：自動（{v}）",
+          "oct.same": "原曲と同じオクターブ",
+          "oct.down": "1オクターブ下",
+          "oct.up": "1オクターブ上",
+          "oct.short.0": "同じ",
+          "oct.short.-1": "1つ下",
+          "oct.short.1": "1つ上",
+          "oct.short.-2": "2つ下",
+          "oct.short.2": "2つ上",
+          "res.title": "答え合わせ",
+          "res.match": "音程が合っていた（緑）",
+          "res.sung": "メロディのうち歌えた部分",
+          "res.bias": "平均：高め（＋）／低め（−）",
+          "res.cents": "{n}セント",
+          "res.noteShort": "短い録音でした（{time}）。1コーラス歌うと、傾向がよくわかります。",
+          "res.noteNone": "メロディの間に歌声が聞こえませんでした。マイクを確認して、グレーの線に合わせて歌ってみてください。",
+          "res.noteOk": "原曲の歌手が歌っていて、あなたも歌った部分（メロディ{time}分）だけで数えています。点数ではなく、目安です。",
+          "res.worst": "ズレが大きかったところ ― タップでそこをループ練習",
+          "res.none": "目立ったズレはありませんでした。お見事！",
+          "res.high": "{n}セント高い",
+          "res.low": "{n}セント低い",
+          "res.missed": "ほとんど歌っていない",
+          "res.compare": "聴き比べ（伴奏つき）",
+          "res.keep": "この録音を残す",
+          "res.kept": "録音を残しました",
+          "res.keptToast": "録音を曲と一緒にこの端末に保存しました。",
+          "res.keepFail": "保存できませんでした（容量不足かもしれません）。",
+          "res.wav": "WAVで保存",
+          "res.close": "閉じる",
+          "cmp.orig": "原曲のボーカル",
+          "cmp.mine": "自分の声",
+          "cmp.both": "両方",
+          "cmp.play": "録音の最初から再生",
+          "vol.vocal": "ボーカル",
+          "vol.acc": "伴奏",
+          "vol.hint": "ボーカル0%＝カラオケ（歌なし）、100%＝原曲どおり。間にすると、歌手の声が小さなガイドになります。",
+          "key.label": "キー",
+          "key.down": "キーを半音下げる",
+          "key.up": "キーを半音上げる",
+          "key.suggest": "あなたへのおすすめ：{v}",
+          "key.suggestOct": "おすすめ：{v}で1オクターブ{dir}",
+          "key.lower": "下",
+          "key.higher": "上",
+          "key.orig": "原曲キー",
+          "key.wide": "（メロディの幅があなたの音域より広い曲です）",
+          "key.noRange": "音域を登録すると、おすすめキーが表示されます",
+          "key.busy": "キーを変えています… {pct}%",
+          "key.fail": "キーを変えられませんでした：{msg}",
+          "loop.label": "区間ループ A–B",
+          "loop.a": "Aを設定",
+          "loop.b": "Bを設定",
+          "loop.clear": "解除",
+          "loop.val": "{a} 〜 {b}",
+          "loop.aOnly": "A {a} 〜（Bを設定）",
+          "keys": "<kbd>Space</kbd> 再生／一時停止・<kbd>Home</kbd> 停止・<kbd>R</kbd> 歌うのオン／オフ・<kbd>←</kbd> <kbd>→</kbd> 5秒戻る／進む",
+          "foot": "曲とあなたの声はこの端末の中で処理し、アップロードしません。登録不要。",
+          "net.title.cellular": "モバイルデータ通信中です",
+          "net.title.saveData": "データセーバーがオンです",
+          "net.title.unknown": "AIモデルをダウンロードしますか？",
+          "net.body.cellular": "初回は、ボーカルを分離するAIモデルをダウンロードします。Wi-Fiでのご利用をおすすめします。",
+          "net.body.saveData": "初回は、ボーカルを分離するAIモデルをダウンロードします。大きなダウンロードです。",
+          "net.body.unknown": "初回は、ボーカルを分離するAIモデルをダウンロードします。モバイルデータ通信の場合は、Wi-Fiでのご利用をおすすめします。",
+          "net.size": "ダウンロード量：約{mb}MB（1回だけ。この端末に保存）",
+          "net.later": "今はしない",
+          "net.ok": "ダウンロードして続ける",
+          "phones.title": "ヘッドホンを使ってください",
+          "phones.body": "このアプリはマイクであなたの声を聞き取ります。曲をスピーカーで流すと、マイクが歌手の声も拾って、あなたの線と混ざってしまいます。有線のヘッドホンがおすすめです（Bluetoothは遅れが出ます。設定で補正できます）。あなたの声はどこにも送信しません。",
+          "phones.again": "次から表示しない",
+          "phones.ok": "歌いはじめる",
+          "menu.help": "使い方",
+          "menu.guide": "ガイドとFAQ",
+          "menu.settings": "設定",
+          "menu.range": "マイ音域",
+          "menu.privacy": "プライバシー",
+          "menu.about": "このアプリについて",
+          "menu.apps": "ほかのアプリ",
+          "menu.songs": "保存した曲を削除",
+          "menu.model": "AIモデルを削除",
+          "songs.del.title": "保存したすべての曲を削除しますか？",
+          "songs.del.body": "このブラウザに保存した、分離した曲・メロディの線・残した録音を削除します（{mb}MB）。元のファイルには影響しません。",
+          "songs.del.done": "保存した曲を削除しました。",
+          "model.del.title": "AIモデルを削除しますか？",
+          "model.del.body": "このブラウザに保存したAIモデル（約{mb}MB）を削除して、空き容量を増やします。次に新しい曲を読み込むときに、もう一度ダウンロードします。",
+          "model.del.done": "AIモデルを削除しました。",
+          "set.judge": "判定の厳しさ",
+          "set.easy": "やさしい（緑 ±75セント、黄 ±150）",
+          "set.normal": "ふつう（緑 ±50セント、黄 ±100）",
+          "set.strict": "きびしい（緑 ±25セント、黄 ±50）",
+          "set.judge.hint": "100セント＝半音（ピアノの隣り合う鍵盤の差）です。",
+          "set.delay": "遅延の補正",
+          "set.delay.auto": "この端末の推定値です。測ると、より正確に合います。",
+          "set.delay.measured": "この端末で測った値です。",
+          "set.delay.manual": "手動で設定した値です。",
+          "set.mic": "マイク",
+          "set.ns": "ノイズ抑制",
+          "set.ns.hint": "音程の検出には、たいていオフのほうが向いています（声の一部を消すことがあります）。",
+          "set.ec": "エコーキャンセル",
+          "set.ec.hint": "どうしてもスピーカーを使うときだけオンに。ヘッドホンのほうが確実です。",
+          "set.agc": "自動音量調整",
+          "set.agc.hint": "音量をそろえますが、小さな音で雑音が増えることがあります。",
+          "set.lang": "言語：ブラウザの言語に合わせます（日本語のページ：/karaoketrainer/ja/）。",
+          "calib.run": "遅延を測る",
+          "calib.hint": "ヘッドホンをつけてボタンを押し、8回鳴る「ピッ」に合わせて「タッ」と声を出してください。合わせて歌ったのに自分の線がグレーの線より遅れて（右に）描かれるときは、値を大きくします。",
+          "calib.listen": "「ピッ」に合わせて「タッ」…",
+          "calib.done": "測定結果：{ms} ms",
+          "calib.fail": "測れませんでした。「ピッ」ごとに「タッ」とはっきり声を出して、もう一度お試しください。",
+          "err.decode": "このファイルは読み込めませんでした。MP3、WAV、M4A、FLAC のファイルでお試しください。",
+          "err.tooLong": "この曲の長さは{time}です。{max}分までの曲が使えます。",
+          "err.offline": "オフラインです。AIモデルをまだダウンロードしていないため、新しい曲は分離できません。この端末に保存した曲は開けます。",
+          "err.download": "AIモデルをダウンロードできませんでした。接続を確認して、もう一度お試しください。",
+          "err.memory": "メモリが足りず、分離できませんでした（{where}）。ほかのタブやアプリを閉じるか、短い曲やパソコンでお試しください。",
+          "err.run": "分離できませんでした（{where}）：{msg}",
+          "err.worker": "このブラウザでは分離を始められませんでした。最新の Chrome、Edge、Safari、Firefox でお試しください。",
+          "err.audio": "このブラウザでは再生を始められませんでした。",
+          "err.crash": "分離の途中でページが読み込み直されました（{where}）。端末のメモリが足りなかったと思われます。ほかのアプリを閉じてもう一度お試しください。パソコンがおすすめです。",
+          "err.crashNext": "次は軽い設定で試します。",
+          "where.download": "モデルのダウンロード中",
+          "where.init": "モデルの読み込み中",
+          "where.separate": "分離中",
+          "where.pitch": "メロディの取り出し中",
+          "err.license": "ライセンス情報を読み込めませんでした。接続を確認して、もう一度お試しください。",
+          "guide.url": "/karaoketrainer/ja/guide/",
+          "home.url": "https://ktkwmr.com/ja/",
+          "help.more": "詳しいガイドを読む →",
+          "about.license": "© 2026 ktkwmr・<a href=\"https://github.com/ktkwmr/KaraokeTrainer/blob/main/LICENSE\" target=\"_blank\" rel=\"noopener\">MITライセンス</a>・<a href=\"/karaoketrainer/ja/about/\" target=\"_blank\" rel=\"noopener\">運営者情報</a>",
+          "help.body": "<li><b>曲を読み込む</b> ― 手持ちの曲のファイル（MP3、WAV、M4A、FLAC など、10分まで）を選ぶか、枠にドロップします。AIが歌手の声と伴奏を分け、メロディを取り出します。初回はAIモデル（約75MB、1回だけ）をダウンロードします。読み込んだ曲はこの端末に保存されるので、次からはすぐに（オフラインでも）開けます。</li><li><b>聴く</b> ― ▶ を押します。グレーの線が歌手のメロディで、画面の上ほど高い音です。「ボーカル」のスライダーは 0% でカラオケ、100% で原曲どおり、間にすると歌手の声が小さなガイドになります。</li><li><b>歌う</b> ― ヘッドホンをつけて「歌う」を押します。歌うとあなたの音程が線で描かれます。<b>緑</b>＝合っている、<b>黄</b>＝惜しい、<b>赤</b>＝外れ。原曲より1オクターブ下や上で歌っても正解です。最初の数秒であなたのオクターブを自動で判定します（選ぶこともできます）。</li><li><b>答え合わせ</b> ― 止めると（または曲が終わると）、音程が合っていた割合と、ズレが大きかったところが表示されます（タップでそこをループ）。自分の録音と原曲の歌手の声を聴き比べることもできます。録音は「この録音を残す」を押さない限り残りません。</li><li><b>キーを変える</b> ― − / ＋ で曲を最大6半音まで上げ下げできます。グレーの線も一緒に動きます。</li><li><b>自分に合うキー（任意）</b> ― 一度音域を測っておくと（⚙ →「マイ音域」）、曲ごとにおすすめのキーが表示されます。練習には必要ありません。</li><li><b>線が遅れるとき</b> ― Bluetoothのヘッドホンや一部の端末では遅れが出ます。⚙ →「設定」→「遅延を測る」で補正できます。</li><li><b>使ってよい曲で</b> ― 購入した曲や自分で録音した曲のファイルを使ってください。YouTube などのサイトから曲を取り込む機能はありません。</li>",
+          "privacy.body": "<li><b>曲と声は端末の中だけ</b> ― 曲のファイルの分離と解析は、ブラウザの中だけで行います。マイクは歌っているときと音域を測るときだけ使い、声の解析と録音もブラウザの中だけで行います。サーバーには何も送りません。アカウント・Cookie・広告はありません。</li><li><b>ダウンロード</b> ― 曲を分離するために、ブラウザがこのサイトからAIモデルを、jsDelivr（CDN）から ONNX Runtime のライブラリをダウンロードします。通常のダウンロードと同じく、IPアドレスとブラウザの情報が相手に届きます。曲や声の情報は送りません。</li><li><b>ブラウザに保存するもの</b> ― AIモデル、読み込んだ曲（次回すぐ開けるよう、分離したボーカルと伴奏、メロディの線）、残すことにした録音、測った場合はマイ音域、設定、オフラインで使うためのアプリ本体。曲は ⚙ →「保存した曲を削除」、モデルは ⚙ →「AIモデルを削除」、音域は「マイ音域」で削除できます。ブラウザの設定でこのサイトのデータを消すこともできます。</li><li><b>サーバーのログとアクセス数</b> ― このサイトは Cloudflare で公開しています。運用と安全のため、通常のアクセスログ（IPアドレス、日時、ページなど）が残ります。Cloudflare Web Analytics で、Cookie を使わずにページの表示回数を数えています（ページのURL、参照元、ブラウザの情報、読み込み時間）。</li><li><b>お問い合わせ</b> ― ご質問・ご意見は <a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">GitHub Issues</a> へ。</li><li><b>詳しくは</b> ― <a href=\"/karaoketrainer/ja/privacy/\" target=\"_blank\" rel=\"noopener\">プライバシーポリシー</a>と<a href=\"/karaoketrainer/ja/about/\" target=\"_blank\" rel=\"noopener\">運営者情報</a>をご覧ください。</li>",
+          "intro.title": "カラオケ練習：原曲のメロディと自分の音程を重ねて見られる無料ツール",
+          "intro.body": "<p>Karaoke Trainer（カラオケトレーナー）は、楽譜が読めなくても使える歌の練習ツールです。手持ちの曲のファイルを読み込むと、AIが歌手の声と伴奏を分け、歌手のメロディを<b>線</b>にします。「歌う」を押して歌うと、あなたの音程がその上に重ねて描かれるので、どこで高すぎたか・低すぎたかが<b>目で見て</b>わかります。</p><p><b>ボーカル</b>のスライダーは、0%（カラオケ：伴奏だけ）から100%（原曲どおり）まで。間にすると、歌手の声が小さなガイドボーカルになります。区間ループ（A–B）や、最大6半音までのキー変更もでき、キーを変えるとメロディの線も一緒に動きます。男性が女性の曲を（またはその逆を）1オクターブ下や上で歌うのはよくあることなので、オクターブ違いは正解として判定します。</p><p>止めると、メロディのうち音程が合っていた割合と、ズレが大きかったところの一覧（タップでそこをループ練習）が表示され、自分の録音と原曲の歌手の声を聴き比べられます。一度自分の音域を測っておくと、曲ごとに自分の声に合うキーも表示されます。測らなくても練習には使えます。</p><p>すべて<b>ブラウザの中</b>で動き、曲もあなたの声もアップロードしません。最初の曲でAIモデル（約75MB、1回だけ）をダウンロードします。読み込んだ曲はこの端末に保存され、次からはすぐに（オフラインでも）開けます。歌うときはヘッドホンを使ってください。対応形式：MP3、WAV、M4A（AAC）、FLAC、OGG など、ブラウザで再生できるほとんどの形式。10分まで。無料・登録不要・広告なし。</p><h2>ガイド</h2><ul><li><a href=\"/karaoketrainer/ja/guide/\" target=\"_blank\" rel=\"noopener\">Karaoke Trainer の使い方</a></li><li><a href=\"/karaoketrainer/ja/faq/\" target=\"_blank\" rel=\"noopener\">よくある質問</a></li></ul>",
+          "foot.meta": "<span>Karaoke Trainer・© 2026 ktkwmr</span><a href=\"/karaoketrainer/ja/privacy/\" target=\"_blank\" rel=\"noopener\">プライバシーポリシー</a><a href=\"/karaoketrainer/ja/about/\" target=\"_blank\" rel=\"noopener\">運営者情報</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer\" target=\"_blank\" rel=\"noopener\">ソースコード（GitHub）</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">フィードバック</a><a href=\"https://ktkwmr.com/ja/\" target=\"_blank\" rel=\"noopener\">ktkwmr のほかのアプリ</a>"
+        }
+      };
+
+      // Order: ?lang=ja|en in the URL → the page's fixed language (data-page-lang of ja/index.html) → the browser's first language (English unless Japanese)
+      function detectLang() {
+        const q = new URLSearchParams(location.search).get("lang");
+        if (q === "ja" || q === "en") return q;
+        const fixed = document.documentElement.dataset.pageLang;
+        if (fixed === "ja" || fixed === "en") return fixed;
+        const first = (navigator.languages && navigator.languages[0]) || navigator.language || "";
+        return /^ja\b/i.test(first) ? "ja" : "en";
+      }
+      const lang = detectLang();
+
+      function t(key, vars) {
+        let str = I18N[lang][key];
+        if (str === undefined) str = I18N.en[key] !== undefined ? I18N.en[key] : key;
+        if (vars) str = str.replace(/\{(\w+)\}/g, function (m, k) { return k in vars ? String(vars[k]) : m; });
+        return str;
+      }
+
+      function applyI18n() {
+        document.documentElement.lang = lang;
+        document.querySelectorAll("[data-i18n]").forEach(function (el) { el.textContent = t(el.dataset.i18n); });
+        document.querySelectorAll("[data-i18n-html]").forEach(function (el) { el.innerHTML = t(el.dataset.i18nHtml); });
+        document.querySelectorAll("[data-i18n-attr]").forEach(function (el) {
+          el.dataset.i18nAttr.split(";").forEach(function (pair) {
+            const parts = pair.split(":");
+            el.setAttribute(parts[0], t(parts[1]));
+          });
+        });
+      }
+
+      function isIOS() {
+        return /iP(hone|ad|od)/.test(navigator.userAgent) ||
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      }
+      // iOS Safari zooms in when a control under 16px is tapped, so only on iOS add maximum-scale (pinch zoom still works)
+      if (isIOS()) {
+        const vp = document.querySelector('meta[name="viewport"]');
+        if (vp) vp.setAttribute("content", vp.getAttribute("content") + ", maximum-scale=1");
+      }
+      // Play through the iPhone's silent switch like a music app (Safari 16.4+); "play-and-record" while the microphone is on
+      function audioSession(type) { try { if (navigator.audioSession) navigator.audioSession.type = type; } catch (e) {} }
+      audioSession("playback");
+
+      const $ = (id) => document.getElementById(id);
+
+      // ---------- Constants ----------
+      // Keep MODEL_DIR / MODEL_CACHE in sync with separator.js, sw.js and scripts/fetch-model.mjs
+      const MODEL_DIR = "models/spleeter-2stems-v1/";
+      const MODEL_CACHE = "karaoketrainer-model-v1";
+      const MODEL_NAMES = ["vocals", "accompaniment"];
+      let MODEL_MB = 75; // replaced by the real size from the model's manifest.json when it can be read
+      // ONNX Runtime's WebAssembly file: CPU build / WebGPU build (used when the browser has WebGPU)
+      const ENGINE_MB = { cpu: 14, gpu: 27 };
+      const HAS_GPU = "gpu" in navigator;
+      const LOW_MEM = /iP(hone|ad|od)|Android|Mobile/i.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) ||
+        (typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 4);
+      const SR = 44100;
+      const FPS = 100; // melody line and your line: one value per 10 ms (pitch.js)
+      const MAX_SEC = 10 * 60;
+      const KEEP_SONGS = 8; // songs kept in IndexedDB (the oldest opened is removed first)
+      const STRICT = { easy: [75, 150], normal: [50, 100], strict: [25, 50] };
+      const NOTE = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+      const modelUrl = (name) => new URL(MODEL_DIR + name + ".onnx", document.baseURI).href;
+
+      // ---------- Saved settings ----------
+      const STATE_KEY = "karaoketrainer-state";
+      const RANGE_KEY = "karaoketrainer-range";
+      function freshState() {
+        return { v: 1, vocal: 100, acc: 100, strict: "normal", latency: null, latencySrc: "auto", ns: false, ec: false, agc: false, phonesOk: false };
+      }
+      let store = (function () {
+        const s = freshState();
+        try {
+          const o = JSON.parse(localStorage.getItem(STATE_KEY) || "null");
+          if (o && o.v === 1) {
+            const pct = (v, d) => (typeof v === "number" && isFinite(v) ? Math.max(0, Math.min(100, Math.round(v))) : d);
+            s.vocal = pct(o.vocal, 100);
+            s.acc = pct(o.acc, 100);
+            if (STRICT[o.strict]) s.strict = o.strict;
+            if (typeof o.latency === "number" && o.latency >= 0 && o.latency <= 500) { s.latency = o.latency; s.latencySrc = o.latencySrc === "measured" ? "measured" : "manual"; }
+            s.ns = o.ns === true; s.ec = o.ec === true; s.agc = o.agc === true;
+            s.phonesOk = o.phonesOk === true;
+          }
+        } catch (e) {}
+        return s;
+      })();
+      function saveState() {
+        try { localStorage.setItem(STATE_KEY, JSON.stringify(store)); } catch (e) { /* storage full or blocked: keep going */ }
+      }
+      function loadRange() {
+        try {
+          const o = JSON.parse(localStorage.getItem(RANGE_KEY) || "null");
+          if (o && typeof o.low === "number" && typeof o.high === "number" && o.high > o.low) return o;
+        } catch (e) {}
+        return null;
+      }
+      let range = loadRange();
+
+      // ---------- Helpers ----------
+      function fmtTime(sec) {
+        sec = Math.max(0, Math.floor(sec));
+        return Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0");
+      }
+      const mb = (bytes) => (bytes / 1048576).toFixed(1);
+      function noteName(m) {
+        const r = Math.round(m);
+        return NOTE[((r % 12) + 12) % 12] + (Math.floor(r / 12) - 1);
+      }
+      const median = (a) => { const s = a.slice().sort((x, y) => x - y); return s[s.length >> 1]; };
+      let toastTimer = 0;
+      function toast(msg) {
+        const el = $("toast");
+        el.textContent = msg;
+        el.hidden = false;
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { el.hidden = true; }, 3200);
+      }
+      function showError(msg) {
+        const el = $("err");
+        el.textContent = msg || "";
+        el.hidden = !msg;
+      }
+      function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+      function sharedInt16(n) {
+        const shared = window.crossOriginIsolated && typeof SharedArrayBuffer === "function";
+        return new Int16Array(shared ? new SharedArrayBuffer(n * 2) : n);
+      }
+      // A copy in shared memory (cross-origin isolated page) so the player and workers use it without copying
+      function toShared(a) {
+        if (!(window.crossOriginIsolated && typeof SharedArrayBuffer === "function") || a.buffer instanceof SharedArrayBuffer) return a;
+        const s = sharedInt16(a.length);
+        s.set(a);
+        return s;
+      }
+
+      // ---------- Network check before the large download (WEBAPP_BASELINE §9-13) ----------
+      function isMobile() {
+        return isIOS() || /Android|Mobile/i.test(navigator.userAgent) || matchMedia("(pointer: coarse)").matches;
+      }
+      function connectionRisk() {
+        const c = navigator.connection;
+        if (c) {
+          if (c.saveData) return "saveData";
+          if (c.type === "cellular" || c.type === "wimax" || c.type === "bluetooth") return "cellular";
+          if (c.type === "wifi" || c.type === "ethernet") return null;
+        }
+        return isMobile() ? "unknown" : null;
+      }
+
+      let modelCached = false;
+      let cacheUsable = true;
+      let manifestRead = false;
+      async function checkModel() {
+        try {
+          const cache = await caches.open(MODEL_CACHE);
+          const hits = await Promise.all(MODEL_NAMES.map(function (n) { return cache.match(modelUrl(n)); }));
+          modelCached = hits.every(Boolean);
+        } catch (e) {
+          cacheUsable = false;
+          modelCached = false;
+        }
+        if (!modelCached && !manifestRead && navigator.onLine !== false) {
+          try {
+            const res = await fetch(new URL(MODEL_DIR + "manifest.json", document.baseURI).href, { cache: "no-cache" });
+            if (res.ok) {
+              const m = await res.json();
+              let bytes = 0;
+              MODEL_NAMES.forEach(function (n) { bytes += m.files[n].bytes; });
+              if (bytes >= 1048576) MODEL_MB = Math.round(bytes / 1048576);
+              manifestRead = true;
+            }
+          } catch (e) {}
+        }
+        $("modelState").textContent = modelCached ? t("model.ready") : t(cacheUsable ? "model.missing" : "model.nocache", { mb: MODEL_MB });
+      }
+
+      function askNetwork() {
+        const risk = modelCached ? null : connectionRisk();
+        if (!risk) return Promise.resolve(true);
+        const dlg = $("netDlg");
+        $("netTitle").textContent = t("net.title." + risk);
+        $("netBody").textContent = t("net.body." + risk);
+        $("netSize").textContent = t("net.size", { mb: MODEL_MB + (HAS_GPU && !LOW_MEM ? ENGINE_MB.gpu : ENGINE_MB.cpu) });
+        return askDlg(dlg, "netOk", "netCancel");
+      }
+      // Resolves true when okId is pressed, false when the dialog is closed any other way
+      function askDlg(dlg, okId, cancelId) {
+        return new Promise(function (resolve) {
+          let ok = false;
+          function finish() {
+            dlg.removeEventListener("close", finish);
+            resolve(ok);
+          }
+          $(okId).onclick = function () { ok = true; dlg.close(); };
+          $(cancelId).onclick = function () { dlg.close(); };
+          dlg.addEventListener("close", finish);
+          openDlg(dlg);
+        });
+      }
+
+      // ---------- Songs saved in IndexedDB (key: SHA-256 of the file) ----------
+      // "index": { hash, name, duration, used, bytes, take } (small, for the list)
+      // "songs": { hash, stems: [[vocal L, R], [acc L, R]] (Int16Array), line (Float32Array), take? }
+      let dbPromise = null;
+      function db() {
+        if (!dbPromise) {
+          dbPromise = new Promise(function (resolve, reject) {
+            if (!window.indexedDB) { reject(new Error("no IndexedDB")); return; }
+            const r = indexedDB.open("karaoketrainer", 1);
+            r.onupgradeneeded = function () {
+              const d = r.result;
+              d.createObjectStore("index", { keyPath: "hash" });
+              d.createObjectStore("songs", { keyPath: "hash" });
+            };
+            r.onsuccess = function () { resolve(r.result); };
+            r.onerror = function () { reject(r.error); };
+          });
+          dbPromise.catch(function () { dbPromise = null; });
+        }
+        return dbPromise;
+      }
+      function req(r) { return new Promise(function (res, rej) { r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); }; }); }
+      async function dbGet(storeName, key) {
+        const d = await db();
+        return req(d.transaction(storeName).objectStore(storeName).get(key));
+      }
+      async function dbAll() {
+        const d = await db();
+        return req(d.transaction("index").objectStore("index").getAll());
+      }
+      async function dbPut(entries) {
+        const d = await db();
+        return new Promise(function (res, rej) {
+          const tx = d.transaction(["index", "songs"], "readwrite");
+          entries.forEach(function (e) { tx.objectStore(e[0]).put(e[1]); });
+          tx.oncomplete = function () { res(); };
+          tx.onerror = function () { rej(tx.error); };
+          tx.onabort = function () { rej(tx.error); };
+        });
+      }
+      async function dbDelete(hashes) {
+        const d = await db();
+        return new Promise(function (res, rej) {
+          const tx = d.transaction(["index", "songs"], "readwrite");
+          hashes.forEach(function (h) { tx.objectStore("index").delete(h); tx.objectStore("songs").delete(h); });
+          tx.oncomplete = function () { res(); };
+          tx.onerror = function () { rej(tx.error); };
+        });
+      }
+      // IndexedDB cannot store SharedArrayBuffers: plain copies
+      const plain = (a) => (a.buffer instanceof ArrayBuffer ? a : new a.constructor(a));
+      function pcmBytes(stems) { return stems.reduce(function (s, st) { return s + st[0].length * 2 * (st[1] === st[0] ? 1 : 2); }, 0); }
+      async function saveSong(s) {
+        try {
+          const stems = s.stems.map(function (st) { return st[1] === st[0] ? [plain(st[0])] : [plain(st[0]), plain(st[1])]; });
+          await dbPut([
+            ["index", { hash: s.hash, name: s.name, duration: s.duration, used: Date.now(), bytes: pcmBytes(s.stems), take: false }],
+            ["songs", { hash: s.hash, stems: stems, line: s.line }]
+          ]);
+          if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
+          const all = await dbAll();
+          all.sort(function (a, b) { return b.used - a.used; });
+          if (all.length > KEEP_SONGS) await dbDelete(all.slice(KEEP_SONGS).map(function (x) { return x.hash; }));
+        } catch (e) {
+          console.warn("Could not save the song", e);
+        }
+        renderRecent();
+      }
+      async function renderRecent() {
+        let all = [];
+        try { all = await dbAll(); } catch (e) {}
+        all.sort(function (a, b) { return b.used - a.used; });
+        const ul = $("recent");
+        ul.textContent = "";
+        $("recentSect").hidden = !all.length;
+        const df = new Intl.DateTimeFormat(lang, { month: "short", day: "numeric" });
+        all.forEach(function (x) {
+          const li = el("li");
+          const open = el("button", "open");
+          open.type = "button";
+          open.appendChild(el("b", null, x.name));
+          open.appendChild(el("span", null, t("recent.meta", { time: fmtTime(x.duration), date: df.format(new Date(x.used)) }) + (x.take ? t("recent.take") : "")));
+          open.addEventListener("click", function () { openSaved(x.hash); });
+          const del = el("button", "del", "×");
+          del.type = "button";
+          del.setAttribute("aria-label", t("recent.del", { name: x.name }));
+          // Two taps: the first arms the button (confirm() does not work everywhere, WEBAPP_BASELINE §12-12)
+          del.addEventListener("click", async function () {
+            if (!del.classList.contains("armed")) {
+              del.classList.add("armed");
+              del.textContent = t("recent.confirm");
+              setTimeout(function () { del.classList.remove("armed"); del.textContent = "×"; }, 3000);
+              return;
+            }
+            await dbDelete([x.hash]).catch(function () {});
+            renderRecent();
+          });
+          li.appendChild(open);
+          li.appendChild(del);
+          ul.appendChild(li);
+        });
+      }
+      async function openSaved(hash) {
+        if (busy) return;
+        showError("");
+        try {
+          const [rec, info] = await Promise.all([dbGet("songs", hash), dbGet("index", hash)]);
+          if (!rec || !info) { renderRecent(); return; }
+          const stems = rec.stems.map(function (st) { const l = toShared(st[0]); return [l, st[1] ? toShared(st[1]) : l]; });
+          info.used = Date.now();
+          dbPut([["index", info]]).then(renderRecent, function () {});
+          showSongInfo(info.name, t("file.cached", { time: fmtTime(info.duration) }));
+          await setSong({ hash: hash, name: info.name, duration: info.duration, stems: stems, line: rec.line, demo: false });
+          if (rec.take) restoreTake(rec.take);
+          toast(t("opened"));
+        } catch (e) {
+          console.error(e);
+          showError(t("err.decode"));
+        }
+      }
+
+      // ---------- Reading a file ----------
+      let pending = null; // { file, hash, name } of the song being separated
+      let busy = false;
+      async function decode(f) {
+        const data = await f.arrayBuffer();
+        // An OfflineAudioContext at 44.1 kHz decodes and resamples to the rate the model needs
+        const Ctx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+        const c = new Ctx(2, SR, SR);
+        const buf = await new Promise(function (resolve, reject) {
+          const p = c.decodeAudioData(data, resolve, reject);
+          if (p && p.catch) p.catch(reject);
+        });
+        const left = new Float32Array(buf.getChannelData(0));
+        const right = buf.numberOfChannels > 1 ? new Float32Array(buf.getChannelData(1)) : left;
+        return { left: left, right: right, duration: buf.duration, channels: buf.numberOfChannels };
+      }
+      async function hashOf(f) {
+        const data = await f.arrayBuffer();
+        if (!(window.crypto && crypto.subtle)) return "f" + f.size + "-" + f.name;
+        const d = new Uint8Array(await crypto.subtle.digest("SHA-256", data));
+        return Array.from(d.subarray(0, 16), function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+      }
+      function showSongInfo(name, meta) {
+        $("songInfo").hidden = false;
+        $("songName").textContent = name;
+        $("songMeta").textContent = meta;
+      }
+
+      async function chooseFile(f) {
+        if (!f || busy) return;
+        showError("");
+        showSongInfo(f.name, t("file.reading"));
+        let hash;
+        try { hash = await hashOf(f); } catch (e) { $("songMeta").textContent = ""; showError(t("err.decode")); return; }
+        // Loaded before: open it from this device (no separation, works offline)
+        let saved = null;
+        try { saved = await dbGet("index", hash); } catch (e) {}
+        if (saved) { openSaved(hash); return; }
+        let d;
+        try {
+          d = await decode(f);
+        } catch (e) {
+          $("songMeta").textContent = "";
+          showError(t("err.decode"));
+          return;
+        }
+        $("songMeta").textContent = t("file.meta", { time: fmtTime(d.duration), ch: t(d.channels > 1 ? "file.stereo" : "file.mono") });
+        if (d.duration > MAX_SEC) {
+          showError(t("err.tooLong", { time: fmtTime(d.duration), max: MAX_SEC / 60 }));
+          return;
+        }
+        pending = { file: f, hash: hash, name: f.name, duration: d.duration, pcm: d };
+        runSeparation();
+      }
+
+      const fileInput = $("fileInput");
+      // On phones, accept= hides files that the picker does not recognize as audio (WEBAPP_BASELINE §9-5)
+      if (matchMedia("(pointer: coarse)").matches) fileInput.removeAttribute("accept");
+      fileInput.addEventListener("change", function () {
+        chooseFile(fileInput.files && fileInput.files[0]);
+        fileInput.value = "";
+      });
+      const drop = $("drop");
+      ["dragenter", "dragover"].forEach(function (ev) {
+        drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("over"); });
+      });
+      ["dragleave", "drop"].forEach(function (ev) {
+        drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("over"); });
+      });
+      drop.addEventListener("drop", function (e) {
+        chooseFile(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]);
+      });
+
+      // ---------- Separation ----------
+      let worker = null;
+      let wakeLock = null;
+      let startedAt = 0;
+      function setProgress(stage, detail, frac) {
+        $("progress").hidden = false;
+        $("stage").textContent = stage;
+        $("detail").textContent = detail || "";
+        const bar = $("bar");
+        bar.classList.toggle("indet", frac == null);
+        bar.firstElementChild.style.width = frac == null ? "" : Math.round(frac * 1000) / 10 + "%";
+      }
+      // Kept in localStorage while separating: if the system closes the tab (an iPhone out of memory, with no
+      // error the page can catch), the next load says where it stopped and skips that setting next time
+      const RUN_KEY = "karaoketrainer-running";
+      const CRASHED_KEY = "karaoketrainer-crashed";
+      function recordRun(info) {
+        try {
+          if (info) localStorage.setItem(RUN_KEY, JSON.stringify(Object.assign({ at: Date.now(), mode: runMode }, info)));
+          else localStorage.removeItem(RUN_KEY);
+        } catch (e) {}
+      }
+      function reportCrash() {
+        let r = null;
+        try { r = JSON.parse(localStorage.getItem(RUN_KEY) || "null"); localStorage.removeItem(RUN_KEY); } catch (e) {}
+        if (!r || typeof r.at !== "number" || Date.now() - r.at > 60 * 60 * 1000) return;
+        const stage = ["download", "separate", "pitch"].indexOf(r.stage) >= 0 ? r.stage : "init";
+        let next = "";
+        if (r.mode && MODES[r.mode] && stage !== "download") {
+          const crashed = crashedModes();
+          if (crashed.indexOf(r.mode) < 0) crashed.push(r.mode);
+          try { localStorage.setItem(CRASHED_KEY, JSON.stringify({ at: Date.now(), modes: crashed })); } catch (e) {}
+          if (LADDER.some(function (m) { return crashed.indexOf(m) < 0; })) next = t("err.crashNext");
+        }
+        showError(t("err.crash", { where: t("where." + stage) }) + next);
+      }
+      function setBusy(on) {
+        busy = on;
+        recordRun(on ? { stage: "download" } : null);
+        $("drop").style.pointerEvents = on ? "none" : "";
+        $("drop").style.opacity = on ? ".5" : "";
+        $("demoBtn").disabled = on;
+        if (!on) $("progress").hidden = true;
+        if (on && "wakeLock" in navigator) {
+          navigator.wakeLock.request("screen").then(function (l) { wakeLock = l; }).catch(function () {});
+        } else if (!on && wakeLock) {
+          wakeLock.release().catch(function () {});
+          wakeLock = null;
+        }
+      }
+      document.addEventListener("visibilitychange", function () {
+        if (busy && document.visibilityState === "visible" && "wakeLock" in navigator) {
+          navigator.wakeLock.request("screen").then(function (l) { wakeLock = l; }).catch(function () {});
+        }
+      });
+      window.addEventListener("beforeunload", function (e) {
+        if (busy) { e.preventDefault(); e.returnValue = ""; }
+      });
+      window.addEventListener("pagehide", function () { if (busy) recordRun(null); });
+
+      function onProgress(m) {
+        recordRun({ stage: m.stage === "lib" ? "init" : m.stage });
+        if (m.stage === "download") {
+          const detail = m.total ? t("detail.download", { loaded: mb(m.loaded), total: mb(m.total) }) : t("detail.downloadNoTotal", { loaded: mb(m.loaded) });
+          setProgress(t("stage.download"), detail, m.total ? m.loaded / m.total : null);
+        } else if (m.stage === "lib" || m.stage === "init") {
+          setProgress(t("stage." + m.stage), "", null);
+        } else if (m.stage === "separate") {
+          const pct = Math.floor((m.done / m.chunks) * 100);
+          let detail = t("detail.separate", { pct: pct });
+          if (m.done > 0 && m.done < m.chunks) {
+            const left = ((m.elapsed / m.done) * (m.chunks - m.done)) / 1000;
+            const eta = left >= 90 ? t("eta.min", { n: Math.round(left / 60) }) : t("eta.sec", { n: Math.max(5, Math.round(left / 5) * 5) });
+            detail = t("detail.eta", { pct: pct, eta: eta });
+          }
+          setProgress(t("stage.separate"), detail, m.done / m.chunks);
+        } else if (m.stage === "pitch") {
+          setProgress(t("stage.pitch"), Math.floor((m.done || 0) * 100) + "%", m.done || 0);
+        }
+      }
+      function stopWorker() {
+        if (worker) { worker.terminate(); worker = null; }
+      }
+
+      async function runSeparation() {
+        if (!pending || busy) return;
+        showError("");
+        await checkModel();
+        if (!modelCached && navigator.onLine === false) { showError(t("err.offline")); return; }
+        if (!(await askNetwork())) { pending.pcm = null; return; }
+        stopSinging(false);
+        pause();
+        setBusy(true);
+        startedAt = Date.now();
+        setProgress(t(modelCached ? "stage.lib" : "stage.download"), "", null);
+        const modes = usableModes();
+        attempt(modes[0], modes.slice(1));
+      }
+
+      // Settings to try, in order, for this device (each in a fresh worker; a failed ONNX Runtime backend
+      // cannot be restarted in the same worker). Spleeter is much lighter than larger separation models, but
+      // phones still get the memory-saving settings first.
+      //   full: GPU if there is one, many CPU threads (computers)
+      //   gpu:  GPU with the memory-saving settings
+      //   cpu:  CPU, 2 threads, memory-saving settings
+      //   cpu1: CPU, 1 thread (last resort)
+      const MODES = {
+        full: { gpu: HAS_GPU, safe: false },
+        gpu: { gpu: true, safe: true },
+        cpu: { gpu: false, safe: true },
+        cpu1: { gpu: false, safe: true, threads: 1 }
+      };
+      const LADDER = LOW_MEM ? (HAS_GPU ? ["gpu", "cpu", "cpu1"] : ["cpu", "cpu1"]) : ["full", "cpu"];
+      function crashedModes() {
+        try {
+          const o = JSON.parse(localStorage.getItem(CRASHED_KEY) || "null");
+          if (o && Array.isArray(o.modes) && Date.now() - o.at < 30 * 24 * 3600 * 1000) return o.modes;
+        } catch (e) {}
+        return [];
+      }
+      function usableModes() {
+        const crashed = crashedModes();
+        const left = LADDER.filter(function (m) { return crashed.indexOf(m) < 0; });
+        return left.length ? left : [LADDER[LADDER.length - 1]];
+      }
+      let runMode = "";
+
+      function attempt(mode, rest) {
+        const opts = MODES[mode];
+        const job = pending;
+        runMode = mode;
+        recordRun({ stage: "download" });
+        try {
+          worker = new Worker("separator.js", { type: "module" });
+        } catch (e) {
+          setBusy(false);
+          showError(t("err.worker"));
+          return;
+        }
+        worker.onmessage = function (e) {
+          const m = e.data;
+          if (m.type === "progress") onProgress(m);
+          else if (m.type === "backend") {
+            $("backend").textContent = t("backend.used", { name: m.name === "webgpu" ? t("backend.webgpu") : m.safe ? t("backend.safe", { n: m.threads }) : m.threads > 1 ? t("backend.wasm", { n: m.threads }) : t("backend.wasm1") });
+            $("backend").hidden = false;
+            checkModel();
+          } else if (m.type === "done") {
+            stopWorker();
+            setBusy(false);
+            pending = null;
+            toast(t("done", { time: fmtTime((Date.now() - startedAt) / 1000) }));
+            const s = { hash: job.hash, name: job.name, duration: job.duration, stems: m.stems, line: m.line, demo: false };
+            setSong(s);
+            saveSong(s);
+          } else if (m.type === "error") {
+            stopWorker();
+            console.error("Separation failed", mode, m);
+            if (rest.length && (m.code === "run" || m.code === "memory")) {
+              setProgress(t("stage.retry"), "", null);
+              attempt(rest[0], rest.slice(1));
+              return;
+            }
+            setBusy(false);
+            const where = t("where." + (m.stage || "separate"));
+            const key = "err." + m.code;
+            showError(I18N.en[key] ? t(key, { msg: m.message, where: where }) : t("err.run", { msg: m.message, where: where }));
+            checkModel();
+          }
+        };
+        worker.onerror = function (e) {
+          stopWorker();
+          setBusy(false);
+          showError(t("err.worker"));
+          console.error("Separation worker error", e);
+          if (e && e.preventDefault) e.preventDefault();
+        };
+        // The decoded song is moved to the worker (not copied); a retry decodes the file again
+        const pcmP = job.pcm ? Promise.resolve(job.pcm) : (setProgress(t("stage.decode"), "", null), decode(job.file));
+        job.pcm = null;
+        pcmP.then(function (pcm) {
+          if (!worker) return; // canceled while decoding
+          const right = pcm.right === pcm.left ? pcm.left.slice() : pcm.right;
+          worker.postMessage({ type: "run", left: pcm.left, right: right, gpu: opts.gpu, safe: opts.safe, threads: opts.threads || 0 }, [pcm.left.buffer, right.buffer]);
+        }).catch(function () {
+          stopWorker();
+          setBusy(false);
+          showError(t("err.decode"));
+        });
+      }
+      $("cancelBtn").addEventListener("click", function () {
+        stopWorker();
+        cancelKey();
+        setBusy(false);
+        if (pending) pending.pcm = null;
+        toast(t("canceled"));
+      });
+
+      // ---------- The demo song (made up for this app; no separation needed) ----------
+      // 96 BPM, a bar of count-in, then 8 bars: C G Am F | C G F C, the melody between E4 and D5
+      const DEMO_BPM = 96;
+      const DEMO_CHORDS = [[48, 52, 55, 36], [47, 50, 55, 43], [48, 52, 57, 45], [48, 53, 57, 41]]; // C G Am F (+ bass)
+      const DEMO_PROG = [0, 0, 1, 2, 3, 0, 1, 3, 0];
+      const DEMO_MELODY = [
+        [64, 1], [67, 1], [69, 1], [67, 1], [65, 1], [64, 1], [62, 2], [60, 1], [64, 1], [69, 1.5], [67, 0.5], [65, 2], [0, 2],
+        [64, 1], [67, 1], [72, 1], [71, 1], [69, 1], [67, 1], [74, 2], [72, 1], [69, 1], [67, 1], [65, 1], [64, 1], [62, 1], [60, 2]
+      ];
+      const midiHz = (m) => 440 * Math.pow(2, (m - 69) / 12);
+      function makeDemo() {
+        const beat = 60 / DEMO_BPM;
+        const len = Math.ceil((DEMO_PROG.length * 4 * beat + 1.5) * SR);
+        const voc = new Float32Array(len), acc = new Float32Array(len);
+        // Singing voice: harmonics shaped by two formants ("ah"), vibrato, a short glide between notes
+        let at = 4 * beat, phase = 0, prev = 0;
+        DEMO_MELODY.forEach(function (n) {
+          const dur = n[1] * beat;
+          if (n[0]) {
+            const s0 = Math.round(at * SR), s1 = Math.round((at + dur * 0.92) * SR);
+            const f0 = midiHz(n[0]), from = prev ? midiHz(prev) : f0;
+            for (let i = s0; i < s1 && i < len; i++) {
+              const tt = (i - s0) / SR, rest = (s1 - i) / SR;
+              const glide = tt < 0.05 && prev ? from + (f0 - from) * (tt / 0.05) : f0;
+              const vib = tt > 0.3 ? Math.sin(2 * Math.PI * 5.5 * tt) * 0.25 * Math.min(1, (tt - 0.3) / 0.3) : 0;
+              const f = glide * Math.pow(2, vib / 12);
+              phase += (2 * Math.PI * f) / SR;
+              const env = Math.min(1, tt / 0.03) * Math.min(1, rest / 0.06);
+              let v = 0;
+              for (let h = 1; h <= 10; h++) {
+                const hf = h * f;
+                const a = (1 / h) * (0.6 + 2.2 * Math.exp(-Math.pow((hf - 750) / 220, 2)) + 1.4 * Math.exp(-Math.pow((hf - 1150) / 260, 2)));
+                v += a * Math.sin(h * phase);
+              }
+              voc[i] += v * env * 0.11;
+            }
+            prev = n[0];
+          } else prev = 0;
+          at += dur;
+        });
+        // Accompaniment: a soft piano-like chord twice a bar, bass on every beat, kick and hi-hat
+        let seed = 7;
+        const rnd = function () { seed = (seed * 16807) % 2147483647; return seed / 2147483647 - 0.5; };
+        DEMO_PROG.forEach(function (c, bar) {
+          const ch = DEMO_CHORDS[c];
+          for (let b = 0; b < 4; b++) {
+            const s0 = Math.round((bar * 4 + b) * beat * SR);
+            const nb = Math.round(beat * SR);
+            for (let i = 0; i < nb && s0 + i < len; i++) {
+              const tt = i / SR;
+              let v = 0;
+              if (b === 0 || b === 2) {
+                for (let k = 0; k < 3; k++) {
+                  const f = midiHz(ch[k]);
+                  v += (Math.sin(2 * Math.PI * f * tt) + 0.3 * Math.sin(4 * Math.PI * f * tt)) * Math.exp(-tt * 2.2) * 0.07;
+                }
+              } else {
+                for (let k = 0; k < 3; k++) v += Math.sin(2 * Math.PI * midiHz(ch[k]) * (tt + beat)) * Math.exp(-(tt + beat) * 2.2) * 0.07;
+              }
+              const fb = midiHz(ch[3]);
+              v += (Math.sin(2 * Math.PI * fb * tt) + 0.4 * Math.sin(4 * Math.PI * fb * tt)) * Math.exp(-tt * 3) * 0.12;
+              if (b === 0 || b === 2) v += Math.sin(2 * Math.PI * (50 + 80 * Math.exp(-tt * 30)) * tt) * Math.exp(-tt * 12) * 0.3;
+              const h = tt % (beat / 2);
+              v += rnd() * Math.exp(-h * 60) * 0.05;
+              acc[s0 + i] += v;
+            }
+          }
+        });
+        const toI16 = function (x) {
+          const out = sharedInt16(x.length);
+          for (let i = 0; i < x.length; i++) { const v = Math.max(-1, Math.min(1, x[i])); out[i] = Math.round(v * 32767); }
+          return out;
+        };
+        const v = toI16(voc), a = toI16(acc);
+        return { stems: [[v, v], [a, a]], duration: len / SR };
+      }
+      $("demoBtn").addEventListener("click", function () {
+        if (busy) return;
+        showError("");
+        stopSinging(false);
+        pause();
+        const d = makeDemo();
+        showSongInfo(t("demo.name"), t("file.demo", { time: fmtTime(d.duration) }));
+        // The melody line comes from the same worker as for a real song (pitch.js), from the made-up voice
+        let w;
+        try { w = new Worker("separator.js", { type: "module" }); } catch (e) { showError(t("err.worker")); return; }
+        setBusy(true);
+        setProgress(t("stage.pitch"), "", null);
+        w.onmessage = function (e) {
+          const m = e.data;
+          if (m.type === "progress") onProgress(m);
+          else {
+            w.terminate();
+            setBusy(false);
+            if (m.type === "line") setSong({ hash: "demo", name: t("demo.name"), duration: d.duration, stems: d.stems, line: m.line, demo: true });
+            else showError(t("err.run", { msg: m.message, where: t("where.pitch") }));
+          }
+        };
+        w.onerror = function (e) { w.terminate(); setBusy(false); showError(t("err.worker")); if (e && e.preventDefault) e.preventDefault(); };
+        w.postMessage({ type: "line", left: d.stems[0][0], right: d.stems[0][1] });
+      });
+
+      // ---------- The song in the practice panel ----------
+      let song = null;     // { hash, name, duration, stems (original key), line, demo }
+      let cur = null;      // the stems in the current key
+      let semis = 0;       // key change
+      let melody = null;   // { low, high } of the line (5th–95th percentile, original key)
+      let view = { lo: 55, hi: 76 }; // MIDI range shown in the roll (original key)
+      let length = 0;      // samples
+
+      function lineRange(line, lo, hi) {
+        const v = [];
+        for (let k = 0; k < line.length; k++) if (!isNaN(line[k])) v.push(line[k]);
+        if (v.length < FPS) return null;
+        v.sort(function (a, b) { return a - b; });
+        return { low: v[Math.floor(v.length * lo)], high: v[Math.floor(v.length * hi)] };
+      }
+      async function setSong(s) {
+        stopSinging(false);
+        cancelKey();
+        song = s;
+        cur = s.stems;
+        semis = 0;
+        take = null;
+        $("results").hidden = true;
+        cmp = null;
+        loopA = loopB = -1;
+        length = s.stems[0][0].length;
+        melody = lineRange(s.line, 0.05, 0.95);
+        const wide = lineRange(s.line, 0.01, 0.99) || { low: 57, high: 72 };
+        const mid = (wide.low + wide.high) / 2, span = Math.max(16, wide.high - wide.low + 6);
+        view = { lo: mid - span / 2, hi: mid + span / 2 };
+        $("empty").hidden = true;
+        setGhost(false);
+        $("seek").max = (length / SR).toFixed(1);
+        $("seek").value = 0;
+        pos = 0;
+        $("timeNow").textContent = "0:00";
+        $("timeEnd").textContent = fmtTime(length / SR);
+        $("keepBtn").hidden = !!s.demo;
+        renderKey();
+        renderLoop();
+        try {
+          await ensureAudio();
+          loadTracks(false);
+        } catch (e) {
+          showError(t("err.audio"));
+        }
+        draw();
+        // On a phone the song panel fills the first screen: bring the practice panel up (WEBAPP_BASELINE §9-16)
+        if (matchMedia("(max-width: 900px)").matches) {
+          const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+          $("practice").closest(".panel").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+        }
+      }
+      function setGhost(on) {
+        const p = $("practice");
+        p.classList.toggle("ghost", on);
+        p.inert = on;
+      }
+
+      // ---------- Audio: player + microphone in one AudioWorklet (mixer.js) ----------
+      let ctx = null, node = null, audioReady = null;
+      let playing = false;
+      let pos = 0, posAt = 0;
+      function ensureAudio() {
+        if (audioReady) return audioReady;
+        audioReady = (async function () {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          // 44.1 kHz like the song (no resampling) and low latency for singing
+          try { ctx = new AC({ sampleRate: SR, latencyHint: "interactive" }); } catch (e) { ctx = new AC(); }
+          await ctx.audioWorklet.addModule("mixer.js");
+          node = new AudioWorkletNode(ctx, "karaoke-player", { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [2], channelCount: 1, channelCountMode: "explicit" });
+          node.connect(ctx.destination);
+          node.port.onmessage = onPlayerMessage;
+          renderLatency();
+        })();
+        audioReady.catch(function () { audioReady = null; });
+        return audioReady;
+      }
+      function loadTracks(keep) {
+        if (!node || !cur) return;
+        const tracks = [cur[0], cur[1]];
+        if (take && take.audio) tracks.push([take.audio]);
+        node.port.postMessage({ type: "load", tracks: tracks, keep: keep });
+        sendGains();
+        sendLoop();
+      }
+      // Vocal / accompaniment sliders; while comparing (results), the vocal and your recording follow the buttons
+      let cmp = null; // null | "orig" | "mine" | "both"
+      function sendGains() {
+        if (!node) return;
+        const v = store.vocal / 100, a = store.acc / 100;
+        const mine = take && take.audio ? take.gain : 0;
+        const g = cmp === "orig" ? [1, a, 0] : cmp === "mine" ? [0, a, mine] : cmp === "both" ? [1, a, mine] : [v, a, 0];
+        node.port.postMessage({ type: "gains", gains: g });
+        ["orig", "mine", "both"].forEach(function (k) { $("cmp" + k[0].toUpperCase() + k.slice(1)).setAttribute("aria-pressed", String(cmp === k)); });
+      }
+      function onPlayerMessage(e) {
+        const m = e.data;
+        if (m.type === "pos") {
+          pos = m.pos;
+          posAt = performance.now();
+          if (!seeking) $("seek").value = (pos / SR).toFixed(1);
+          $("timeNow").textContent = fmtTime(pos / SR);
+          if (!playing) draw();
+        } else if (m.type === "ended") {
+          setPlaying(false);
+          if (singing) stopSinging(true);
+        } else if (m.type === "mic") {
+          onMic(m);
+        } else if (m.type === "click") {
+          if (calib) calib.clicks.push(m.frame);
+        }
+      }
+      function outLatency() { return ctx ? (ctx.outputLatency || 0) + (ctx.baseLatency || 0) : 0; }
+      // Song time you hear now (the worklet runs ahead of the speaker by the output latency)
+      function nowSec() {
+        if (!playing) return pos / SR;
+        return (pos + ((performance.now() - posAt) / 1000) * SR) / SR - outLatency();
+      }
+
+      // ---------- Transport ----------
+      let seeking = false;
+      function setPlaying(on) {
+        playing = on;
+        // toggleAttribute: SVG elements have no "hidden" property in every browser
+        $("playIcon").toggleAttribute("hidden", on);
+        $("pauseIcon").toggleAttribute("hidden", !on);
+        $("playBtn").setAttribute("aria-label", t(on ? "pause" : "play"));
+        $("playBtn").title = t(on ? "pause" : "play");
+        if (on) animate();
+      }
+      async function play() {
+        if (!cur) return;
+        try {
+          await ensureAudio();
+          if (ctx.state !== "running") await ctx.resume();
+        } catch (e) { showError(t("err.audio")); return; }
+        node.port.postMessage({ type: "play" });
+        setPlaying(true);
+      }
+      function pause() {
+        if (node) node.port.postMessage({ type: "pause" });
+        setPlaying(false);
+      }
+      function togglePlay() {
+        if (playing) { pause(); if (singing) stopSinging(true); }
+        else play();
+      }
+      function stopToStart() {
+        pause();
+        if (singing) stopSinging(true);
+        seekTo(loopA >= 0 ? loopA / SR : 0);
+      }
+      function seekTo(sec) {
+        if (!cur) return;
+        const p = Math.max(0, Math.min(length - 1, Math.round(sec * SR)));
+        pos = p;
+        posAt = performance.now();
+        if (node) node.port.postMessage({ type: "seek", pos: p });
+        $("seek").value = (p / SR).toFixed(1);
+        $("timeNow").textContent = fmtTime(p / SR);
+        draw();
+      }
+      $("playBtn").addEventListener("click", togglePlay);
+      $("stopBtn").addEventListener("click", stopToStart);
+      const seek = $("seek");
+      seek.addEventListener("input", function () { seeking = true; $("timeNow").textContent = fmtTime(Number(seek.value)); });
+      seek.addEventListener("change", function () { seeking = false; seekTo(Number(seek.value)); });
+
+      // ---------- Mixer sliders ----------
+      function renderVols() {
+        $("vocalVol").value = store.vocal; $("vocalVal").textContent = store.vocal + "%";
+        $("accVol").value = store.acc; $("accVal").textContent = store.acc + "%";
+      }
+      $("vocalVol").addEventListener("input", function () { store.vocal = Number(this.value); cmp = null; renderVols(); sendGains(); saveState(); });
+      $("accVol").addEventListener("input", function () { store.acc = Number(this.value); renderVols(); sendGains(); saveState(); });
+
+      // ---------- Loop A–B ----------
+      let loopA = -1, loopB = -1; // samples
+      function sendLoop() { if (node) node.port.postMessage({ type: "loop", a: loopB > loopA ? loopA : -1, b: loopB > loopA ? loopB : -1 }); }
+      function renderLoop() {
+        $("loopVal").textContent = loopA >= 0 && loopB > loopA ? t("loop.val", { a: fmtTime(loopA / SR), b: fmtTime(loopB / SR) }) : loopA >= 0 ? t("loop.aOnly", { a: fmtTime(loopA / SR) }) : "";
+        $("loopClear").disabled = loopA < 0;
+        draw();
+      }
+      function setLoop(a, b) { loopA = a; loopB = b; sendLoop(); renderLoop(); }
+      $("loopA").addEventListener("click", function () { const p = Math.round(nowSec() * SR); setLoop(p, loopB > p ? loopB : -1); });
+      $("loopB").addEventListener("click", function () {
+        const p = Math.round(nowSec() * SR);
+        if (loopA < 0 || p <= loopA) setLoop(Math.max(0, p - 5 * SR), p); else setLoop(loopA, p);
+      });
+      $("loopClear").addEventListener("click", function () { setLoop(-1, -1); });
+
+      // ---------- Key change (keyshift.js, one worker per track) ----------
+      let keyJobs = [];
+      let keyTarget = 0;
+      function cancelKey() { keyJobs.forEach(function (w) { w.terminate(); }); keyJobs = []; $("keyBusy").hidden = true; }
+      function renderKey() {
+        $("keyVal").textContent = (semis > 0 ? "+" : "") + semis;
+        $("keyDown").disabled = semis <= -6;
+        $("keyUp").disabled = semis >= 6;
+        renderSuggest();
+      }
+      function changeKey(next) {
+        if (!song) return;
+        next = Math.max(-6, Math.min(6, next));
+        if (next === semis && !keyJobs.length) return;
+        cancelKey();
+        keyTarget = next;
+        semis = next;
+        renderKey();
+        draw();
+        if (next === 0) { cur = song.stems; loadTracks(true); return; }
+        const progress = [0, 0];
+        const out = [];
+        $("keyBusy").hidden = false;
+        $("keyBusy").textContent = t("key.busy", { pct: 0 });
+        song.stems.forEach(function (st, i) {
+          const w = new Worker("keyshift.js", { type: "module" });
+          keyJobs.push(w);
+          w.onmessage = function (e) {
+            const m = e.data;
+            if (m.type === "progress") {
+              progress[i] = m.done;
+              $("keyBusy").textContent = t("key.busy", { pct: Math.floor(((progress[0] + progress[1]) / 2) * 100) });
+            } else if (m.type === "done") {
+              out[i] = [m.left, m.right];
+              w.terminate();
+              if (out[0] && out[1] && keyTarget === next) {
+                keyJobs = [];
+                $("keyBusy").hidden = true;
+                cur = out;
+                loadTracks(true);
+              }
+            } else if (m.type === "error") {
+              cancelKey();
+              showError(t("key.fail", { msg: m.message }));
+            }
+          };
+          w.postMessage({ left: st[0], right: st[1], semis: next, size: 2048 });
+        });
+      }
+      $("keyDown").addEventListener("click", function () { changeKey(semis - 1); });
+      $("keyUp").addEventListener("click", function () { changeKey(semis + 1); });
+
+      // Suggested key from your vocal range (only when a range is saved; otherwise a quiet hint)
+      function suggestKey() {
+        if (!melody || !range) return null;
+        let best = null;
+        for (let octave = -1; octave <= 1; octave++) {
+          for (let s = -6; s <= 6; s++) {
+            const lo = melody.low + s + 12 * octave, hi = melody.high + s + 12 * octave;
+            const over = Math.max(0, range.low - lo) + Math.max(0, hi - range.high);
+            const centre = Math.abs((lo + hi) / 2 - (range.low + range.high) / 2);
+            const score = over * 100 + centre * 0.25 + Math.abs(s) * 0.5 + Math.abs(octave) * 0.3;
+            if (!best || score < best.score) best = { semis: s, octave: octave, fits: over < 0.5, score: score };
+          }
+        }
+        return best;
+      }
+      function renderSuggest() {
+        const b = $("keySuggest");
+        if (!song) { b.hidden = true; return; }
+        b.hidden = false;
+        if (!range || !melody) {
+          b.className = "badge soft";
+          b.textContent = t("key.noRange");
+          b.onclick = openRange;
+          return;
+        }
+        const s = suggestKey();
+        const v = s.semis === 0 ? t("key.orig") : (s.semis > 0 ? "+" : "−") + Math.abs(s.semis);
+        b.className = "badge";
+        b.textContent = (s.octave ? t("key.suggestOct", { v: v, dir: t(s.octave < 0 ? "key.lower" : "key.higher") }) : t("key.suggest", { v: v })) + (s.fits ? "" : t("key.wide"));
+        b.onclick = function () {
+          changeKey(s.semis);
+          if (s.octave) { $("octSel").value = String(s.octave); singOctManual = s.octave; }
+        };
+      }
+
+      // ---------- Microphone and pitch (pitchy, vendored) ----------
+      let micStream = null, micSrc = null, detector = null, pitchyReady = null;
+      const micUsers = new Set(); // "sing" | "range" | "calib"
+      function loadPitchy() {
+        // Relative to document.baseURI: the Japanese page has <base href> (WEBAPP_BASELINE §4-7)
+        if (!pitchyReady) pitchyReady = import(new URL("vendor/pitchy.js", document.baseURI).href).then(function (mod) { detector = mod.PitchDetector.forFloat32Array(2048); });
+        return pitchyReady;
+      }
+      async function startMic(user) {
+        if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) { showError(t("sing.nomicApi")); return false; }
+        try {
+          await ensureAudio();
+          await loadPitchy();
+          if (!micStream) {
+            audioSession("play-and-record");
+            micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: store.ec, noiseSuppression: store.ns, autoGainControl: store.agc, channelCount: 1 } });
+            micSrc = ctx.createMediaStreamSource(micStream);
+            micSrc.connect(node);
+            node.port.postMessage({ type: "mic", on: true });
+          }
+          if (ctx.state !== "running") await ctx.resume();
+        } catch (e) {
+          console.warn("Microphone", e);
+          audioSession("playback");
+          showError(t("sing.nomic"));
+          return false;
+        }
+        micUsers.add(user);
+        history.length = 0;
+        return true;
+      }
+      function stopMic(user) {
+        micUsers.delete(user);
+        if (micUsers.size || !micStream) return;
+        try { micSrc.disconnect(); } catch (e) {}
+        micStream.getTracks().forEach(function (tr) { tr.stop(); });
+        micStream = null; micSrc = null;
+        if (node) node.port.postMessage({ type: "mic", on: false });
+        audioSession("playback");
+        $("liveNote").textContent = ""; $("liveCents").textContent = "";
+      }
+
+      // Pitch of the microphone: two windows of 2048 samples per 1024-sample block (about every 12 ms)
+      const tail = new Float32Array(2048);
+      const work = new Float32Array(3072);
+      const win = new Float32Array(2048);
+      const history = []; // the last few detections, for a median of 3
+      function detect(buf, rate) {
+        let e = 0;
+        for (let i = 0; i < buf.length; i++) e += buf[i] * buf[i];
+        const rms = Math.sqrt(e / buf.length);
+        if (rms < 0.004) return NaN;
+        const r = detector.findPitch(buf, rate);
+        if (r[1] < 0.88 || r[0] < 70 || r[0] > 1100) return NaN;
+        return 69 + 12 * Math.log2(r[0] / 440);
+      }
+      function onMic(m) {
+        if (!detector) return;
+        const rate = ctx.sampleRate, step = SR / rate;
+        work.set(tail, 0);
+        work.set(m.data, 2048);
+        tail.set(work.subarray(1024));
+        if (calib) calibBlock(m);
+        for (let w = 0; w < 2; w++) {
+          const end = 2560 + 512 * w;
+          win.set(work.subarray(end - 2048, end));
+          let midi = detect(win, rate);
+          history.push(midi);
+          if (history.length > 3) history.shift();
+          if (!isNaN(midi) && history.length === 3 && history.every(function (x) { return !isNaN(x); })) midi = median(history);
+          // Song position at the window's centre (its centre is 512 · (w − 1) samples from the block's start)
+          const center = m.pos + (end - 1024 - 2048) * step;
+          onPitch(midi, center, m.playing);
+        }
+        if (singing && m.playing && take) recordBlock(m, step);
+      }
+
+      // ---------- Singing: a take is from "Sing" until you stop ----------
+      let singing = false;
+      let take = null; // { line, covered, audio, start, semis, singOct, diffs, gain }
+      let singOctManual = null; // null = auto
+      function latencySec() { return (store.latency != null ? store.latency : autoLatency()) / 1000; }
+      function autoLatency() { return Math.round((outLatency() + 0.03) * 1000); }
+      function judge() { return STRICT[store.strict]; }
+      function refAt(k) { const v = song && song.line[k]; return v === undefined || isNaN(v) ? NaN : v + semis; }
+      function fold(d) { return ((((d + 6) % 12) + 12) % 12) - 6; } // semitones, into −6…+6
+      function singOct() { return singOctManual != null ? singOctManual : take && take.singOct != null ? take.singOct : 0; }
+
+      function newTake() {
+        const frames = Math.ceil((length / SR) * FPS) + 1;
+        return { line: new Float32Array(frames).fill(NaN), covered: new Uint8Array(frames), audio: null, start: pos, semis: semis, singOct: null, diffs: [], gain: 1, lastK: -1, lastV: NaN };
+      }
+      function onPitch(midi, center, isPlaying) {
+        // Live note (also while paused, and when measuring the range)
+        if (rangeState) rangeSample(midi);
+        if (!singing) return;
+        if (isNaN(midi)) { $("liveNote").textContent = ""; $("liveCents").textContent = ""; }
+        if (!isPlaying || !take) {
+          if (!isNaN(midi)) { $("liveNote").textContent = noteName(midi); $("liveCents").textContent = ""; }
+          return;
+        }
+        const tt = center / SR - latencySec();
+        const k = Math.round(tt * FPS);
+        if (k < 0 || k >= take.line.length) return;
+        if (!isNaN(midi)) {
+          // Fill the frames since the last detection (detections come about every 12 ms, frames every 10 ms)
+          if (take.lastK >= 0 && k > take.lastK && k - take.lastK <= 3 && !isNaN(take.lastV)) {
+            for (let j = take.lastK + 1; j < k; j++) take.line[j] = midi;
+          }
+          take.line[k] = midi;
+          const ref = refAt(k);
+          if (!isNaN(ref)) {
+            // Your octave: from the first seconds you sing with the melody (the median of the differences)
+            if (take.diffs.length < 300) {
+              take.diffs.push(midi - ref);
+              if (take.diffs.length >= 30) take.singOct = Math.max(-2, Math.min(2, Math.round(median(take.diffs) / 12)));
+              renderOct();
+            }
+            const c = Math.round(fold(midi - 12 * singOct() - ref) * 100);
+            $("liveNote").textContent = noteName(midi);
+            $("liveCents").textContent = (c > 0 ? "+" : c < 0 ? "−" : "±") + Math.abs(c) + "¢";
+          } else {
+            $("liveNote").textContent = noteName(midi);
+            $("liveCents").textContent = "";
+          }
+        }
+        take.lastK = k;
+        take.lastV = midi;
+      }
+      function recordBlock(m, step) {
+        const lat = latencySec();
+        if (!take.audio) take.audio = sharedInt16(length);
+        const a = take.audio;
+        const base = m.pos - lat * SR;
+        for (let i = 0; i < m.data.length; i++) {
+          const j = Math.round(base + i * step);
+          if (j < 0 || j >= length) continue;
+          const v = m.data[i];
+          a[j] = v >= 1 ? 32767 : v <= -1 ? -32768 : Math.round(v * 32767);
+        }
+        const k0 = Math.max(0, Math.round((base / SR) * FPS)), k1 = Math.min(take.covered.length - 1, Math.round(((base + m.data.length * step) / SR) * FPS));
+        for (let k = k0; k <= k1; k++) take.covered[k] = 1;
+      }
+
+      async function startSinging() {
+        if (!cur || singing) return;
+        if (!store.phonesOk) {
+          $("phonesAgain").checked = false;
+          const ok = await askDlg($("phonesDlg"), "phonesOk", "phonesCancel");
+          if (!ok) return;
+          if ($("phonesAgain").checked) { store.phonesOk = true; saveState(); }
+        }
+        showError("");
+        if (!(await startMic("sing"))) return;
+        singing = true;
+        take = newTake();
+        cmp = null;
+        $("results").hidden = true;
+        loadTracks(true);
+        renderSing();
+        renderOct();
+        if (!playing) play();
+        animate();
+      }
+      function stopSinging(showResults) {
+        if (!singing) return;
+        singing = false;
+        stopMic("sing");
+        renderSing();
+        if (playing) pause();
+        if (take) finishTake(showResults);
+      }
+      function renderSing() {
+        $("singBtn").setAttribute("aria-pressed", String(singing));
+        $("singLabel").textContent = t(singing ? "sing.stop" : "sing");
+      }
+      $("singBtn").addEventListener("click", function () { if (singing) stopSinging(true); else startSinging(); });
+      function renderOct() {
+        const o = take && take.singOct != null ? take.singOct : null;
+        $("octSel").options[0].textContent = o == null ? t("oct.auto") : t("oct.autoIs", { v: t("oct.short." + o) });
+      }
+      $("octSel").addEventListener("change", function () {
+        const v = this.value;
+        singOctManual = v === "auto" ? null : Number(v);
+        if (take && $("results").hidden === false) showResults();
+        draw();
+      });
+
+      function finishTake(show) {
+        // Your recording's level, so it plays about as loud as the singer
+        if (take.audio) {
+          let peak = 0;
+          for (let i = 0; i < take.audio.length; i += 4) { const v = Math.abs(take.audio[i]); if (v > peak) peak = v; }
+          take.gain = peak > 0 ? Math.min(8, (0.7 * 32768) / peak) : 1;
+        }
+        take.kept = false;
+        loadTracks(true);
+        if (show) showResults();
+      }
+      function restoreTake(saved) {
+        take = { line: saved.line, covered: saved.covered, audio: saved.audio ? toShared(saved.audio) : null, start: saved.start, semis: saved.semis, singOct: saved.singOct, diffs: [], gain: saved.gain || 1, kept: true };
+        loadTracks(true);
+        showResults();
+      }
+
+      // ---------- Results ----------
+      function analyzeTake() {
+        const [g, y] = judge();
+        const sh = take.semis;
+        let R = 0, U = 0, green = 0, biasSum = 0, biasN = 0;
+        const oct = singOctManual != null ? singOctManual : take.singOct || 0;
+        const cents = new Float32Array(take.line.length).fill(NaN);
+        for (let k = 0; k < take.line.length; k++) {
+          if (!take.covered[k]) continue;
+          const r = song.line[k];
+          if (isNaN(r)) continue;
+          R++;
+          const u = take.line[k];
+          if (isNaN(u)) continue;
+          U++;
+          const c = fold(u - 12 * oct - (r + sh)) * 100;
+          cents[k] = c;
+          if (Math.abs(c) <= g) green++;
+          if (Math.abs(c) < 300) { biasSum += c; biasN++; }
+        }
+        // Phrases: runs of the melody (gaps under 0.4 s joined), at least 0.5 s long
+        const phrases = [];
+        let s = -1, last = -1;
+        for (let k = 0; k <= take.line.length; k++) {
+          const on = k < take.line.length && take.covered[k] && !isNaN(song.line[k]);
+          if (on) { if (s < 0) s = k; last = k; }
+          else if (s >= 0 && (k - last > 40 || k === take.line.length)) {
+            if (last - s >= 50) phrases.push([s, last]);
+            s = -1;
+          }
+        }
+        // A long stretch without a rest is cut at the start of a note after about 2 seconds, so one bad
+        // phrase is not hidden in the average of a whole verse
+        const pieces = [];
+        phrases.forEach(function (p) {
+          let a = p[0];
+          for (let k = p[0] + 1; k <= p[1]; k++) {
+            const noteStart = !isNaN(song.line[k]) && isNaN(song.line[k - 1]);
+            if (noteStart && k - a >= 200 && p[1] - k >= 80) { pieces.push([a, k - 1]); a = k; }
+          }
+          pieces.push([a, p[1]]);
+        });
+        const items = [];
+        pieces.forEach(function (p) {
+          let n = 0, u = 0, abs = 0, sum = 0;
+          for (let k = p[0]; k <= p[1]; k++) {
+            if (isNaN(song.line[k])) continue;
+            n++;
+            if (isNaN(cents[k])) continue;
+            u++; abs += Math.abs(cents[k]); sum += cents[k];
+          }
+          if (!n) return;
+          if (u / n < 0.3) items.push({ p: p, missed: true, score: 0 });
+          else if (abs / u > g) items.push({ p: p, missed: false, score: abs / u, mean: sum / u });
+        });
+        const off = items.filter(function (x) { return !x.missed; }).sort(function (a, b) { return b.score - a.score; }).slice(0, 5);
+        const missed = items.filter(function (x) { return x.missed; }).slice(0, 2);
+        void y;
+        return { R: R, U: U, green: green, bias: biasN ? biasSum / biasN : 0, list: off.concat(missed) };
+      }
+      function showResults() {
+        if (!take || !song) return;
+        const r = analyzeTake();
+        $("results").hidden = false;
+        $("resMatch").textContent = r.U ? Math.round((r.green / r.U) * 100) + "%" : "–";
+        $("resSung").textContent = r.R ? Math.round((r.U / r.R) * 100) + "%" : "–";
+        const b = Math.round(r.bias);
+        $("resBias").textContent = r.U ? (b > 0 ? "+" : b < 0 ? "−" : "±") + t("res.cents", { n: Math.abs(b) }) : "–";
+        $("resNote").textContent = !r.U ? t("res.noteNone") : r.R < 8 * FPS ? t("res.noteShort", { time: fmtTime(r.R / FPS) }) : t("res.noteOk", { time: fmtTime(r.R / FPS) });
+        const ul = $("worst");
+        ul.textContent = "";
+        if (r.U && !r.list.length) ul.appendChild(el("li", "hint", t("res.none")));
+        r.list.forEach(function (x) {
+          const li = el("li");
+          const btn = el("button");
+          btn.type = "button";
+          const a = x.p[0] / FPS, z = (x.p[1] + 1) / FPS;
+          btn.appendChild(el("b", null, fmtTime(a) + "–" + fmtTime(z)));
+          const m = Math.round(Math.abs(x.mean || 0));
+          btn.appendChild(el("i", null, x.missed ? t("res.missed") : t(x.mean > 0 ? "res.high" : "res.low", { n: m })));
+          btn.querySelector("i").style.color = x.missed ? "var(--muted)" : x.score <= judge()[1] ? "var(--near)" : "var(--off)";
+          btn.addEventListener("click", function () {
+            setLoop(Math.max(0, Math.round((a - 0.5) * SR)), Math.min(length - 1, Math.round((z + 0.5) * SR)));
+            seekTo(Math.max(0, a - 0.5));
+            play();
+          });
+          li.appendChild(btn);
+          ul.appendChild(li);
+        });
+        $("keepBtn").disabled = !!take.kept || !take.audio;
+        $("keepBtn").textContent = t(take.kept ? "res.kept" : "res.keep");
+        $("wavBtn").disabled = !take.audio;
+        $("cmpMine").disabled = $("cmpBoth").disabled = !take.audio;
+        draw();
+      }
+      ["orig", "mine", "both"].forEach(function (k) {
+        $("cmp" + k[0].toUpperCase() + k.slice(1)).addEventListener("click", function () { cmp = cmp === k ? null : k; sendGains(); });
+      });
+      $("cmpPlay").addEventListener("click", function () {
+        if (!take) return;
+        if (!cmp) cmp = take.audio ? "both" : "orig";
+        sendGains();
+        seekTo(take.start / SR);
+        play();
+      });
+      $("resClose").addEventListener("click", function () { $("results").hidden = true; cmp = null; sendGains(); draw(); });
+      $("keepBtn").addEventListener("click", async function () {
+        if (!take || !take.audio || !song || song.demo) return;
+        try {
+          const rec = await dbGet("songs", song.hash);
+          const info = await dbGet("index", song.hash);
+          if (!rec || !info) throw new Error("song not saved");
+          rec.take = { line: take.line, covered: take.covered, audio: plain(take.audio), start: take.start, semis: take.semis, singOct: take.singOct, gain: take.gain };
+          info.take = true;
+          info.bytes = pcmBytes(rec.stems.map(function (s) { return [s[0], s[1] || s[0]]; })) + take.audio.length * 2;
+          await dbPut([["songs", rec], ["index", info]]);
+          take.kept = true;
+          showResults();
+          renderRecent();
+          toast(t("res.keptToast"));
+        } catch (e) {
+          console.warn(e);
+          toast(t("res.keepFail"));
+        }
+      });
+      $("wavBtn").addEventListener("click", function () {
+        if (!take || !take.audio) return;
+        let a = -1, z = -1;
+        for (let k = 0; k < take.covered.length; k++) if (take.covered[k]) { if (a < 0) a = k; z = k; }
+        if (a < 0) return;
+        const s0 = Math.floor((a / FPS) * SR), s1 = Math.min(length, Math.ceil(((z + 1) / FPS) * SR));
+        const n = s1 - s0;
+        const buf = new ArrayBuffer(44 + n * 2), dv = new DataView(buf);
+        const str = function (o, s) { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); };
+        str(0, "RIFF"); dv.setUint32(4, 36 + n * 2, true); str(8, "WAVE"); str(12, "fmt ");
+        dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true); dv.setUint32(24, SR, true);
+        dv.setUint32(28, SR * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true); str(36, "data"); dv.setUint32(40, n * 2, true);
+        const g = take.gain;
+        for (let i = 0; i < n; i++) dv.setInt16(44 + i * 2, Math.max(-32768, Math.min(32767, Math.round(take.audio[s0 + i] * g))), true);
+        const name = (song.name || "song").replace(/\.[^.]+$/, "") + "-my-voice.wav";
+        saveBlob(name, new Blob([buf], { type: "audio/wav" }));
+      });
+      async function saveBlob(name, blob) {
+        // Inside a claude.ai Artifact (preview), downloads go through its "downloads" capability
+        if (window.claude && window.claude.use) {
+          try { const d = await window.claude.use("downloads"); await d.save({ filename: name, data: blob }); return; } catch (e) {}
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = name;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
+      }
+
+      // ---------- The roll: the melody and your line ----------
+      const roll = $("roll");
+      let rafOn = false;
+      function animate() {
+        if (rafOn) return;
+        rafOn = true;
+        const loop = function () {
+          draw();
+          if (playing || singing || rangeState) requestAnimationFrame(loop); else rafOn = false;
+        };
+        requestAnimationFrame(loop);
+      }
+      function colorOf(c) {
+        const [g, y] = judge();
+        const a = Math.abs(c);
+        return a <= g ? "#15803d" : a <= y ? "#b45309" : "#dc2626";
+      }
+      // A made-up melody shown greyed out before a song is loaded, with a sung line over it
+      const GHOST = (function () {
+        const line = new Float32Array(1200).fill(NaN), mine = new Float32Array(1200).fill(NaN);
+        const notes = [[64, 60], [67, 60], [69, 60], [67, 60], [65, 60], [64, 60], [62, 120], [0, 40], [60, 60], [64, 60], [69, 90], [67, 30], [65, 120]];
+        let k = 50;
+        notes.forEach(function (n, i) {
+          for (let j = 0; j < n[1] - 6; j++) {
+            if (!n[0]) continue;
+            line[k + j] = n[0];
+            mine[k + j + 4] = n[0] + (i % 4 === 2 ? 0.9 : i % 3 === 1 ? 0.45 : 0.1) * Math.sin(j / 9) + (j < 10 ? (j - 10) / 12 : 0);
+          }
+          k += n[1];
+        });
+        return { line: line, mine: mine, now: 7.2 };
+      })();
+      function draw() {
+        const dpr = window.devicePixelRatio || 1;
+        const w = roll.clientWidth, h = roll.clientHeight;
+        if (!w || !h) return;
+        if (roll.width !== Math.round(w * dpr) || roll.height !== Math.round(h * dpr)) { roll.width = Math.round(w * dpr); roll.height = Math.round(h * dpr); }
+        const c = roll.getContext("2d");
+        c.setTransform(dpr, 0, 0, dpr, 0, 0);
+        c.clearRect(0, 0, w, h);
+        const ghost = !song;
+        const line = ghost ? GHOST.line : song.line;
+        const sh = ghost ? 0 : semis;
+        const lo = Math.floor((ghost ? 57 : view.lo) + sh), hi = Math.ceil((ghost ? 73 : view.hi) + sh);
+        const KW = 40;
+        const span = w < 480 ? 5 : 8;
+        const now = ghost ? GHOST.now : nowSec();
+        const nowX = KW + (w - KW) * 0.45;
+        const pxs = (w - KW) / span;
+        const t0 = now - (nowX - KW) / pxs;
+        const rowH = h / (hi - lo + 1);
+        const yOf = function (m) { return h - (m - lo + 0.5) * rowH; };
+        const xOf = function (sec) { return KW + (sec - t0) * pxs; };
+        // Rows: black keys shaded, C lines darker
+        for (let m = lo; m <= hi; m++) {
+          const pc = ((m % 12) + 12) % 12;
+          const y = yOf(m) - rowH / 2;
+          if ([1, 3, 6, 8, 10].indexOf(pc) >= 0) { c.fillStyle = "#fafafa"; c.fillRect(KW, y, w - KW, rowH); }
+          c.fillStyle = pc === 0 ? "#d4d4d4" : "#f0f0f0";
+          c.fillRect(KW, y + rowH - 1, w - KW, 1);
+        }
+        // Loop region
+        if (!ghost && loopA >= 0 && loopB > loopA) {
+          c.fillStyle = "rgba(0,0,0,.05)";
+          const xa = Math.max(KW, xOf(loopA / SR)), xb = Math.min(w, xOf(loopB / SR));
+          if (xb > xa) c.fillRect(xa, 0, xb - xa, h);
+        }
+        // Keyboard with note names
+        c.fillStyle = "#fff"; c.fillRect(0, 0, KW, h);
+        c.font = "10px " + getComputedStyle(document.body).fontFamily;
+        c.textBaseline = "middle";
+        for (let m = lo; m <= hi; m++) {
+          const pc = ((m % 12) + 12) % 12;
+          const y = yOf(m);
+          const black = [1, 3, 6, 8, 10].indexOf(pc) >= 0;
+          c.fillStyle = black ? "#262626" : "#fff";
+          c.fillRect(0, y - rowH / 2, black ? KW * 0.6 : KW, rowH);
+          c.fillStyle = "#e5e5e5";
+          c.fillRect(0, y + rowH / 2 - 0.5, KW, 0.5);
+          if (!black && (pc === 0 || rowH >= 13)) {
+            c.fillStyle = pc === 0 ? "#000" : "#737373";
+            c.fillText(noteName(m), KW * 0.62 > 24 ? 3 : 2, y);
+          }
+        }
+        c.fillStyle = "#d4d4d4"; c.fillRect(KW - 1, 0, 1, h);
+        c.save();
+        c.beginPath(); c.rect(KW, 0, w - KW, h); c.clip();
+        // The original melody
+        const k0 = Math.max(0, Math.floor(t0 * FPS)), k1 = Math.min(line.length - 1, Math.ceil((t0 + span) * FPS));
+        c.lineCap = "round"; c.lineJoin = "round";
+        c.strokeStyle = "rgba(163,163,163,.7)";
+        c.lineWidth = Math.max(5, Math.min(12, rowH * 0.7));
+        c.beginPath();
+        let on = false;
+        for (let k = k0; k <= k1; k++) {
+          const v = line[k];
+          if (isNaN(v)) { on = false; continue; }
+          const x = xOf(k / FPS), y = yOf(v + sh);
+          if (!on) { c.moveTo(x, y); on = true; } else c.lineTo(x, y);
+        }
+        c.stroke();
+        // Your line, coloured by how far it is from the melody
+        const mine = ghost ? GHOST.mine : take ? take.line : null;
+        if (mine) {
+          const oct = ghost ? 0 : singOct();
+          const tsh = ghost ? 0 : take.semis;
+          c.lineWidth = 3;
+          let prev = null;
+          for (let k = k0; k <= k1; k++) {
+            const u = mine[k];
+            if (isNaN(u)) { prev = null; continue; }
+            const shown = u - 12 * oct;
+            const r = line[k];
+            const x = xOf(k / FPS);
+            // Shown near the melody when you sing an octave away from your chosen octave
+            const ref = isNaN(r) ? NaN : r + tsh;
+            // Drawn against the line as shown now (a kept take may have been sung in another key)
+            const y = yOf(isNaN(ref) ? shown + sh - tsh : r + sh + fold(shown - ref));
+            const col = isNaN(ref) ? "#737373" : colorOf(fold(shown - ref) * 100);
+            if (prev) {
+              c.strokeStyle = col;
+              c.beginPath(); c.moveTo(prev[0], prev[1]); c.lineTo(x, y); c.stroke();
+            }
+            prev = [x, y];
+          }
+        }
+        c.restore();
+        // Now
+        c.fillStyle = "#000";
+        c.fillRect(nowX - 0.75, 0, 1.5, h);
+      }
+      roll.addEventListener("click", function (e) {
+        if (!song) return;
+        const r = roll.getBoundingClientRect();
+        const w = r.width, KW = 40, span = w < 480 ? 5 : 8;
+        const x = e.clientX - r.left;
+        if (x < KW) return;
+        const nowX = KW + (w - KW) * 0.45;
+        seekTo(nowSec() + (x - nowX) / ((w - KW) / span));
+      });
+      window.addEventListener("resize", draw);
+
+      // ---------- Vocal range (optional) ----------
+      let rangeState = null; // { step: 0 low | 1 high | 2 falsetto | 3 done | "saved", phase: "ready" | "listening" | "got", samples, values }
+      let rangeTimer = 0;
+      function openRange() {
+        closeMenu(false);
+        rangeState = range ? { step: "saved", phase: "got", values: [range.low, range.high, range.falsetto == null ? null : range.falsetto] } : { step: 0, phase: "ready", values: [null, null, null] };
+        renderRange();
+        openDlg($("rangeDlg"));
+        animate();
+      }
+      function renderRange() {
+        const s = rangeState;
+        if (!s) return;
+        const steps = $("rangeSteps").children;
+        for (let i = 0; i < 3; i++) steps[i].classList.toggle("on", s.step === "saved" || s.step === 3 || i <= s.step);
+        const done = s.step === "saved" || s.step === 3;
+        $("rangeText").textContent = s.step === "saved" ? t("range.saved") : s.step === 3 ? t("range.step.done") : t(["range.step.low", "range.step.high", "range.step.falsetto"][s.step]);
+        const go = $("rangeGo"), skip = $("rangeSkip");
+        $("rangeDel").hidden = s.step !== "saved";
+        skip.hidden = !(s.step === 2 && s.phase === "ready") && !(typeof s.step === "number" && s.step < 3 && s.phase === "got");
+        skip.textContent = s.phase === "got" ? t("range.again") : t("range.skip");
+        go.disabled = s.phase === "listening";
+        go.textContent = s.step === "saved" ? t("range.redo") : s.step === 3 ? t("range.save") : s.phase === "ready" ? t("range.start") : s.phase === "listening" ? t("range.listening") : t("range.next");
+        if (done) {
+          $("rangeNote").textContent = t("range.result", { low: noteName(s.values[0]), high: noteName(s.values[1]) });
+          $("rangeSub").textContent = s.values[2] != null ? t("range.falsetto", { note: noteName(s.values[2]) }) : "";
+        } else if (s.phase === "got") {
+          const v = s.values[s.step];
+          $("rangeNote").textContent = v == null ? "–" : noteName(v);
+          $("rangeSub").textContent = v == null ? t("range.nothing") : "";
+        } else if (s.phase === "ready") {
+          $("rangeNote").textContent = "–";
+          $("rangeSub").textContent = "";
+        }
+        drawKbd();
+      }
+      function rangeSample(midi) {
+        const s = rangeState;
+        if (!s || s.phase !== "listening") return;
+        if (!isNaN(midi)) { s.samples.push(midi); $("rangeNote").textContent = noteName(midi); }
+      }
+      $("rangeGo").addEventListener("click", async function () {
+        const s = rangeState;
+        if (!s) return;
+        if (s.step === "saved") { rangeState = { step: 0, phase: "ready", values: [null, null, null] }; renderRange(); return; }
+        if (s.step === 3) {
+          if (!(s.values[1] > s.values[0])) { toast(t("range.badOrder")); rangeState = { step: 0, phase: "ready", values: [null, null, null] }; renderRange(); return; }
+          range = { low: Math.round(s.values[0]), high: Math.round(s.values[1]), falsetto: s.values[2] == null ? null : Math.round(s.values[2]), at: Date.now() };
+          try { localStorage.setItem(RANGE_KEY, JSON.stringify(range)); } catch (e) {}
+          rangeState = { step: "saved", phase: "got", values: [range.low, range.high, range.falsetto] };
+          renderRange();
+          renderRangeBox();
+          renderSuggest();
+          return;
+        }
+        if (s.phase === "got") {
+          if (s.values[s.step] == null) { s.phase = "ready"; renderRange(); return; }
+          s.step++;
+          s.phase = "ready";
+          renderRange();
+          return;
+        }
+        if (s.phase === "ready") {
+          if (singing) stopSinging(false);
+          pause();
+          if (!(await startMic("range"))) return;
+          s.phase = "listening";
+          s.samples = [];
+          renderRange();
+          animate();
+          clearTimeout(rangeTimer);
+          rangeTimer = setTimeout(function () {
+            stopMic("range");
+            if (rangeState !== s) return;
+            // The note you held: the median of what was heard (at least 0.3 s of a clear pitch)
+            s.values[s.step] = s.samples.length >= 25 ? median(s.samples) : null;
+            s.phase = "got";
+            renderRange();
+          }, 4000);
+        }
+      });
+      $("rangeSkip").addEventListener("click", function () {
+        const s = rangeState;
+        if (!s) return;
+        if (s.phase === "got") { s.values[s.step] = null; s.phase = "ready"; renderRange(); return; }
+        if (s.step === 2) { s.values[2] = null; s.step = 3; s.phase = "got"; renderRange(); }
+      });
+      $("rangeDel").addEventListener("click", function () {
+        range = null;
+        try { localStorage.removeItem(RANGE_KEY); } catch (e) {}
+        renderRangeBox();
+        renderSuggest();
+        toast(t("range.deleted"));
+        $("rangeDlg").close();
+      });
+      $("rangeClose").addEventListener("click", function () { $("rangeDlg").close(); });
+      $("rangeDlg").addEventListener("close", function () {
+        clearTimeout(rangeTimer);
+        stopMic("range");
+        rangeState = null;
+      });
+      $("rangeBtn").addEventListener("click", openRange);
+      $("menuRange").addEventListener("click", openRange);
+      function renderRangeBox() {
+        $("rangeVal").textContent = range ? noteName(range.low) + "–" + noteName(range.high) : "";
+        $("rangeBtn").textContent = t(range ? "range.redo" : "range.open");
+      }
+      // Keyboard from C2 to C6 with the range marked
+      function drawKbd() {
+        const cv = $("rangeKbd");
+        const dpr = window.devicePixelRatio || 1;
+        const w = cv.clientWidth, h = cv.clientHeight;
+        if (!w) return;
+        cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+        const c = cv.getContext("2d");
+        c.setTransform(dpr, 0, 0, dpr, 0, 0);
+        c.clearRect(0, 0, w, h);
+        const s = rangeState || {};
+        const vals = s.values || [];
+        const lo = vals[0] != null ? Math.round(vals[0]) : null, hi = vals[1] != null ? Math.round(vals[1]) : null, fa = vals[2] != null ? Math.round(vals[2]) : null;
+        const whites = [];
+        for (let m = 36; m <= 84; m++) if ([1, 3, 6, 8, 10].indexOf(m % 12) < 0) whites.push(m);
+        const ww = w / whites.length, kh = h - 14;
+        const inRange = function (m) { return lo != null && hi != null ? m >= lo && m <= hi : lo != null ? m === lo : hi != null ? m === hi : false; };
+        const inFals = function (m) { return fa != null && hi != null && m > hi && m <= fa; };
+        whites.forEach(function (m, i) {
+          c.fillStyle = inRange(m) ? "#000" : inFals(m) ? "#a3a3a3" : "#fff";
+          c.fillRect(i * ww, 0, ww - 1, kh);
+          c.strokeStyle = "#d4d4d4"; c.strokeRect(i * ww + 0.5, 0.5, ww - 1, kh - 1);
+          if (m % 12 === 0) { c.fillStyle = "#737373"; c.font = "10px sans-serif"; c.textBaseline = "top"; c.fillText(noteName(m), i * ww + 1, kh + 2); }
+        });
+        whites.forEach(function (m, i) {
+          const b = m + 1;
+          if ([1, 3, 6, 8, 10].indexOf(b % 12) < 0 || b > 84) return;
+          c.fillStyle = inRange(b) ? "#525252" : inFals(b) ? "#737373" : "#262626";
+          c.fillRect((i + 1) * ww - ww * 0.3, 0, ww * 0.6, kh * 0.6);
+          if (inRange(b)) { c.strokeStyle = "#fff"; c.strokeRect((i + 1) * ww - ww * 0.3 + 0.5, 0.5, ww * 0.6 - 1, kh * 0.6 - 1); }
+        });
+      }
+
+      // ---------- Settings ----------
+      function renderLatency() {
+        const v = store.latency != null ? store.latency : autoLatency();
+        $("latency").value = v;
+        $("latencyVal").textContent = v + " ms";
+        $("latencyNote").textContent = t(store.latency == null ? "set.delay.auto" : store.latencySrc === "measured" ? "set.delay.measured" : "set.delay.manual");
+      }
+      function renderSettings() {
+        $("strictSel").value = store.strict;
+        $("micNs").checked = store.ns; $("micEc").checked = store.ec; $("micAgc").checked = store.agc;
+        const j = judge();
+        $("legendGood").textContent = t("legend.good", { c: j[0] });
+        $("legendNear").textContent = t("legend.near", { c: j[1] });
+        renderLatency();
+      }
+      $("strictSel").addEventListener("change", function () { store.strict = this.value; saveState(); renderSettings(); if (take && !$("results").hidden) showResults(); draw(); });
+      $("latency").addEventListener("input", function () { store.latency = Number(this.value); store.latencySrc = "manual"; saveState(); renderLatency(); });
+      [["micNs", "ns"], ["micEc", "ec"], ["micAgc", "agc"]].forEach(function (p) {
+        $(p[0]).addEventListener("change", function () { store[p[1]] = this.checked; saveState(); });
+      });
+      $("menuSettings").addEventListener("click", function () { closeMenu(false); renderSettings(); openDlg($("setDlg")); });
+      $("setClose").addEventListener("click", function () { $("setDlg").close(); });
+
+      // Delay measurement: 8 beeps; you say "ta" with each; the median gap between a beep and your voice
+      let calib = null;
+      $("calibBtn").addEventListener("click", async function () {
+        if (calib) return;
+        if (singing) stopSinging(false);
+        pause();
+        if (!(await startMic("calib"))) return;
+        calib = { clicks: [], onsets: [], floor: 1e-4, lastOn: -1e9, prevE: 0 };
+        $("calibBtn").disabled = true;
+        $("calibState").textContent = t("calib.listen");
+        node.port.postMessage({ type: "clicks", count: 8, interval: 0.75, start: 0.8 });
+        setTimeout(function () {
+          const c = calib;
+          calib = null;
+          stopMic("calib");
+          $("calibBtn").disabled = false;
+          const rate = ctx.sampleRate;
+          const gaps = [];
+          c.clicks.forEach(function (f) {
+            const on = c.onsets.find(function (o) { return o >= f - 0.1 * rate && o <= f + 0.6 * rate; });
+            if (on != null) gaps.push(on - f);
+          });
+          if (gaps.length < 4) { $("calibState").textContent = t("calib.fail"); return; }
+          const ms = Math.max(0, Math.min(500, Math.round((median(gaps) / rate) * 1000)));
+          store.latency = ms; store.latencySrc = "measured"; saveState();
+          renderLatency();
+          $("calibState").textContent = t("calib.done", { ms: ms });
+        }, (0.8 + 8 * 0.75 + 1) * 1000);
+      });
+      // Voice onsets in a microphone block: the level of 128-sample pieces jumping above the noise
+      function calibBlock(m) {
+        const c = calib;
+        const rate = ctx.sampleRate;
+        for (let i = 0; i < m.data.length; i += 128) {
+          let e = 0;
+          for (let j = i; j < i + 128; j++) e += m.data[j] * m.data[j];
+          e /= 128;
+          const frame = m.frame + i;
+          if (e > Math.max(c.floor * 12, 2e-4) && c.prevE < e * 0.5 && frame - c.lastOn > 0.3 * rate) { c.onsets.push(frame); c.lastOn = frame; }
+          else if (e < c.floor * 4) c.floor = c.floor * 0.95 + e * 0.05;
+          c.prevE = e;
+        }
+      }
+
+      // ---------- Keyboard shortcuts ----------
+      document.addEventListener("keydown", function (e) {
+        if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
+        if (document.querySelector("dialog[open]") || !settingsMenu.hidden) return;
+        const tag = e.target && e.target.tagName;
+        if (tag === "INPUT" && e.target.type !== "range" || tag === "TEXTAREA" || tag === "SELECT") return;
+        if (!song) return;
+        if (e.key === " ") { e.preventDefault(); togglePlay(); }
+        else if (e.key === "Home") { e.preventDefault(); stopToStart(); }
+        else if (e.key === "r" || e.key === "R") { if (singing) stopSinging(true); else startSinging(); }
+        else if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && tag !== "INPUT") {
+          e.preventDefault();
+          seekTo(nowSec() + (e.key === "ArrowLeft" ? -5 : 5));
+        }
+      });
+
+      // ---------- Tap feedback (WEBAPP_BASELINE §9-10) ----------
+      const PRESSABLE = ".chip:not([aria-pressed]), .primary, .play, #settingsBtn";
+      document.addEventListener("pointerdown", function (e) {
+        const b = e.target.closest && e.target.closest(PRESSABLE);
+        if (!b || b.disabled) return;
+        b.classList.add("is-pressed");
+        const t0 = Date.now();
+        const up = function () {
+          document.removeEventListener("pointerup", up);
+          document.removeEventListener("pointercancel", up);
+          setTimeout(function () { b.classList.remove("is-pressed"); }, Math.max(0, 150 - (Date.now() - t0)));
+        };
+        document.addEventListener("pointerup", up);
+        document.addEventListener("pointercancel", up);
+      });
+
+      // ---------- Menu and dialogs ----------
+      const settingsBtn = $("settingsBtn");
+      const settingsMenu = $("settingsMenu");
+      function closeMenu(returnFocus) {
+        if (settingsMenu.hidden) return;
+        settingsMenu.hidden = true;
+        settingsBtn.setAttribute("aria-expanded", "false");
+        if (returnFocus) settingsBtn.focus();
+      }
+      function openMenu() {
+        const r = settingsBtn.getBoundingClientRect();
+        settingsMenu.style.top = r.bottom + 6 + "px";
+        settingsMenu.style.right = Math.max(8, document.documentElement.clientWidth - r.right) + "px";
+        settingsMenu.hidden = false;
+        settingsBtn.setAttribute("aria-expanded", "true");
+        $("menuHelp").focus();
+      }
+      settingsBtn.addEventListener("click", function () {
+        if (settingsMenu.hidden) openMenu(); else closeMenu(true);
+      });
+      document.addEventListener("click", function (e) {
+        if (!settingsMenu.hidden && !settingsMenu.contains(e.target) && !settingsBtn.contains(e.target)) closeMenu(false);
+      });
+      document.addEventListener("keydown", function (e) {
+        if (settingsMenu.hidden) return;
+        if (e.key === "Escape") { closeMenu(true); return; }
+        if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+          e.preventDefault();
+          const items = Array.prototype.slice.call(settingsMenu.querySelectorAll('[role="menuitem"]'));
+          const i = items.indexOf(document.activeElement);
+          const next = e.key === "ArrowDown" ? (i + 1) % items.length : (i - 1 + items.length) % items.length;
+          items[next].focus();
+        }
+      }, true);
+      window.addEventListener("resize", function () { closeMenu(false); });
+
+      let licenseLoaded = false;
+      async function loadLicenses() {
+        if (licenseLoaded) return;
+        const box = $("licenseText");
+        box.textContent = t("loading");
+        try {
+          const res = await fetch("THIRD_PARTY_LICENSES.md");
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          box.textContent = (await res.text()).replace(/<!--[\s\S]*?-->\n?/g, "");
+          licenseLoaded = true;
+        } catch (e) {
+          box.textContent = t("err.license");
+        }
+      }
+      // Focus the dialog itself, not its first link (WEBAPP_BASELINE §9-11)
+      function openDlg(dlg) {
+        if (typeof dlg.showModal !== "function") return;
+        if (!dlg.open) dlg.showModal();
+        dlg.focus();
+      }
+      $("menuHelp").addEventListener("click", function () { closeMenu(false); openDlg($("helpDlg")); });
+      $("menuPrivacy").addEventListener("click", function () { closeMenu(false); openDlg($("privacyDlg")); });
+      $("menuAbout").addEventListener("click", function () { closeMenu(false); loadLicenses(); openDlg($("aboutDlg")); });
+      $("menuModel").addEventListener("click", async function () {
+        closeMenu(false);
+        $("confirmTitle").textContent = t("model.del.title");
+        $("confirmBody").textContent = t("model.del.body", { mb: MODEL_MB });
+        if (!(await askDlg($("confirmDlg"), "confirmOk", "confirmCancel"))) return;
+        try { await caches.delete(MODEL_CACHE); } catch (e) {}
+        await checkModel();
+        toast(t("model.del.done"));
+      });
+      $("menuSongs").addEventListener("click", async function () {
+        closeMenu(false);
+        let all = [];
+        try { all = await dbAll(); } catch (e) {}
+        const bytes = all.reduce(function (s, x) { return s + (x.bytes || 0); }, 0);
+        $("confirmTitle").textContent = t("songs.del.title");
+        $("confirmBody").textContent = t("songs.del.body", { mb: mb(bytes) });
+        if (!(await askDlg($("confirmDlg"), "confirmOk", "confirmCancel"))) return;
+        try { await dbDelete(all.map(function (x) { return x.hash; })); } catch (e) {}
+        renderRecent();
+        toast(t("songs.del.done"));
+      });
+      [["helpDlg", "helpClose"], ["privacyDlg", "privacyClose"], ["aboutDlg", "aboutClose"]].forEach(function (p) {
+        $(p[1]).addEventListener("click", function () { $(p[0]).close(); });
+      });
+      ["helpDlg", "privacyDlg", "aboutDlg", "setDlg", "rangeDlg", "confirmDlg"].forEach(function (id) {
+        $(id).addEventListener("close", function () { if (document.activeElement === document.body || !document.activeElement) settingsBtn.focus(); });
+      });
+      // Close with a click outside
+      document.querySelectorAll("dialog.msg").forEach(function (dlg) {
+        dlg.addEventListener("click", function (e) {
+          if (e.target !== dlg) return;
+          const r = dlg.getBoundingClientRect();
+          if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dlg.close();
+        });
+      });
+
+      // ---------- Start ----------
+      applyI18n();
+      renderVols();
+      renderSettings();
+      renderRangeBox();
+      renderKey();
+      renderLoop();
+      renderSing();
+      setGhost(true);
+      draw();
+      checkModel();
+      renderRecent();
+      reportCrash();
+    })();
+  </script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    });
+  }
+</script>
+<!-- Cloudflare Web Analytics (page views; no cookies) -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "5c53079cb9a64d819d1ca53e8533ca63"}'></script>
+</body>
+</html>
