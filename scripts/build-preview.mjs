@@ -20,8 +20,8 @@ const NAME = "Karaoke Trainer";
 const FILES = ["THIRD_PARTY_LICENSES.md", "icons/icon.svg", "separator.js", "dsp.js", "pitch.js", "mixer.js", "keyshift.js", "vendor/pitchy.js", "vendor/fft.js"];
 // The Artifact frame has no microphone and no AI model: say so above the app, and point to the demo song
 const NOTE = {
-  en: "Preview: the microphone and the AI separation do not work here. Press “Try the demo song” to see the melody line, the vocal / accompaniment sliders, the key change and the loop.",
-  ja: "プレビュー：ここではマイクとAIによる分離は動きません。「デモ曲で試す」を押すと、メロディの線、ボーカル／伴奏の音量、キー変更、区間ループを試せます。",
+  en: "Preview: the microphone and the AI separation do not work here. Press “Try the demo song” to see the melody line, the vocal / accompaniment sliders and the key change.",
+  ja: "プレビュー：ここではマイクとAIによる分離は動きません。「デモ曲で試す」を押すと、メロディの線、ボーカル／伴奏の音量、キー変更を試せます。",
 };
 
 const src = new URL(`../public/${SLUG}/`, import.meta.url);
