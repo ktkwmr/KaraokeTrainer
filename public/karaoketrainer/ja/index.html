@@ -74,6 +74,7 @@
     .toolbar { display: flex; align-items: center; gap: 12px 20px; }
     .brand { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 14px; font-weight: 700; letter-spacing: .01em; white-space: nowrap; }
     .brand svg { width: 28px; height: 28px; flex: 0 0 auto; }
+    .brand .beta { margin-left: -4px; padding: 1px 6px; border: 1px solid currentColor; border-radius: 999px; font-size: 11px; font-weight: 600; line-height: 1.4; opacity: .7; }
     .toolbar .end { margin-left: auto; display: flex; align-items: center; }
     #settingsBtn { appearance: none; width: var(--ctl-h); height: var(--ctl-h); padding: 0; border: 1px solid transparent; border-radius: 50%; background: var(--paper); color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
     #settingsBtn svg { flex: none; width: 28px; height: 28px; }
@@ -292,6 +293,7 @@
       <div class="brand">
         <svg viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="7" fill="#000"></rect><path d="M4.5 18.5h4l2-4h4l2-5h4l2 3h1" fill="none" stroke="#8a8a8a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 19.5h4.2l2-4.6h3.6l2.4-4.4h3.8l2.4 3.2" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Karaoke Trainer</span>
+        <span class="beta" data-i18n="brand.beta">β版</span>
       </div>
       <div class="end">
         <button id="settingsBtn" type="button" aria-label="メニュー" data-i18n-attr="aria-label:menu" aria-haspopup="menu" aria-expanded="false" aria-controls="settingsMenu">
@@ -599,6 +601,7 @@
       // Text is set with data-i18n (textContent) / data-i18n-html (innerHTML, fixed strings below only) / data-i18n-attr (attributes)
       const I18N = {
         en: {
+          "brand.beta": "Beta",
           "menu": "Menu",
           "song": "Song",
           "practice": "Practice",
@@ -833,6 +836,7 @@
           "foot.meta": "<span>Karaoke Trainer · © 2026 ktkwmr</span><a href=\"/karaoketrainer/privacy/\" target=\"_blank\" rel=\"noopener\">Privacy policy</a><a href=\"/karaoketrainer/about/\" target=\"_blank\" rel=\"noopener\">About this site</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer\" target=\"_blank\" rel=\"noopener\">Source code on GitHub</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">Feedback</a><a href=\"https://ktkwmr.com/\" target=\"_blank\" rel=\"noopener\">More apps by ktkwmr</a>"
         },
         ja: {
+          "brand.beta": "β版",
           "menu": "メニュー",
           "song": "曲",
           "practice": "練習",
