@@ -16,11 +16,11 @@ const EN = [
   },
   {
     q: "Which files can I use?",
-    a: `Any audio format your browser can play: MP3, WAV, M4A (AAC), FLAC, Ogg, and others, up to ${MAX_MIN} minutes. Use files you bought or recorded.`,
+    a: `Any audio format your browser can play: MP3, WAV, M4A (AAC), FLAC, Ogg, and others, up to ${MAX_MIN} minutes. Video files (MP4, MOV, WebM…) work too: the app uses only their sound. MP4 videos work in every browser; other formats depend on the browser. Use files you bought or recorded.`,
   },
   {
     q: "Can I use songs from YouTube, Spotify, or Apple Music?",
-    a: "No. The app only opens audio files on your device; it does not take songs from websites or streaming services (music from streaming services is protected and cannot be opened in other apps).",
+    a: "No. The app only opens audio and video files on your device; it does not take songs from websites or streaming services (music from streaming services is protected and cannot be opened in other apps).",
   },
   {
     q: "Why is there a download the first time?",
@@ -96,11 +96,11 @@ const JA = [
   },
   {
     q: "どんなファイルが使えますか？",
-    a: `ブラウザで再生できる音声ファイルなら使えます（MP3、WAV、M4A（AAC）、FLAC、Ogg など）。${MAX_MIN}分までです。購入した曲や自分で録音した曲のファイルを使ってください。`,
+    a: `ブラウザで再生できる音声ファイルなら使えます（MP3、WAV、M4A（AAC）、FLAC、Ogg など）。${MAX_MIN}分までです。動画のファイル（MP4、MOV、WebM など）も使え、音声だけを使います。MP4 はどのブラウザでも使え、ほかの形式はブラウザによります。購入した曲や自分で録音した曲のファイルを使ってください。`,
   },
   {
     q: "YouTube や Spotify、Apple Music の曲は使えますか？",
-    a: "使えません。このアプリは端末にある音声ファイルだけを開き、サイトやストリーミングサービスから曲を取り込む機能はありません（ストリーミングの音楽は保護されていて、ほかのアプリでは開けません）。",
+    a: "使えません。このアプリは端末にある音声・動画ファイルだけを開き、サイトやストリーミングサービスから曲を取り込む機能はありません（ストリーミングの音楽は保護されていて、ほかのアプリでは開けません）。",
   },
   {
     q: "初回に大きなダウンロードがあるのはなぜですか？",
