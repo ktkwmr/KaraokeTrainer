@@ -60,7 +60,11 @@ const EN = [
   },
   {
     q: "Is my recording saved?",
-    a: "Only if you press “Keep this recording” (it is kept on this device with the song) or “Save as WAV” (a file on your device). Otherwise it is gone when you sing again or close the page.",
+    a: "Only if you press “Keep this recording” (it is kept on this device with the song), “Save my voice only (WAV)”, or “Save with the song (MP3)” (files on your device). Otherwise it is gone when you sing again or close the page.",
+  },
+  {
+    q: "Can I save my singing with the song?",
+    a: "Yes. After singing, “Save with the song (MP3)” saves your voice with the accompaniment as one MP3 file. It contains the song, so it is for your own practice only: do not upload it to video or social media sites, share it, or distribute it. The rights to the song belong to its rights holders.",
   },
   {
     q: "How is the suggested key chosen?",
@@ -136,7 +140,11 @@ const JA = [
   },
   {
     q: "録音は保存されますか？",
-    a: "「この録音を残す」（曲と一緒にこの端末に保存）か「WAVで保存」（端末にファイルを保存）を押したときだけです。それ以外は、もう一度歌うかページを閉じると消えます。",
+    a: "「この録音を残す」（曲と一緒にこの端末に保存）、「自分の声だけ保存（WAV）」、「曲と一緒に保存（MP3）」（端末にファイルを保存）を押したときだけです。それ以外は、もう一度歌うかページを閉じると消えます。",
+  },
+  {
+    q: "自分の歌を曲と一緒に保存できますか？",
+    a: "できます。歌ったあとの「曲と一緒に保存（MP3）」で、あなたの声と伴奏を 1 つの MP3 ファイルにします。曲が入っているので、自分の練習用だけに使い、動画サイトや SNS への投稿・共有・配布はしないでください。曲の権利は権利者にあります。",
   },
   {
     q: "おすすめキーはどう決めていますか？",

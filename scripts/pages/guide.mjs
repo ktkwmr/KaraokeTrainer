@@ -80,7 +80,7 @@ export default {
 
 <h2 id="results">Looking back: how you sang</h2>
 <figure class="shot">
-  ${img("en", "results", "How you sang: the share of the time on pitch, the share of the melody sung, the average in cents (a minus sign for lower), and a list of the parts that went off, each with its time and how many cents low or high. Below, buttons to compare the original vocal and my voice, and to save the recording as WAV.")}
+  ${img("en", "results", "How you sang: the share of the time on pitch, the share of the melody sung, the average in cents (a minus sign for lower), and a list of the parts that went off, each with its time and how many cents low or high. Below, buttons to compare the original vocal and my voice, and to save my singing with the song (MP3) or my voice only (WAV), with a note that the MP3 is for personal use only.")}
   <figcaption>After singing the demo song (the demo song has no “Keep this recording” button).</figcaption>
 </figure>
 <ul>
@@ -89,8 +89,10 @@ export default {
   <li><b>Average</b> – whether you tend to be higher (+) or lower (−) than the melody, in cents.</li>
   <li><b>Where it went off</b> – the phrases that were furthest off, with how far and in which direction. <b>Tap one</b> and the song plays from a second before that phrase, so you can sing it again right away.</li>
   <li><b>Listen and compare</b> – “Original vocal”, “My voice”, or “Both”, with the accompaniment. “Play from the start of the take” plays from where you started singing.</li>
-  <li><b>Keep this recording</b> keeps it on this device with the song; <b>Save as WAV</b> saves a file. Otherwise the recording is gone when you sing again.</li>
+  <li><b>Keep this recording</b> keeps it on this device with the song. Otherwise the recording is gone when you sing again.</li>
+  <li><b>Save with the song (MP3)</b> saves your voice with the accompaniment as one MP3 file (192 kbps): what “My voice” plays in the comparison, or with the original vocal too when “Both” is chosen. It covers the part you sang. <b>Save my voice only (WAV)</b> saves just your voice.</li>
 </ul>
+<div class="note"><p><b>The MP3 is for your personal use only.</b> It contains the song, and the rights to the song belong to its rights holders. Use it to listen back to your own practice, and do not upload it to video or social media sites, send it to others, or distribute it. The app asks you to confirm this each time, and writes it into the file's tag (comment).</p></div>
 <p>The numbers are a guide for practice, not a score. The line and the list tell you more: where you go flat at the end of a long note, which jump you overshoot, which phrase starts late.</p>
 
 <h2 id="practice">Vocal volume and key</h2>
@@ -201,7 +203,7 @@ export default {
 
 <h2 id="results">答え合わせ</h2>
 <figure class="shot">
-  ${img("ja", "results", "答え合わせの画面。音程が合っていた割合、メロディのうち歌えた部分の割合、平均のズレ（セント。低めはマイナス）、ズレが大きかったところの一覧（時間と、何セント低いか高いか）。下に、原曲のボーカルと自分の声の聴き比べと、WAVで保存のボタン。")}
+  ${img("ja", "results", "答え合わせの画面。音程が合っていた割合、メロディのうち歌えた部分の割合、平均のズレ（セント。低めはマイナス）、ズレが大きかったところの一覧（時間と、何セント低いか高いか）。下に、原曲のボーカルと自分の声の聴き比べと、曲と一緒に保存（MP3）・自分の声だけ保存（WAV）のボタン、MP3 は個人の練習用だけという注意書き。")}
   <figcaption>デモ曲を歌ったあと（デモ曲には「この録音を残す」ボタンはありません）。</figcaption>
 </figure>
 <ul>
@@ -210,8 +212,10 @@ export default {
   <li><b>平均</b> ― メロディより高め（＋）か低め（−）かの傾向（セント）。</li>
   <li><b>ズレが大きかったところ</b> ― 一番ズレたフレーズと、どれだけ・どちらにズレたか。<b>タップすると</b>、そのフレーズの1秒前から曲が流れるので、すぐに歌い直せます。</li>
   <li><b>聴き比べ</b> ― 「原曲のボーカル」「自分の声」「両方」を、伴奏つきで。「録音の最初から再生」で、歌いはじめた位置から再生します。</li>
-  <li><b>この録音を残す</b>で曲と一緒にこの端末に保存、<b>WAVで保存</b>でファイルに保存します。どちらもしなければ、もう一度歌うと録音は消えます。</li>
+  <li><b>この録音を残す</b>で、曲と一緒にこの端末に保存します。しなければ、もう一度歌うと録音は消えます。</li>
+  <li><b>曲と一緒に保存（MP3）</b>で、あなたの声と伴奏を 1 つの MP3 ファイル（192 kbps）にします。聴き比べの「自分の声」で聞こえる音で、「両方」を選んでいるときは原曲のボーカルも入ります。保存するのは歌った範囲です。<b>自分の声だけ保存（WAV）</b>は、あなたの声だけを保存します。</li>
 </ul>
+<div class="note"><p><b>MP3 は個人の練習用にだけ使ってください。</b>曲が入っていて、曲の権利は権利者にあります。自分の練習を聴き返すためだけに使い、動画サイトや SNS への投稿、ほかの人に送ること、配布はしないでください。保存のたびに確認が出て、ファイルのタグ（コメント）にも書き込まれます。</p></div>
 <p>数字は練習の目安で、点数ではありません。線と一覧のほうが多くを教えてくれます。伸ばした音の終わりで下がる、跳ぶ音で行き過ぎる、歌い出しが遅れる、といったクセが見えてきます。</p>
 
 <h2 id="practice">ボーカルの音量とキー</h2>

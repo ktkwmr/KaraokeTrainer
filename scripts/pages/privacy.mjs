@@ -10,7 +10,7 @@ const JSDELIVR = "https://www.jsdelivr.com/terms/privacy-policy-jsdelivr-net";
 export default {
   slug: "privacy",
   schemaType: "WebPage",
-  modified: "2026-11-21",
+  modified: "2026-11-22",
   en: {
     title: "Privacy Policy",
     heading: "Privacy policy",
@@ -33,7 +33,7 @@ export default {
 
 <h2 id="app">1. What you do in the app</h2>
 <p>The audio file you choose is read, separated into the vocals and the accompaniment by the AI model, analyzed (the melody line of the vocals), moved to another key when you ask, and played only in your browser. The file, the separated audio, the melody line, and the file name are never sent to our server or to anyone else.</p>
-<p><b>Microphone:</b> the app uses the microphone only while you sing (“Sing”), measure your vocal range, or measure the delay, and only after your browser asks for your permission. Your voice is analyzed (its pitch) and recorded only in your browser; the recording and the results are never sent anywhere. A recording is kept on your device only when you press “Keep this recording”, and “Save as WAV” only saves a file on your device.</p>
+<p><b>Microphone:</b> the app uses the microphone only while you sing (“Sing”), measure your vocal range, or measure the delay, and only after your browser asks for your permission. Your voice is analyzed (its pitch) and recorded only in your browser; the recording and the results are never sent anywhere. A recording is kept on your device only when you press “Keep this recording”. “Save my voice only (WAV)” and “Save with the song (MP3)” only save a file on your device. A file saved with the song contains the song: use it only for your own practice, and do not post, share, or distribute it.</p>
 <p>This site has no accounts, and we do not ask for your name, email address, or other personal information.</p>
 
 <h2 id="storage">2. Data saved in your browser</h2>
@@ -56,7 +56,7 @@ export default {
     <tbody>
       <tr><th scope="row"><a href="${CLOUDFLARE}" rel="noopener">Cloudflare</a> (Cloudflare, Inc.)</th><td data-label="When:">Every page and file request</td><td data-label="Information sent:">IP address, browser information (user agent), requested URL, date and time</td><td data-label="Purpose:">Hosting this site, security, and access logs for operation</td></tr>
       <tr><th scope="row"><a href="${CLOUDFLARE}" rel="noopener">Cloudflare Web Analytics</a> (Cloudflare, Inc.)</th><td data-label="When:">Every page view</td><td data-label="Information sent:">IP address, browser information (user agent), the URL of the page, referrer, page load time. No cookies are used.</td><td data-label="Purpose:">Counting page views (see "Analytics" below)</td></tr>
-      <tr><th scope="row"><a href="${JSDELIVR}" rel="noopener">jsDelivr</a> (a CDN run by Prospect One and its partners)</th><td data-label="When:">When you load a new song (until the library is saved in your browser)</td><td data-label="Information sent:">IP address, browser information (user agent), the URL of the library file, the page that requested it (referrer), date and time. Nothing about your song or your voice is sent.</td><td data-label="Purpose:">Downloading ONNX Runtime Web, the library that runs the AI model</td></tr>
+      <tr><th scope="row"><a href="${JSDELIVR}" rel="noopener">jsDelivr</a> (a CDN run by Prospect One and its partners)</th><td data-label="When:">When you load a new song (until the library is saved in your browser)</td><td data-label="Information sent:">IP address, browser information (user agent), the URL of the library file, the page that requested it (referrer), date and time. Nothing about your song or your voice is sent.</td><td data-label="Purpose:">Downloading ONNX Runtime Web, the library that runs the AI model, and (when you save your singing with the song as MP3) lamejs, which makes the MP3</td></tr>
     </tbody>
   </table>
 </div>
@@ -75,7 +75,7 @@ export default {
 
 <h2 id="changes">8. Changes to this policy</h2>
 <p>We may update this policy when the site changes, for example when we add or remove a service. The updated policy applies from the time it is posted on this page.</p>
-<p>Effective: November 21, 2026</p>
+<p>Effective: November 21, 2026 (updated November 22, 2026: saving your singing with the song as MP3, and the lamejs download for it)</p>
 `,
   },
   ja: {
@@ -100,7 +100,7 @@ export default {
 
 <h2 id="app">1. アプリで行うこと</h2>
 <p>選んだ音声ファイルの読み込み、AI モデルによるボーカルと伴奏への分離、解析（ボーカルのメロディの線）、キーの変更、再生は、ブラウザの中だけで行います。ファイル、分離した音声、メロディの線、ファイル名が、運営者のサーバーやほかの誰かに送られることはありません。</p>
-<p><b>マイク：</b>マイクは、歌うとき（「歌う」）、音域を測るとき、遅延を測るときだけ、ブラウザが許可を求めたあとに使います。あなたの声の解析（音程）と録音はブラウザの中だけで行い、録音や結果をどこかに送ることはありません。録音は「この録音を残す」を押したときだけ端末に保存し、「WAVで保存」も端末にファイルを保存するだけです。</p>
+<p><b>マイク：</b>マイクは、歌うとき（「歌う」）、音域を測るとき、遅延を測るときだけ、ブラウザが許可を求めたあとに使います。あなたの声の解析（音程）と録音はブラウザの中だけで行い、録音や結果をどこかに送ることはありません。録音は「この録音を残す」を押したときだけ端末に保存します。「自分の声だけ保存（WAV）」と「曲と一緒に保存（MP3）」も、端末にファイルを保存するだけです。曲と一緒に保存したファイルには曲が入っているので、自分の練習用だけに使い、投稿・共有・配布はしないでください。</p>
 <p>本サイトにはアカウント登録はなく、氏名やメールアドレスなどの個人情報をお聞きすることもありません。</p>
 
 <h2 id="storage">2. ブラウザに保存するデータ</h2>
@@ -123,7 +123,7 @@ export default {
     <tbody>
       <tr><th scope="row"><a href="${CLOUDFLARE}" rel="noopener">Cloudflare</a>（Cloudflare, Inc.）</th><td data-label="タイミング：">すべてのページ・ファイルの読み込み時</td><td data-label="送信される情報：">IP アドレス、ブラウザの情報（ユーザーエージェント）、アクセスした URL、日時</td><td data-label="利用目的：">本サイトの配信、セキュリティの確保、運用のためのアクセスログ</td></tr>
       <tr><th scope="row"><a href="${CLOUDFLARE}" rel="noopener">Cloudflare Web Analytics</a>（Cloudflare, Inc.）</th><td data-label="タイミング：">ページを開いたとき</td><td data-label="送信される情報：">IP アドレス、ブラウザの情報（ユーザーエージェント）、閲覧したページの URL、参照元、ページの表示速度。Cookie は使いません。</td><td data-label="利用目的：">ページの閲覧数の集計（「アクセス解析」の項目を参照）</td></tr>
-      <tr><th scope="row"><a href="${JSDELIVR}" rel="noopener">jsDelivr</a>（Prospect One とそのパートナーが運営する CDN）</th><td data-label="タイミング：">新しい曲を読み込むとき（ライブラリがブラウザに保存されるまで）</td><td data-label="送信される情報：">IP アドレス、ブラウザの情報（ユーザーエージェント）、ライブラリのファイルの URL、読み込んだページ（参照元）、日時。曲や声の情報は送りません。</td><td data-label="利用目的：">AI モデルを動かすライブラリ ONNX Runtime Web のダウンロード</td></tr>
+      <tr><th scope="row"><a href="${JSDELIVR}" rel="noopener">jsDelivr</a>（Prospect One とそのパートナーが運営する CDN）</th><td data-label="タイミング：">新しい曲を読み込むとき（ライブラリがブラウザに保存されるまで）</td><td data-label="送信される情報：">IP アドレス、ブラウザの情報（ユーザーエージェント）、ライブラリのファイルの URL、読み込んだページ（参照元）、日時。曲や声の情報は送りません。</td><td data-label="利用目的：">AI モデルを動かすライブラリ ONNX Runtime Web と、（歌を曲と一緒に MP3 で保存するときは）MP3 を作る lamejs のダウンロード</td></tr>
     </tbody>
   </table>
 </div>
@@ -142,7 +142,7 @@ export default {
 
 <h2 id="changes">8. 改定</h2>
 <p>サービスの追加・終了など本サイトの変更に合わせて、本ポリシーを改定することがあります。改定後のポリシーは、このページに掲載した時点から適用されます。</p>
-<p>制定日：2026 年 11 月 21 日</p>
+<p>制定日：2026 年 11 月 21 日（2026 年 11 月 22 日改定：歌を曲と一緒に MP3 で保存する機能と、そのための lamejs のダウンロードを追加）</p>
 `,
   },
 };

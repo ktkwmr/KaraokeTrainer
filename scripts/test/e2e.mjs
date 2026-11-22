@@ -6,6 +6,7 @@
 // offline → the Japanese page.
 //
 // Usage: node scripts/test/e2e.mjs <base url, e.g. http://localhost:8788> <audio dir> <onnxruntime-web dist dir> [shots dir]
+// lamejs (the MP3 encoder) is read from LAME_FILE (env), default: node_modules/@breezystack/lamejs/dist/lamejs.js next to the ORT dir
 
 import { createRequire } from "node:module";
 // require() (not import) so a globally installed Playwright is found too
@@ -16,6 +17,8 @@ import { join } from "node:path";
 const [BASE, AUDIO, ORT_DIR, SHOTS] = process.argv.slice(2);
 const APP = BASE + "/karaoketrainer/";
 const ORT_URL = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/";
+const LAME_URL = "https://cdn.jsdelivr.net/npm/@breezystack/lamejs@1.2.7/dist/lamejs.js";
+const LAME_FILE = process.env.LAME_FILE || join(ORT_DIR, "../../@breezystack/lamejs/dist/lamejs.js");
 const fail = (msg) => { console.error("FAIL: " + msg); process.exitCode = 1; };
 const ok = (msg) => console.log("ok   " + msg);
 
@@ -29,6 +32,7 @@ await context.route(ORT_URL + "**", (route) => {
   if (!existsSync(file)) return route.fulfill({ status: 404 });
   route.fulfill({ status: 200, body: readFileSync(file), headers: { "content-type": file.endsWith(".wasm") ? "application/wasm" : "text/javascript", "access-control-allow-origin": "*", "cross-origin-resource-policy": "cross-origin" } });
 });
+await context.route(LAME_URL, (route) => route.fulfill({ status: 200, body: readFileSync(LAME_FILE), headers: { "content-type": "text/javascript", "access-control-allow-origin": "*", "cross-origin-resource-policy": "cross-origin" } }));
 await context.route("https://static.cloudflareinsights.com/**", (route) => route.fulfill({ status: 200, body: "", headers: { "content-type": "text/javascript", "access-control-allow-origin": "*" } }));
 
 const errors = [];
@@ -36,7 +40,7 @@ const page = await context.newPage();
 page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
 page.on("pageerror", (e) => errors.push(String(e)));
 const external = [];
-context.on("request", (r) => { const u = new URL(r.url()); if (!u.href.startsWith(BASE) && !u.href.startsWith(ORT_URL) && !u.href.startsWith("https://static.cloudflareinsights.com/") && u.protocol.startsWith("http")) external.push(u.href); });
+context.on("request", (r) => { const u = new URL(r.url()); if (!u.href.startsWith(BASE) && !u.href.startsWith(ORT_URL) && u.href !== LAME_URL && !u.href.startsWith("https://static.cloudflareinsights.com/") && u.protocol.startsWith("http")) external.push(u.href); });
 
 await page.goto(APP);
 await page.waitForSelector("#practice.ghost");
@@ -75,6 +79,25 @@ await page.click("#cmpPlay");
 await page.waitForTimeout(800);
 if ((await page.getAttribute("#cmpBoth", "aria-pressed")) === "true") ok("compare: both"); else fail("compare mode not set");
 await page.click("#playBtn");
+
+// Save with the song (MP3): the personal-use dialog, then a file with an ID3 tag and MP3 frames
+await page.click("#playBtn"); // pause
+await page.click("#mp3Btn");
+await page.waitForSelector("#useDlg[open]");
+await page.click("#useCancel");
+await page.waitForSelector("#useDlg", { state: "hidden" });
+await page.click("#mp3Btn");
+await page.waitForSelector("#useDlg[open]");
+const what = await page.textContent("#useWhat");
+const [download] = await Promise.all([page.waitForEvent("download", { timeout: 60000 }), page.click("#useOk")]);
+const mp3 = readFileSync(await download.path());
+const tagged = mp3.subarray(0, 3).toString() === "ID3";
+const tagSize = (mp3[6] << 21) | (mp3[7] << 14) | (mp3[8] << 7) | mp3[9];
+const frame = mp3[10 + tagSize] === 0xff && (mp3[11 + tagSize] & 0xe0) === 0xe0;
+const comment = mp3.subarray(0, 10 + tagSize).toString("utf16le").includes("personal use");
+if (tagged && frame && comment && mp3.length > 20000) ok(`MP3 saved: ${download.suggestedFilename()} (${(mp3.length / 1024).toFixed(0)} KB, ${what})`);
+else fail(`MP3: tag ${tagged}, frame ${frame}, comment ${comment}, ${mp3.length} bytes`);
+await page.click("#playBtn"); // play again
 
 // Key change +2
 await page.click("#keyUp");

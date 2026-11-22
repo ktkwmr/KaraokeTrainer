@@ -14,7 +14,7 @@ A free karaoke practice app in the browser: load a song file you have, AI separa
 - **Mixer**: vocal 0–100% (0% = karaoke, in between = a quiet guide), accompaniment, mute for each, key −6…+6 semitones (the line moves with it). / **ボーカル音量**（0%＝カラオケ）・伴奏・キー変更（線も連動）。
 - **The roll** zooms in time with a pinch (touch, trackpad, Ctrl + wheel) and scrolls in time and pitch (two-finger scroll, drag); time lines and an intro countdown show that it is playing. / **ロール** はピンチで時間方向に拡大・縮小、2本指のスクロールやドラッグで前後・上下へ。時間の目盛りと歌い出しまでの秒数。
 - **Sing and see your pitch** over the melody: green / yellow / red by how far off (±50 / ±100 cents by default, three settings). Singing an octave lower or higher counts as on pitch; the octave is found automatically. / **歌うと音程を重ねて表示**。オクターブ違いは正解。
-- **Results**: on-pitch share, sung share, average high/low, the phrases that went off (tap to sing it again), compare your recording with the original vocal, keep it or save WAV. / **答え合わせ**：一致率、ズレた区間（タップで歌い直し）、聴き比べ、録音の保存。
+- **Results**: on-pitch share, sung share, average high/low, the phrases that went off (tap to sing it again), compare your recording with the original vocal, keep it, save your voice (WAV) or your singing with the song (MP3, 192 kbps, lamejs; a dialog and an ID3 comment say it is for personal use only). / **答え合わせ**：一致率、ズレた区間（タップで歌い直し）、聴き比べ、録音の保存。
 - **My vocal range (optional)**: measure the lowest / highest note (and falsetto), then each song suggests a key. / **マイ音域（任意）** と曲ごとのおすすめキー。
 - **Delay correction** (measured with beeps, or by hand), microphone options, judging strictness. / 遅延補正、マイク設定、判定の厳しさ。
 - Songs are kept in IndexedDB (key: SHA-256 of the file), so they open at once and offline. PWA. English / Japanese. / 曲は IndexedDB に保存（次回はすぐに・オフラインでも）。PWA。日英。
@@ -27,9 +27,9 @@ A free karaoke practice app in the browser: load a song file you have, AI separa
 
 ## Privacy / プライバシー
 
-Your song and your voice are processed only in your browser and never uploaded. The microphone is used only while singing or measuring. The browser downloads the AI model from this site and ONNX Runtime Web from jsDelivr. Saved in the browser: the model, the songs you loaded, recordings you chose to keep, your range, and settings. Cloudflare Web Analytics (no cookies) counts page views. No ads, no accounts.
+Your song and your voice are processed only in your browser and never uploaded. The microphone is used only while singing or measuring. The browser downloads the AI model from this site and ONNX Runtime Web from jsDelivr (and the lamejs MP3 encoder when you save your singing with the song). Saved in the browser: the model, the songs you loaded, recordings you chose to keep, your range, and settings. Cloudflare Web Analytics (no cookies) counts page views. No ads, no accounts.
 
-曲と声はブラウザの中だけで処理し、アップロードしません。マイクは歌うとき・測るときだけ使います。ブラウザは AI モデルをこのサイトから、ONNX Runtime Web を jsDelivr からダウンロードします。ブラウザに保存するのは、モデル・読み込んだ曲・残した録音・音域・設定です。アクセス数は Cloudflare Web Analytics（Cookie なし）で数えます。広告・アカウントなし。
+曲と声はブラウザの中だけで処理し、アップロードしません。マイクは歌うとき・測るときだけ使います。ブラウザは AI モデルをこのサイトから、ONNX Runtime Web を jsDelivr から（歌を曲と一緒に MP3 で保存するときは lamejs も）ダウンロードします。ブラウザに保存するのは、モデル・読み込んだ曲・残した録音・音域・設定です。アクセス数は Cloudflare Web Analytics（Cookie なし）で数えます。広告・アカウントなし。
 
 Full policy / 詳しくは: https://ktkwmr.com/karaoketrainer/privacy/
 

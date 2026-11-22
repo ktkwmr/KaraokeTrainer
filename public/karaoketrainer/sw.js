@@ -3,7 +3,7 @@
 const PREFIX = "karaoketrainer-";
 const CACHE = PREFIX + "cache";
 const CORE = ["./", "index.html", "ja/", "manifest.json", "THIRD_PARTY_LICENSES.md", "icons/icon.svg",
-  "separator.js", "dsp.js", "pitch.js", "mixer.js", "keyshift.js", "vendor/pitchy.js", "vendor/fft.js"];
+  "separator.js", "dsp.js", "pitch.js", "mixer.js", "keyshift.js", "encoder.js", "vendor/pitchy.js", "vendor/fft.js"];
 // The AI model is kept by separator.js in its own cache (karaoketrainer-model-v1), which activate below leaves
 // alone; its files (models/) are not cached here a second time (WEBAPP_BASELINE.md §2-20).
 const KEEP = ["karaoketrainer-model-v1"];
@@ -17,6 +17,8 @@ const CDN = [
   ORT + "ort.wasm.min.mjs", ORT + "ort-wasm-simd-threaded.mjs", ORT + "ort-wasm-simd-threaded.wasm",
   // WebGPU build (used when the browser has WebGPU)
   ORT + "ort.webgpu.min.mjs", ORT + "ort-wasm-simd-threaded.asyncify.mjs", ORT + "ort-wasm-simd-threaded.asyncify.wasm",
+  // lamejs: the MP3 encoder ("Save with the song", encoder.js; keep the version in sync with LAME_URL there)
+  "https://cdn.jsdelivr.net/npm/@breezystack/lamejs@1.2.7/dist/lamejs.js",
 ];
 
 // A worker script answered from the cache must carry COEP, or the cross-origin isolated page cannot start it

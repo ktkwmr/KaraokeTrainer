@@ -34,6 +34,7 @@
 - ページはクロスオリジン分離（`public/_headers` の COOP same-origin、COEP **credentialless**。ベースライン §6-6）。外部から読むファイルは CORS で。外部ホストを足したら `_headers` の CSP と、プライバシーの説明（`scripts/pages/privacy.mjs`、アプリ内の `privacy.body`、README）を同じ PR で直す。マイクは `Permissions-Policy: microphone=(self)`。
 - 大きなダウンロードの前の確認は `connectionRisk()`・`askNetwork()`（ベースライン §9-13）。分離の設定は `MODES`・`LADDER`（Band Stem Mixer と同じ考え方）。
 - URL・YouTube からの取り込みは作らない（著作権への配慮。仕様書 §4-1）。
+- **歌を曲と一緒に保存（MP3）は個人使用に限る**。保存のたびに確認のダイアログ（`useDlg`）を出し、ボタンの下にも注意書き（`res.mp3.note`）、ファイルの ID3 タグのコメント（`res.mp3.comment`）とファイル名（`-personal-use` / `-個人使用`）にも書く。共有・投稿を手伝う機能（共有ボタン・アップロード）は付けない。中身は聴き比べの「自分の声」（「両方」なら原曲のボーカルも）で、歌った範囲だけ。歌ったときのキーと今のキーが違うときは保存しない。MP3 は `encoder.js`（Band Stem Mixer と同じ。lamejs（`@breezystack/lamejs`、LGPL-3.0）を改変せず CDN から別ファイルとして読む。バージョンは `encoder.js` の `LAME_URL` と `sw.js` の `CDN`）。
 - 区間ループ（A–B）とテンポ変更は入れない（2026-11-22 にユーザーが不要と判断。仕様書の未決事項）。答え合わせのズレた区間はタップでその 1 秒前から再生するだけ。
 - 記事は `scripts/pages/<slug>.mjs`（`guide`・`faq`）。アプリと共通の値は `scripts/pages/app.mjs` がアプリのファイルから読む。画面写真は `node scripts/render-guide-images.mjs`（デモ曲と、偽のマイクに流す歌声で撮る。モデル不要）。見た目を変えたら撮り直す。記事を足したら `build-pages.mjs` の `PAGES` と `index.html` の `intro.body`（英日）にも足す。
 - 動作確認は `scripts/test/`（偽のモデル・テスト用の曲と歌声・ローカルサーバー・E2E。README の「開発」）。本物のモデル・CDN・実機には Claude の環境から届かないので、確かめられなかったことは「未確認」と書き、ユーザーに確認手順を伝える（ベースライン §12-13・§12-14）。

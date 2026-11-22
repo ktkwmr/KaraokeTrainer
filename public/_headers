@@ -2,7 +2,7 @@
 # CSP notes:
 # - 'unsafe-inline': the app's script and styles are written inline in index.html.
 # - 'wasm-unsafe-eval': ONNX Runtime Web runs the AI model with WebAssembly.
-# - cdn.jsdelivr.net: ONNX Runtime Web (pinned version) is imported by separator.js. connect-src too,
+# - cdn.jsdelivr.net: ONNX Runtime Web (pinned version) is imported by separator.js, and lamejs (the MP3 encoder) by encoder.js. connect-src too,
 #   because the Service Worker fetches it to keep an offline copy (WEBAPP_BASELINE.md §3-10).
 #   The AI model itself is served by this site (models/), so it needs no outside host.
 # - blob: (script-src, worker-src): ONNX Runtime copies its thread script into a blob URL and starts its
