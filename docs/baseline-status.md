@@ -27,7 +27,7 @@
 | 2-2 | `/` の転送 | — | ドメイン直下は `ktkwmr/ktkwmr.com` |
 | 2-3 | 404.html | ✅ | |
 | 2-4〜2-10 | .gitignore・LF・`--check`・README・LICENSE・CLAUDE.md・バージョンなし | ✅ | `.gitignore` に `public/karaoketrainer/models/` |
-| 2-11 | Cloudflare に接続 | 👤 | Project name は `karaoketrainer`、Production branch は `main` |
+| 2-11 | Cloudflare に接続 | ⚠️ | 接続済み（2026-11-22、Project name `karaoketrainer`）。Import の画面に Production branch の欄はなく、最初のデプロイのあとに Settings → Build で `main` に設定。「Builds for non-production branches」の項目は見当たらず、PR #1 のビルドが走るかで確認中。最初の `main` のビルドは失敗（`main` に初期コミットしかないため。想定どおり） |
 | 2-13 | 自動デプロイの確認 | 👤 | 接続後、`main` のコミットに Workers Builds のチェック |
 | 2-14 | 2 つ目以降のアプリの設定 | ✅ | sitemap は `public/karaoketrainer/sitemap.xml` |
 | 2-15・2-16 | トップページへの追加 | ❌ | 公開後に `ktkwmr/ktkwmr.com` へ別の PR（`APPS`・`ICON`・`PREVIEW`・`robots.txt` の `Sitemap:`） |
