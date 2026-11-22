@@ -16,7 +16,7 @@ export default {
     description:
       "Step-by-step guide to Karaoke Trainer: load a song file, turn the vocals down, sing and see your pitch over the original melody, read the results, sing the parts that went off again, change the key, and find a key for your vocal range.",
     body: () => `
-<p class="lead">Karaoke Trainer shows the original singer's melody as a line and draws your pitch over it while you sing, so you can see where you went flat or sharp. This guide walks through each part of the screen.</p>
+<p class="lead">Karaoke Trainer shows the original singer's melody as note bars, as on a karaoke machine, and draws your pitch over them while you sing, so you can see where you went flat or sharp. This guide walks through each part of the screen.</p>
 
 <nav class="toc" aria-label="Contents"><b>Contents</b><ol>
   <li><a href="#quick">Start in three steps</a></li>
@@ -34,7 +34,7 @@ export default {
 <h2 id="quick">Start in three steps</h2>
 <ol>
   <li><b>Load a song.</b> Tap “Choose a song file” and pick a song you have (MP3, WAV, M4A, FLAC…, or a video such as MP4). Wait until the bar is full.</li>
-  <li><b>Put on headphones and press “Sing”.</b> The song starts and your pitch is drawn over the grey melody line.</li>
+  <li><b>Put on headphones and press “Sing”.</b> The song starts and your pitch is drawn over the grey melody bars.</li>
   <li><b>Press “Stop singing”.</b> See how much was on pitch, and tap a part that went off to sing it again.</li>
 </ol>
 <p>No song at hand? Press <b>“Try the demo song”</b>: a short song made for this app, which needs no download.</p>
@@ -52,14 +52,14 @@ export default {
 
 <h2 id="roll">Reading the melody line</h2>
 <figure class="shot">
-  ${img("en", "sing", "The practice screen while singing: a piano keyboard on the left with note names, the grey melody line of the demo song, and the singer's line drawn over it: green where it is on pitch, yellow and red where it is lower than the melody. A black vertical line marks now, and the note being sung shows at the top right.")}
+  ${img("en", "sing", "The practice screen while singing: a piano keyboard on the left with note names, the grey note bars of the demo song, and the singer's line drawn over them: green where it is on pitch, with the bar filled in green, and yellow where it is lower than the note. A black vertical line marks now, and the note being sung shows at the top right.")}
   <figcaption>The demo song while singing. Tap the image to enlarge it.</figcaption>
 </figure>
 <ul>
   <li><b>Across</b> is time. The black vertical line is <b>now</b>; the song scrolls to the left, so you see the next notes coming.</li>
   <li><b>Up and down</b> is pitch, like a piano keyboard turned on its side (the note names are on the left; C4 is middle C).</li>
-  <li><b>The grey line</b> is the original singer's melody.</li>
-  <li><b>Your line</b> is coloured by how close you are: <b>green</b> within ±${G} cents, <b>yellow</b> within ±${Y} cents, <b>red</b> further off. 100 cents is one semitone.</li>
+  <li><b>The grey bars</b> are the original singer's melody, one bar per note, each on the row of its note. Where you sing on pitch, the bar fills with green.</li>
+  <li><b>Your line</b> is coloured by how close you are to the note: <b>green</b> within ±${G} cents, <b>yellow</b> within ±${Y} cents, <b>red</b> further off. 100 cents is one semitone.</li>
   <li>The note you are singing now, and how far it is from the melody, show at the top right.</li>
 </ul>
 <ul>
@@ -100,7 +100,7 @@ export default {
   <li><b>Vocal</b> – 0% is karaoke (the accompaniment only), 100% is the original. In between, the singer becomes a quiet guide: useful while you are learning a song, then turn it down to 0%.</li>
   <li><b>Accompaniment</b> – the volume of everything else.</li>
   <li><b>Mute</b> – the speaker button next to each slider turns that part off and on again without losing its volume.</li>
-  <li><b>Key</b> – − / + moves the whole song down or up a semitone at a time, up to 6, without changing the tempo. The grey line moves with it. It takes a few seconds to prepare.</li>
+  <li><b>Key</b> – − / + moves the whole song down or up a semitone at a time, up to 6, without changing the tempo. The grey bars move with it. It takes a few seconds to prepare.</li>
 </ul>
 
 <h2 id="range">Finding your key (optional)</h2>
@@ -139,7 +139,7 @@ export default {
     description:
       "Karaoke Trainer の使い方。曲のファイルを読み込み、ボーカルを小さくして、歌うと原曲のメロディに自分の音程が重なって表示されます。答え合わせの見方、ズレたところの歌い直し、キー変更、音域からおすすめキーを出す方法まで。",
     body: () => `
-<p class="lead">Karaoke Trainer は、原曲の歌手のメロディを線で表示し、歌っている間あなたの音程をその上に描きます。どこで高すぎたか、低すぎたかが目でわかります。このガイドでは、画面の各部分を順に説明します。</p>
+<p class="lead">Karaoke Trainer は、原曲の歌手のメロディをカラオケのような音のバーで表示し、歌っている間あなたの音程をその上に描きます。どこで高すぎたか、低すぎたかが目でわかります。このガイドでは、画面の各部分を順に説明します。</p>
 
 <nav class="toc" aria-label="目次"><b>目次</b><ol>
   <li><a href="#quick">3ステップで始める</a></li>
@@ -157,7 +157,7 @@ export default {
 <h2 id="quick">3ステップで始める</h2>
 <ol>
   <li><b>曲を読み込む。</b>「曲のファイルを選ぶ」を押して、手持ちの曲（MP3、WAV、M4A、FLAC など。MP4 などの動画も可）を選びます。バーがいっぱいになるまで待ちます。</li>
-  <li><b>ヘッドホンをつけて「歌う」を押す。</b>曲が始まり、グレーのメロディの線の上にあなたの音程が描かれます。</li>
+  <li><b>ヘッドホンをつけて「歌う」を押す。</b>曲が始まり、グレーのメロディのバーの上にあなたの音程が描かれます。</li>
   <li><b>「歌うのをやめる」を押す。</b>音程が合っていた割合を確認し、ズレたところをタップして歌い直します。</li>
 </ol>
 <p>手元に曲がなければ、<b>「デモ曲で試す」</b>を押してください。このアプリのために作った短い曲で、ダウンロードも不要です。</p>
@@ -175,14 +175,14 @@ export default {
 
 <h2 id="roll">メロディの線の見方</h2>
 <figure class="shot">
-  ${img("ja", "sing", "歌っているときの練習画面。左に音名つきの鍵盤、デモ曲のグレーのメロディの線、その上に歌った線が、合っているところは緑、メロディより低いところは黄と赤で描かれている。黒い縦線が現在の位置で、右上に歌っている音が出ている。")}
+  ${img("ja", "sing", "歌っているときの練習画面。左に音名つきの鍵盤、デモ曲のグレーのメロディのバー、その上に歌った線が、合っているところは緑（バーも緑に塗られる）、バーの音より低いところは黄で描かれている。黒い縦線が現在の位置で、右上に歌っている音が出ている。")}
   <figcaption>デモ曲を歌っているところ。画像をタップすると拡大します。</figcaption>
 </figure>
 <ul>
   <li><b>横</b>は時間です。黒い縦線が<b>いま</b>で、曲は左へ流れていくので、次の音が右から近づいてきます。</li>
   <li><b>縦</b>は音の高さで、ピアノの鍵盤を横に倒した形です（左に音名。C4 が真ん中のド）。</li>
-  <li><b>グレーの線</b>が原曲の歌手のメロディです。</li>
-  <li><b>あなたの線</b>は、メロディとの近さで色が変わります。<b>緑</b>は±${G}セント以内、<b>黄</b>は±${Y}セント以内、<b>赤</b>はそれより外れ。100セントが半音です。</li>
+  <li><b>グレーのバー</b>が原曲の歌手のメロディです。1つの音に1本で、その音の段に置かれます。音程が合っていると、バーが緑に塗られます。</li>
+  <li><b>あなたの線</b>は、バーの音との近さで色が変わります。<b>緑</b>は±${G}セント以内、<b>黄</b>は±${Y}セント以内、<b>赤</b>はそれより外れ。100セントが半音です。</li>
   <li>いま歌っている音と、メロディとのズレが右上に出ます。</li>
 </ul>
 <ul>
@@ -223,7 +223,7 @@ export default {
   <li><b>ボーカル</b> ― 0%でカラオケ（伴奏だけ）、100%で原曲どおり。間にすると歌手の声が小さなガイドになります。覚えるまではガイドを残し、慣れたら0%に。</li>
   <li><b>伴奏</b> ― ボーカル以外の音量。</li>
   <li><b>ミュート</b> ― 各スライダーの横のスピーカーのボタンで、音量を変えずにそのパートを消したり戻したりできます。</li>
-  <li><b>キー</b> ― − / ＋ で、テンポを変えずに曲全体を半音ずつ、最大6半音まで上げ下げします。グレーの線も一緒に動きます。準備に数秒かかります。</li>
+  <li><b>キー</b> ― − / ＋ で、テンポを変えずに曲全体を半音ずつ、最大6半音まで上げ下げします。グレーのバーも一緒に動きます。準備に数秒かかります。</li>
 </ul>
 
 <h2 id="range">自分に合うキーを探す（任意）</h2>

@@ -31,8 +31,8 @@ let at = 4 * beat, phase = 0;
 melody.forEach(([m, b], i) => {
   const dur = b * beat;
   if (m) {
-    // An octave lower; notes 6 to 8 (the end of the 2nd bar and the 3rd bar) 80 cents flat, a late start on note 10
-    const cents = i >= 6 && i <= 8 ? -80 : i === 1 ? 35 : -10;
+    // An octave lower; notes 6 to 8 (the end of the 2nd bar and the 3rd bar) 110 cents flat, a late start on note 10
+    const cents = i >= 6 && i <= 8 ? -110 : i === 1 ? 35 : -10;
     const late = i === 10 ? 0.12 : 0.03;
     const f = 440 * Math.pow(2, (m - 12 - 69 + cents / 100) / 12);
     const s0 = Math.round((at + late) * SR), s1 = Math.round((at + dur * 0.9) * SR);

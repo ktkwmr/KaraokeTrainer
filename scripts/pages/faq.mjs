@@ -40,7 +40,7 @@ const EN = [
   },
   {
     q: "What do the colours mean?",
-    a: `Green: within ±${G} cents of the melody; yellow: within ±${Y} cents; red: further off (100 cents = one semitone). Settings → “How strict” changes these ranges.`,
+    a: `Green: within ±${G} cents of the note bar (the melody put on the nearest semitone, as on a karaoke machine), or of the next one if you are up to 0.1 s early or late; yellow: within ±${Y} cents; red: further off (100 cents = one semitone). Settings → “How strict” changes these ranges.`,
   },
   {
     q: "Why do I need headphones?",
@@ -120,7 +120,7 @@ const JA = [
   },
   {
     q: "線の色の意味は？",
-    a: `緑：メロディとのズレが±${G}セント以内、黄：±${Y}セント以内、赤：それより外れ（100セント＝半音）。設定の「判定の厳しさ」で範囲を変えられます。`,
+    a: `緑：バー（メロディをカラオケのように一番近い半音に置いたもの）の音とのズレが±${G}セント以内（0.1秒までの早い・遅いは隣の音と比べます）、黄：±${Y}セント以内、赤：それより外れ（100セント＝半音）。設定の「判定の厳しさ」で範囲を変えられます。`,
   },
   {
     q: "なぜヘッドホンが必要ですか？",

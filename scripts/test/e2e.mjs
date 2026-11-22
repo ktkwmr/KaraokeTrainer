@@ -137,7 +137,7 @@ await page.waitForSelector("#results:not([hidden])");
 ok("opened offline from this device, with the kept recording");
 await page.waitForTimeout(500);
 const after = await lineOf();
-if (after.every((x) => x.v === 2 && x.voiced > 100)) ok("old melody line found again offline: " + JSON.stringify(after));
+if (after.every((x) => x.v === 3 && x.voiced > 100)) ok("old melody line found again offline: " + JSON.stringify(after));
 else fail("old melody line not found again: " + JSON.stringify(after));
 await page.click("#playBtn");
 await page.waitForTimeout(2500);
