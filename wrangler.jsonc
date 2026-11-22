@@ -1,0 +1,21 @@
+{
+  "name": "karaoketrainer",
+  "compatibility_date": "2026-11-01",
+  "observability": { "enabled": true },
+  // Puts the Spleeter model files in public/karaoketrainer/models/ (downloaded once; not committed), then
+  // regenerates ja/index.html, the guide / info pages, and sitemap.xml before deploy / dev
+  "build": { "command": "node scripts/fetch-model.mjs && node scripts/build-ja.mjs && node scripts/build-pages.mjs" },
+  // Required by `wrangler preview`, which Workers Builds runs for non-production branches
+  "previews": {},
+  // One of several apps on ktkwmr.com: this Worker only serves /karaoketrainer/*.
+  // The domain root (/, robots.txt, the root sitemap.xml, 404 for other paths) is the ktkwmr-home Worker (ktkwmr/ktkwmr.com).
+  "routes": [{ "pattern": "ktkwmr.com/karaoketrainer*", "zone_name": "ktkwmr.com" }],
+  "workers_dev": false,
+  // workers_dev: false also turns off preview URLs; keep them on so each PR gets a URL to review
+  "preview_urls": true,
+  "assets": {
+    "directory": "./public",
+    // Unknown URLs under /karaoketrainer/ get public/404.html with status 404
+    "not_found_handling": "404-page"
+  }
+}
