@@ -47,7 +47,7 @@
 | 6-1〜6-4 | セキュリティヘッダー | ✅ | `microphone=(self)` |
 | 6-6 | COOP / COEP credentialless | ✅ | |
 | 7-1〜7-3 | プライバシー・運営者情報 | ✅ | マイクの使い方と IndexedDB の保存を記載 |
-| 7-8 | AI モデルの重みのライセンス | ⚠️ | Spleeter はコードと学習済みモデルが MIT（論文・LICENSE）。sherpa-onnx の ONNX 版のリリースページの表記は 👤 確認待ち |
+| 7-8 | AI モデルの重みのライセンス | ✅ | Spleeter の学習済みモデルは MIT（論文 JOSS 5(50) 2154 に「source code and pre-trained models … distributed under a MIT license」。README は「The code … is MIT-licensed」のみ）。sherpa-onnx の ONNX 版のリリースには別の条件なし（2026-11-22 確認）。学習データは Deezer の社内データ（論文）で、公開されていない |
 | 8-1〜8-3 | サードパーティライセンス | ✅ | Spleeter・sherpa-onnx・pitchy・fft.js は手書き、ONNX Runtime Web はスクリプト |
 | 9-1〜9-5 | 共通 UI | ✅ | ⚙ に「設定」「マイ音域」「保存した曲を削除」「AIモデルを削除」も |
 | 9-10・9-11 | ボタンの反応・ダイアログのフォーカス | ✅ | |

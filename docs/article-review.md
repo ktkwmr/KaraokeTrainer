@@ -25,7 +25,7 @@ PR を出すと Cloudflare のプレビュー URL ができるので、そこで
 | D | ガイド | 画面写真はデモ曲と、偽のマイクに流した合成の歌声で撮ったものです（数字は実際の歌とは関係ありません）。見せ方として自然かを見てください。 |
 | E | FAQ | 「ストリーミングの音楽は保護されていて、ほかのアプリでは開けない」という言い方で十分か（DRM の説明を細かくしていません）。 |
 | F | プライバシー | 外部送信の表は Cloudflare・Cloudflare Web Analytics・jsDelivr の 3 つです。モデルはこのサイトから配信するので Hugging Face などは入りません。マイクの使い方の書き方に過不足がないか。 |
-| G | 運営者情報 | Spleeter の「コードと学習済みモデルが MIT」の根拠は Spleeter の論文（JOSS 2020）とリポジトリの LICENSE です。sherpa-onnx が配布する ONNX 版のリリースページにも別の条件が書かれていないか、念のため見てください。 |
+| G | 運営者情報 | Spleeter の「コードと学習済みモデルが MIT」：確認済み（2026-11-22）。根拠は論文（JOSS 5(50) 2154）の「source code and pre-trained models are available on github and distributed under a MIT license」。README は「The code of Spleeter is MIT-licensed」とだけ書き、モデルに別のライセンスは書いていない。sherpa-onnx のリリースページには、ONNX 版の別の条件は書かれていない。 |
 
 ### Claude による校閲で直したこと（WEBAPP_BASELINE.md §10-9）
 

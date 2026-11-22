@@ -9,12 +9,16 @@ The app's own code is in plain HTML, CSS, and JavaScript.
 
 ### Spleeter (2stems)
 - Model: Spleeter 2stems (vocals / accompaniment), by Deezer
-- License: MIT (the code and the pretrained models; see the Spleeter paper,
-  Journal of Open Source Software, 2020, https://doi.org/10.21105/joss.02154)
+- License: MIT. The Spleeter paper (Hennequin et al., Journal of Open Source
+  Software 5(50), 2154, 2020, https://doi.org/10.21105/joss.02154) states:
+  "Spleeter source code and pre-trained models are available on github and
+  distributed under a MIT license." (The repository's README says "The code of
+  Spleeter is MIT-licensed" and does not name another license for the models.)
 - Copyright: Copyright (c) 2019-present, Deezer SA.
 - Source: https://github.com/deezer/spleeter
 - Model files: vocals.onnx and accompaniment.onnx, the ONNX conversion by the
-  sherpa-onnx project (below), served by this site (models/).
+  sherpa-onnx project (below; its release "source-separation-models" states no
+  separate license for these files), served by this site (models/).
 - Use: the AI model that separates the vocals from the accompaniment.
 
 MIT License
