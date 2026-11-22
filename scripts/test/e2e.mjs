@@ -111,6 +111,23 @@ await page.waitForFunction(() => document.querySelector("#keepBtn").disabled);
 await page.waitForTimeout(1500); // the Service Worker caches the app files
 await page.reload();
 await page.waitForSelector("#recent .open");
+// A song saved before the melody line changed (no lineV): its line is found again when it is opened
+const lineOf = () => page.evaluate(() => new Promise((res, rej) => {
+  const r = indexedDB.open("karaoketrainer", 1);
+  r.onsuccess = () => {
+    const st = r.result.transaction("songs", "readwrite").objectStore("songs");
+    const g = st.getAll();
+    g.onsuccess = () => res(g.result.map((x) => ({ v: x.lineV, voiced: x.line.filter((y) => !isNaN(y)).length })));
+    g.onerror = () => rej(g.error);
+  };
+}));
+await page.evaluate(() => new Promise((res) => {
+  const r = indexedDB.open("karaoketrainer", 1);
+  r.onsuccess = () => {
+    const st = r.result.transaction("songs", "readwrite").objectStore("songs");
+    st.getAll().onsuccess = (e) => { for (const x of e.target.result) { delete x.lineV; x.line = new Float32Array(x.line.length).fill(NaN); st.put(x); } st.transaction.oncomplete = res; };
+  };
+}));
 await context.setOffline(true);
 await page.reload();
 await page.waitForSelector("#recent .open");
@@ -118,6 +135,10 @@ await page.click("#recent .open");
 await page.waitForSelector("#practice:not(.ghost)");
 await page.waitForSelector("#results:not([hidden])");
 ok("opened offline from this device, with the kept recording");
+await page.waitForTimeout(500);
+const after = await lineOf();
+if (after.every((x) => x.v === 2 && x.voiced > 100)) ok("old melody line found again offline: " + JSON.stringify(after));
+else fail("old melody line not found again: " + JSON.stringify(after));
 await page.click("#playBtn");
 await page.waitForTimeout(2500);
 const tNow = await page.textContent("#timeNow");
