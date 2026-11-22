@@ -7,8 +7,8 @@
 //   2. pitchy on 1024-sample windows (46 ms) every 10 ms
 //   3. dropped: clarity below CLARITY, outside 65–1100 Hz, or quieter than the song's singing by 35 dB
 //      (what the separation leaves in the vocals between phrases)
-//   4. octave jumps of single frames are folded back to the neighbours, then a median of 5 frames, and
-//      voiced runs shorter than 70 ms are dropped
+//   4. octave errors are moved back next to the notes around them (fixOctaves), then a median of 5 frames,
+//      and voiced runs shorter than 70 ms are dropped
 
 import { PitchDetector } from "./vendor/pitchy.js";
 
@@ -71,12 +71,7 @@ export function extractLine(left, right, progress) {
     const gate = ref * Math.pow(10, -35 / 20);
     for (let k = 0; k < frames; k++) if (rms[k] < gate) line[k] = NaN;
   }
-  // Single-frame octave jumps
-  for (let k = 1; k < frames - 1; k++) {
-    const a = line[k - 1], b = line[k], c = line[k + 1];
-    if (isNaN(a) || isNaN(b) || isNaN(c)) continue;
-    if (Math.abs(a - c) < 1.5 && Math.abs(b - a) > 9) line[k] = b - 12 * Math.round((b - a) / 12);
-  }
+  fixOctaves(line);
   // Median of 5 within voiced runs
   const out = new Float32Array(frames).fill(NaN);
   for (let k = 0; k < frames; k++) {
@@ -94,6 +89,45 @@ export function extractLine(left, right, progress) {
     k = e;
   }
   return out;
+}
+
+// Octave errors: MPM sometimes takes a multiple of the period (−12, −19, −24 semitones: the separation
+// leaves the voice's harmonics weak or the accompaniment's bass in) or half of it (+12), for a few frames
+// or a few hundred ms in the middle of a note. A frame 9 semitones or more away from the median of the
+// voiced frames within ±0.5 s of it (in the same phrase: gaps up to 0.1 s) is moved by the step that brings
+// it nearest, if that brings it at least 6 semitones closer. Leaps that last longer than the window's half
+// move the median with them and stay. Twice, so a run that was most of a window is checked again.
+const OCT_WIN = 50, OCT_GAP = 10;
+const OCT_STEPS = [12, 12 * Math.log2(3), 24, -12];
+export function fixOctaves(line) {
+  const n = line.length;
+  for (let pass = 0; pass < 2; pass++) {
+    const fixed = line.slice();
+    for (let k = 0; k < n; ) {
+      if (isNaN(line[k])) { k++; continue; }
+      // a phrase: voiced frames with gaps of up to OCT_GAP frames
+      let e = k + 1, gap = 0;
+      while (e < n && gap <= OCT_GAP) { if (isNaN(line[e])) gap++; else gap = 0; e++; }
+      e -= gap; // end after the last voiced frame
+      const idx = [];
+      for (let j = k; j < e; j++) if (!isNaN(line[j])) idx.push(j);
+      let lo = 0, hi = 0;
+      for (const j of idx) {
+        while (idx[lo] < j - OCT_WIN) lo++;
+        while (hi < idx.length && idx[hi] <= j + OCT_WIN) hi++;
+        const w = [];
+        for (let i = lo; i < hi; i++) w.push(line[idx[i]]);
+        const ref = median(w), d = line[j] - ref;
+        if (Math.abs(d) < 9) continue;
+        let best = d;
+        for (const s of OCT_STEPS) if (Math.abs(d + s) < Math.abs(best)) best = d + s;
+        if (Math.abs(best) <= Math.abs(d) - 6) fixed[j] = ref + best;
+      }
+      k = e;
+    }
+    line.set(fixed);
+  }
+  return line;
 }
 
 // Melody range for the key suggestion: the 5th and 95th percentile of the voiced frames (so a moment of a
