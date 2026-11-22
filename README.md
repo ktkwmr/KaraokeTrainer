@@ -9,7 +9,7 @@ A free karaoke practice app in the browser: load a song file you have, AI separa
 
 ## Features / 機能
 
-- **Load a song file** (MP3, WAV, M4A, FLAC, Ogg…, up to 10 minutes). No URLs or YouTube: only files on your device. / **曲のファイルを読み込む**（10分まで）。URL や YouTube からの取り込みはなし。
+- **Load a song file** (MP3, WAV, M4A, FLAC, Ogg…, up to 10 minutes), or a video file (MP4, MOV, WebM…: only its sound is used). No URLs or YouTube: only files on your device. / **曲のファイルを読み込む**（10分まで。動画のファイルも可で、音声だけを使う）。URL や YouTube からの取り込みはなし。
 - **Vocal separation** with Spleeter 2stems (vocals / accompaniment) in the browser, then the **melody line** of the vocals (pitchy, every 10 ms). / ブラウザの中で **ボーカルを分離**し、ボーカルの **メロディの線** を取り出す。
 - **Mixer**: vocal 0–100% (0% = karaoke, in between = a quiet guide), accompaniment, mute for each, key −6…+6 semitones (the line moves with it). / **ボーカル音量**（0%＝カラオケ）・伴奏・キー変更（線も連動）。
 - **The roll** zooms in time with a pinch (touch, trackpad, Ctrl + wheel) and scrolls in time and pitch (two-finger scroll, drag); time lines and an intro countdown show that it is playing. / **ロール** はピンチで時間方向に拡大・縮小、2本指のスクロールやドラッグで前後・上下へ。時間の目盛りと歌い出しまでの秒数。

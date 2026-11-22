@@ -32,7 +32,7 @@ export default {
 </ol></nav>
 
 <h2 id="app">1. What you do in the app</h2>
-<p>The audio file you choose is read, separated into the vocals and the accompaniment by the AI model, analyzed (the melody line of the vocals), moved to another key when you ask, and played only in your browser. The file, the separated audio, the melody line, and the file name are never sent to our server or to anyone else.</p>
+<p>The audio or video file you choose is read (for a video, only its sound), separated into the vocals and the accompaniment by the AI model, analyzed (the melody line of the vocals), moved to another key when you ask, and played only in your browser. The file, the separated audio, the melody line, and the file name are never sent to our server or to anyone else.</p>
 <p><b>Microphone:</b> the app uses the microphone only while you sing (“Sing”), measure your vocal range, or measure the delay, and only after your browser asks for your permission. Your voice is analyzed (its pitch) and recorded only in your browser; the recording and the results are never sent anywhere. A recording is kept on your device only when you press “Keep this recording”. “Save my voice only (WAV)” and “Save with the song (MP3)” only save a file on your device. A file saved with the song contains the song: use it only for your own practice, and do not post, share, or distribute it.</p>
 <p>This site has no accounts, and we do not ask for your name, email address, or other personal information.</p>
 
@@ -99,7 +99,7 @@ export default {
 </ol></nav>
 
 <h2 id="app">1. アプリで行うこと</h2>
-<p>選んだ音声ファイルの読み込み、AI モデルによるボーカルと伴奏への分離、解析（ボーカルのメロディの線）、キーの変更、再生は、ブラウザの中だけで行います。ファイル、分離した音声、メロディの線、ファイル名が、運営者のサーバーやほかの誰かに送られることはありません。</p>
+<p>選んだ音声・動画ファイルの読み込み（動画は音声だけ）、AI モデルによるボーカルと伴奏への分離、解析（ボーカルのメロディの線）、キーの変更、再生は、ブラウザの中だけで行います。ファイル、分離した音声、メロディの線、ファイル名が、運営者のサーバーやほかの誰かに送られることはありません。</p>
 <p><b>マイク：</b>マイクは、歌うとき（「歌う」）、音域を測るとき、遅延を測るときだけ、ブラウザが許可を求めたあとに使います。あなたの声の解析（音程）と録音はブラウザの中だけで行い、録音や結果をどこかに送ることはありません。録音は「この録音を残す」を押したときだけ端末に保存します。「自分の声だけ保存（WAV）」と「曲と一緒に保存（MP3）」も、端末にファイルを保存するだけです。曲と一緒に保存したファイルには曲が入っているので、自分の練習用だけに使い、投稿・共有・配布はしないでください。</p>
 <p>本サイトにはアカウント登録はなく、氏名やメールアドレスなどの個人情報をお聞きすることもありません。</p>
 

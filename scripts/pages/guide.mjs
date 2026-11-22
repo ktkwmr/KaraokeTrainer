@@ -33,14 +33,14 @@ export default {
 
 <h2 id="quick">Start in three steps</h2>
 <ol>
-  <li><b>Load a song.</b> Tap “Choose a song file” and pick a song you have (MP3, WAV, M4A, FLAC…). Wait until the bar is full.</li>
+  <li><b>Load a song.</b> Tap “Choose a song file” and pick a song you have (MP3, WAV, M4A, FLAC…, or a video such as MP4). Wait until the bar is full.</li>
   <li><b>Put on headphones and press “Sing”.</b> The song starts and your pitch is drawn over the grey melody line.</li>
   <li><b>Press “Stop singing”.</b> See how much was on pitch, and tap a part that went off to sing it again.</li>
 </ol>
 <p>No song at hand? Press <b>“Try the demo song”</b>: a short song made for this app, which needs no download.</p>
 
 <h2 id="song">Loading a song</h2>
-<p>Choose a file, or drop it on the box. Any audio format your browser can play works (MP3, WAV, M4A (AAC), FLAC, Ogg…), up to ${MAX_MIN} minutes. The app then:</p>
+<p>Choose a file, or drop it on the box. Any audio format your browser can play works (MP3, WAV, M4A (AAC), FLAC, Ogg…), up to ${MAX_MIN} minutes. A video file (MP4, MOV, WebM…) works too: only its sound is used, and the picture is not shown or kept. The app then:</p>
 <ol>
   <li><b>separates the vocals</b> from the accompaniment with an AI model (Spleeter), and</li>
   <li><b>finds the melody</b> of the separated vocals: the pitch every 10 milliseconds.</li>
@@ -156,14 +156,14 @@ export default {
 
 <h2 id="quick">3ステップで始める</h2>
 <ol>
-  <li><b>曲を読み込む。</b>「曲のファイルを選ぶ」を押して、手持ちの曲（MP3、WAV、M4A、FLAC など）を選びます。バーがいっぱいになるまで待ちます。</li>
+  <li><b>曲を読み込む。</b>「曲のファイルを選ぶ」を押して、手持ちの曲（MP3、WAV、M4A、FLAC など。MP4 などの動画も可）を選びます。バーがいっぱいになるまで待ちます。</li>
   <li><b>ヘッドホンをつけて「歌う」を押す。</b>曲が始まり、グレーのメロディの線の上にあなたの音程が描かれます。</li>
   <li><b>「歌うのをやめる」を押す。</b>音程が合っていた割合を確認し、ズレたところをタップして歌い直します。</li>
 </ol>
 <p>手元に曲がなければ、<b>「デモ曲で試す」</b>を押してください。このアプリのために作った短い曲で、ダウンロードも不要です。</p>
 
 <h2 id="song">曲を読み込む</h2>
-<p>ファイルを選ぶか、枠にドロップします。ブラウザで再生できる形式（MP3、WAV、M4A（AAC）、FLAC、Ogg など）なら使え、${MAX_MIN}分までです。読み込むと、アプリは次のことをします。</p>
+<p>ファイルを選ぶか、枠にドロップします。ブラウザで再生できる形式（MP3、WAV、M4A（AAC）、FLAC、Ogg など）なら使え、${MAX_MIN}分までです。動画のファイル（MP4、MOV、WebM など）も使えます。使うのは音声だけで、映像は表示も保存もしません。読み込むと、アプリは次のことをします。</p>
 <ol>
   <li>AI モデル（Spleeter）で、<b>ボーカルと伴奏を分離</b>する</li>
   <li>分離したボーカルから<b>メロディを取り出す</b>（10ミリ秒ごとの音程）</li>

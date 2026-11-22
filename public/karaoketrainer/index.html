@@ -306,8 +306,8 @@
           <label class="drop" id="drop">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
             <b data-i18n="file.choose">Choose a song file</b>
-            <span data-i18n="file.hint">or drop it here · MP3, WAV, M4A, FLAC… up to 10 min</span>
-            <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.m4a,.aac,.flac,.ogg,.opus,.webm" />
+            <span data-i18n="file.hint">or drop it here · MP3, WAV, M4A, FLAC, MP4 video… up to 10 min</span>
+            <input type="file" id="fileInput" accept="audio/*,video/*,.mp3,.wav,.m4a,.aac,.flac,.ogg,.opus,.webm,.mp4,.m4v,.mov,.mkv" />
           </label>
           <button class="chip" id="demoBtn" type="button" data-i18n="demo">Try the demo song</button>
           <div class="song" id="songInfo" hidden>
@@ -601,7 +601,7 @@
           "song": "Song",
           "practice": "Practice",
           "file.choose": "Choose a song file",
-          "file.hint": "or drop it here · MP3, WAV, M4A, FLAC… up to 10 min",
+          "file.hint": "or drop it here · MP3, WAV, M4A, FLAC, MP4 video… up to 10 min",
           "file.reading": "Reading…",
           "file.meta": "{time} · {ch}",
           "file.stereo": "stereo",
@@ -804,6 +804,8 @@
           "calib.done": "Measured: {ms} ms",
           "calib.fail": "Could not measure. Say “ta” clearly with each beep, and try again.",
           "err.decode": "This file could not be read. Try an MP3, WAV, M4A, or FLAC file.",
+          "err.video": "The sound of this video could not be read. This browser may not play its audio format, or the video has no sound. Try an MP4 video, or an audio file of the song.",
+          "err.tooBig": "This file is too large to read ({size}). Use a file under {max} GB: for a video, an audio file of the song or a shorter, smaller video.",
           "err.tooLong": "This song is {time} long. Songs up to {max} minutes can be used.",
           "err.offline": "You are offline. The AI model has not been downloaded yet, so a new song cannot be separated. Songs saved on this device can still be opened.",
           "err.download": "The AI model could not be downloaded. Check the connection and try again.",
@@ -833,7 +835,7 @@
           "song": "曲",
           "practice": "練習",
           "file.choose": "曲のファイルを選ぶ",
-          "file.hint": "またはここにドロップ・MP3、WAV、M4A、FLAC など・10分まで",
+          "file.hint": "またはここにドロップ・MP3、WAV、M4A、FLAC、MP4 動画など・10分まで",
           "file.reading": "読み込み中…",
           "file.meta": "{time}・{ch}",
           "file.stereo": "ステレオ",
@@ -1036,6 +1038,8 @@
           "calib.done": "測定結果：{ms} ms",
           "calib.fail": "測れませんでした。「ピッ」ごとに「タッ」とはっきり声を出して、もう一度お試しください。",
           "err.decode": "このファイルは読み込めませんでした。MP3、WAV、M4A、FLAC のファイルでお試しください。",
+          "err.video": "この動画の音声を読み込めませんでした。このブラウザが音声の形式に対応していないか、動画に音声がありません。MP4 の動画か、曲の音声ファイルでお試しください。",
+          "err.tooBig": "ファイルが大きすぎて読み込めません（{size}）。{max} GB より小さいファイルを使ってください。動画なら、曲の音声ファイルか、短く小さい動画にしてください。",
           "err.tooLong": "この曲の長さは{time}です。{max}分までの曲が使えます。",
           "err.offline": "オフラインです。AIモデルをまだダウンロードしていないため、新しい曲は分離できません。この端末に保存した曲は開けます。",
           "err.download": "AIモデルをダウンロードできませんでした。接続を確認して、もう一度お試しください。",
@@ -1388,8 +1392,15 @@
       // ---------- Reading a file ----------
       let pending = null; // { file, hash, name } of the song being separated
       let busy = false;
+      // A video file works too: decodeAudioData reads the audio track of MP4 / MOV / WebM and skips the picture
+      // (what the browser can read depends on it: MP4 with AAC works in all of them). f is a File or ArrayBuffer;
+      // decodeAudioData takes the ArrayBuffer over, so hash it first.
+      const MAX_FILE_GB = 2;
+      function isVideo(f) {
+        return /^video\//.test(f.type || "") || /\.(mp4|m4v|mov|mkv)$/i.test(f.name || "");
+      }
       async function decode(f) {
-        const data = await f.arrayBuffer();
+        const data = f instanceof ArrayBuffer ? f : await f.arrayBuffer();
         // An OfflineAudioContext at 44.1 kHz decodes and resamples to the rate the model needs
         const Ctx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
         const c = new Ctx(2, SR, SR);
@@ -1401,8 +1412,7 @@
         const right = buf.numberOfChannels > 1 ? new Float32Array(buf.getChannelData(1)) : left;
         return { left: left, right: right, duration: buf.duration, channels: buf.numberOfChannels };
       }
-      async function hashOf(f) {
-        const data = await f.arrayBuffer();
+      async function hashOf(f, data) {
         if (!(window.crypto && crypto.subtle)) return "f" + f.size + "-" + f.name;
         const d = new Uint8Array(await crypto.subtle.digest("SHA-256", data));
         return Array.from(d.subarray(0, 16), function (b) { return b.toString(16).padStart(2, "0"); }).join("");
@@ -1417,18 +1427,25 @@
         if (!f || busy) return;
         showError("");
         showSongInfo(f.name, t("file.reading"));
-        let hash;
-        try { hash = await hashOf(f); } catch (e) { $("songMeta").textContent = ""; showError(t("err.decode")); return; }
+        const decodeErr = isVideo(f) ? "err.video" : "err.decode";
+        if (f.size > MAX_FILE_GB * 1024 * 1024 * 1024) {
+          $("songMeta").textContent = "";
+          showError(t("err.tooBig", { size: (f.size / 1024 / 1024 / 1024).toFixed(1) + " GB", max: MAX_FILE_GB }));
+          return;
+        }
+        // Read once: the same bytes give the hash and then the sound (a video can be large)
+        let data, hash;
+        try { data = await f.arrayBuffer(); hash = await hashOf(f, data); } catch (e) { $("songMeta").textContent = ""; showError(t(decodeErr)); return; }
         // Loaded before: open it from this device (no separation, works offline)
         let saved = null;
         try { saved = await dbGet("index", hash); } catch (e) {}
         if (saved) { openSaved(hash); return; }
         let d;
         try {
-          d = await decode(f);
+          d = await decode(data);
         } catch (e) {
           $("songMeta").textContent = "";
-          showError(t("err.decode"));
+          showError(t(decodeErr));
           return;
         }
         $("songMeta").textContent = t("file.meta", { time: fmtTime(d.duration), ch: t(d.channels > 1 ? "file.stereo" : "file.mono") });
@@ -1644,7 +1661,7 @@
         }).catch(function () {
           stopWorker();
           setBusy(false);
-          showError(t("err.decode"));
+          showError(t(isVideo(job.file) ? "err.video" : "err.decode"));
         });
       }
       $("cancelBtn").addEventListener("click", function () {
