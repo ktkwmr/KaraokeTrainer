@@ -75,7 +75,7 @@ export default {
 
 <h2 id="changes">8. Changes to this policy</h2>
 <p>We may update this policy when the site changes, for example when we add or remove a service. The updated policy applies from the time it is posted on this page.</p>
-<p>Effective: November 21, 2026 (updated November 22, 2026: saving your singing with the song as MP3, and the lamejs download for it)</p>
+<p>Effective: November 21, 2026 (updated November 22, 2026: saving your singing with the song as MP3, and the lamejs download for it; video files, of which only the sound is used)</p>
 `,
   },
   ja: {
@@ -142,7 +142,7 @@ export default {
 
 <h2 id="changes">8. 改定</h2>
 <p>サービスの追加・終了など本サイトの変更に合わせて、本ポリシーを改定することがあります。改定後のポリシーは、このページに掲載した時点から適用されます。</p>
-<p>制定日：2026 年 11 月 21 日（2026 年 11 月 22 日改定：歌を曲と一緒に MP3 で保存する機能と、そのための lamejs のダウンロードを追加）</p>
+<p>制定日：2026 年 11 月 21 日（2026 年 11 月 22 日改定：歌を曲と一緒に MP3 で保存する機能と、そのための lamejs のダウンロードを追加。動画ファイルの読み込み（音声だけを使う）を追加）</p>
 `,
   },
 };

@@ -26,7 +26,7 @@ export default {
 
 <h2 id="contact">Contact</h2>
 <p>For questions, bug reports, and suggestions, please open an issue on <a href="${ISSUES}" rel="noopener">GitHub Issues</a>. A GitHub account (free) is required.</p>
-<p>Issues are public. Do not include personal information, and do not attach songs or recordings. If something fails, the error message, the length and format of the file (for example <code>4:30, MP3</code>), your browser, your device, and the headphones you use are enough.</p>
+<p>Issues are public. Do not include personal information, and do not attach songs or recordings. If something fails, the error message, the length and format of the file (for example <code>4:30, MP3</code> or <code>4:30, MP4 video</code>), your browser, your device, and the headphones you use are enough.</p>
 
 <h2 id="disclaimer">Disclaimer</h2>
 <ul>
@@ -69,7 +69,7 @@ export default {
 
 <h2 id="contact">お問い合わせ</h2>
 <p>ご質問・不具合の報告・ご要望は、<a href="${ISSUES}" rel="noopener">GitHub の Issues</a> にお寄せください。投稿には GitHub のアカウント（無料）が必要です。</p>
-<p>Issues の内容は公開されます。個人情報は書かず、曲や録音のファイルも添付しないでください。うまく動かないときは、エラーの文言、ファイルの長さと形式（例: <code>4:30・MP3</code>）、ブラウザと端末の種類、使っているヘッドホンがあれば十分です。</p>
+<p>Issues の内容は公開されます。個人情報は書かず、曲や録音のファイルも添付しないでください。うまく動かないときは、エラーの文言、ファイルの長さと形式（例: <code>4:30・MP3</code>、<code>4:30・MP4 動画</code>）、ブラウザと端末の種類、使っているヘッドホンがあれば十分です。</p>
 
 <h2 id="disclaimer">免責事項</h2>
 <ul>

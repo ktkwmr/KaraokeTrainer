@@ -20,7 +20,7 @@ const EN = [
   },
   {
     q: "Can I use songs from YouTube, Spotify, or Apple Music?",
-    a: "No. The app only opens audio files on your device; it does not take songs from websites or streaming services (music from streaming services is protected and cannot be opened in other apps).",
+    a: "No. The app only opens audio and video files on your device; it does not take songs from websites or streaming services (music from streaming services is protected and cannot be opened in other apps).",
   },
   {
     q: "Why is there a download the first time?",
@@ -100,7 +100,7 @@ const JA = [
   },
   {
     q: "YouTube や Spotify、Apple Music の曲は使えますか？",
-    a: "使えません。このアプリは端末にある音声ファイルだけを開き、サイトやストリーミングサービスから曲を取り込む機能はありません（ストリーミングの音楽は保護されていて、ほかのアプリでは開けません）。",
+    a: "使えません。このアプリは端末にある音声・動画ファイルだけを開き、サイトやストリーミングサービスから曲を取り込む機能はありません（ストリーミングの音楽は保護されていて、ほかのアプリでは開けません）。",
   },
   {
     q: "初回に大きなダウンロードがあるのはなぜですか？",
