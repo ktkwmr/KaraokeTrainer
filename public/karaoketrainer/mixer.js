@@ -10,6 +10,7 @@
 //   { type: "load", tracks, keep? }   (keep: same song, keep the position and play state)
 //   { type: "play" } / { type: "pause" } / { type: "seek", pos }  (pos in 44.1 kHz samples)
 //   { type: "gains", gains: [n] }
+//   { type: "reverb", amount }  (0–1: wet level of the reverb on track 2, your recording; reverb.js)
 //   { type: "mic", on }     (send microphone blocks to the page)
 //   { type: "clicks", count, interval, start }  (calibration clicks, seconds; start: delay before the first)
 // Messages to the page:
@@ -19,6 +20,9 @@
 //      sample, 44.1 kHz samples; frame: this context's frame count at that sample)
 //   { type: "click", frame }  (when a calibration click starts)
 
+// reverb.js is added to the worklet before this module and sets globalThis.KaraokeReverb
+const Reverb = globalThis.KaraokeReverb;
+const REC = 2; // the track that gets the reverb (your recording)
 const SRC_RATE = 44100;
 const MAX = 4;
 const BLOCK = 1024;
@@ -44,6 +48,9 @@ class Player extends AudioWorkletProcessor {
     this.micPlaying = false;
     this.clicks = []; // frames at which clicks start
     this.clickLen = Math.round(sampleRate * 0.03);
+    this.reverb = Reverb ? new Reverb(sampleRate) : null;
+    this.revTarget = 0;
+    this.revCur = 0;
     this.port.onmessage = (e) => this.onMessage(e.data);
   }
 
@@ -59,10 +66,12 @@ class Player extends AudioWorkletProcessor {
         this.playing = false;
       }
       this.pos = Math.min(this.pos, Math.max(0, this.length - 1));
+      if (!msg.keep && this.reverb) this.reverb.reset();
       this.report();
     } else if (msg.type === "play") {
       if (this.tracks) {
         if (this.pos >= this.length - 1) this.pos = 0;
+        if (this.reverb) this.reverb.reset(); // no tail from before the pause or seek
         this.playing = true;
         this.report();
       }
@@ -74,6 +83,8 @@ class Player extends AudioWorkletProcessor {
       this.report();
     } else if (msg.type === "gains") {
       for (let s = 0; s < MAX; s++) this.target[s] = msg.gains[s] == null ? 0 : msg.gains[s];
+    } else if (msg.type === "reverb") {
+      this.revTarget = Math.max(0, Math.min(1, Number(msg.amount) || 0));
     } else if (msg.type === "mic") {
       this.mic = !!msg.on;
       this.micFill = 0;
@@ -98,7 +109,11 @@ class Player extends AudioWorkletProcessor {
     if (active) {
       // Gains glide to their targets over a few blocks, so changes do not click
       for (let s = 0; s < this.count; s++) this.cur[s] += (this.target[s] - this.cur[s]) * 0.4;
+      this.revCur += (this.revTarget - this.revCur) * 0.4;
+      if (this.revTarget === 0 && this.revCur < 1e-4) this.revCur = 0;
     }
+    const rev = this.reverb && this.count > REC && this.revCur > 0 ? this.reverb : null;
+    const wet = this.revCur;
     const last = this.length - 1;
     let ended = false;
     for (let i = 0; i < n; i++) {
@@ -117,10 +132,18 @@ class Player extends AudioWorkletProcessor {
         const f = this.pos - p;
         for (let s = 0; s < this.count; s++) {
           const g = this.cur[s] / 32768;
-          if (g === 0) continue;
+          if (g === 0 && !(rev && s === REC)) continue;
           const L = this.tracks[s][0], R = this.tracks[s][1] || L;
-          l += (L[p] + (L[p + 1] - L[p]) * f) * g;
-          r += (R[p] + (R[p + 1] - R[p]) * f) * g;
+          const vl = (L[p] + (L[p + 1] - L[p]) * f) * g;
+          const vr = R === L ? vl : (R[p] + (R[p + 1] - R[p]) * f) * g;
+          l += vl;
+          r += vr;
+          if (rev && s === REC) {
+            // The reverb follows the recording's gain (silent while your voice is not chosen; the tail rings on)
+            rev.process((vl + vr) / 2);
+            l += rev.l * wet;
+            r += rev.r * wet;
+          }
         }
         this.pos += this.step;
         if (this.pos >= last) { this.pos = last; ended = true; }

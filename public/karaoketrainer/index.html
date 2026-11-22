@@ -402,6 +402,12 @@
                 </div>
                 <button class="chip" id="cmpPlay" type="button" data-i18n="cmp.play">Play from the start of the take</button>
               </div>
+              <div class="setrow">
+                <label class="label" for="revAmt" data-i18n="rev.label">Reverb on my voice</label>
+                <input type="range" id="revAmt" min="0" max="100" step="1" value="0" aria-describedby="revHint" />
+                <span class="val" id="revVal">0%</span>
+              </div>
+              <p class="hint" id="revHint" data-i18n="rev.hint">Adds an echo of a room to your voice in “My voice” / “Both” and in “Save with the song”. The pitch check and the WAV use your voice as recorded.</p>
             </div>
             <div class="setrow">
               <button class="chip" id="keepBtn" type="button" data-i18n="res.keep">Keep this recording</button>
@@ -607,6 +613,7 @@
           "file.stereo": "stereo",
           "file.mono": "mono",
           "file.cached": "{time} · opened from this device",
+          "file.resep": "This song is separated again with the improved method (less high-pitched noise).",
           "file.demo": "{time} · demo song (made up for this app)",
           "demo": "Try the demo song",
           "demo.name": "Demo song",
@@ -718,8 +725,9 @@
           "res.mp3": "Save with the song (MP3)",
           "res.mp3.note": "“Save with the song” saves your voice with the accompaniment (and the original vocal too when “Both” is chosen), as you hear it in the comparison. It contains the song, so it is for your own practice only: do not post or share it.",
           "res.mp3.key": "Change the key back to {v} (the key you sang in) to save it with the song.",
-          "res.mp3.what": "{time} · your voice + accompaniment{orig} · MP3 192 kbps",
+          "res.mp3.what": "{time} · your voice + accompaniment{orig}{rev} · MP3 192 kbps",
           "res.mp3.orig": " + original vocal",
+          "res.mp3.rev": " · reverb {n}%",
           "res.mp3.encoding": "Making the MP3… {pct}%",
           "res.mp3.done": "Saved. For your personal use only.",
           "res.mp3.fail": "The MP3 could not be made: {msg}",
@@ -733,6 +741,9 @@
           "cmp.mine": "My voice",
           "cmp.both": "Both",
           "cmp.play": "Play from the start of the take",
+          "rev.label": "Reverb on my voice",
+          "rev.off": "Off",
+          "rev.hint": "Adds an echo of a room to your voice in “My voice” / “Both” and in “Save with the song”. The pitch check and the WAV use your voice as recorded.",
           "vol.vocal": "Vocal",
           "mute.vocal": "Mute the vocal",
           "mute.acc": "Mute the accompaniment",
@@ -839,6 +850,7 @@
           "file.stereo": "ステレオ",
           "file.mono": "モノラル",
           "file.cached": "{time}・この端末に保存した曲",
+          "file.resep": "改良した方法（高音のノイズが少ない）で分離し直します。",
           "file.demo": "{time}・デモ曲（このアプリ用に作った曲）",
           "demo": "デモ曲で試す",
           "demo.name": "デモ曲",
@@ -950,8 +962,9 @@
           "res.mp3": "曲と一緒に保存（MP3）",
           "res.mp3.note": "「曲と一緒に保存」は、聴き比べで聞こえるとおり、あなたの声と伴奏を（「両方」を選んでいるときは原曲のボーカルも）1つの MP3 にします。曲が入っているので、自分の練習用だけに使い、投稿・共有はしないでください。",
           "res.mp3.key": "曲と一緒に保存するには、キーを {v}（歌ったときのキー）に戻してください。",
-          "res.mp3.what": "{time}・あなたの声＋伴奏{orig}・MP3 192 kbps",
+          "res.mp3.what": "{time}・あなたの声＋伴奏{orig}{rev}・MP3 192 kbps",
           "res.mp3.orig": "＋原曲のボーカル",
+          "res.mp3.rev": "・リバーブ {n}%",
           "res.mp3.encoding": "MP3 を作っています… {pct}%",
           "res.mp3.done": "保存しました。個人の練習用にだけお使いください。",
           "res.mp3.fail": "MP3 を作れませんでした：{msg}",
@@ -965,6 +978,9 @@
           "cmp.mine": "自分の声",
           "cmp.both": "両方",
           "cmp.play": "録音の最初から再生",
+          "rev.label": "自分の声のリバーブ",
+          "rev.off": "なし",
+          "rev.hint": "「自分の声」「両方」で聴くときと「曲と一緒に保存」で、声に部屋の響きを付けます。音程の判定と WAV は録音したままの声です。",
           "vol.vocal": "ボーカル",
           "mute.vocal": "ボーカルをミュート",
           "mute.acc": "伴奏をミュート",
@@ -1122,6 +1138,9 @@
       const SR = 44100;
       const FPS = 100; // melody line and your line: one value per 10 ms (pitch.js)
       const MAX_SEC = 10 * 60;
+      // Raise when dsp.js / separator.js give a different result: a saved song from an older version is separated
+      // again when its file is chosen (opening it from the list still uses the saved parts)
+      const SEP_VERSION = 2;
       const KEEP_SONGS = 8; // songs kept in IndexedDB (the oldest opened is removed first)
       const STRICT = { easy: [75, 150], normal: [50, 100], strict: [25, 50] };
       const NOTE = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -1131,7 +1150,7 @@
       const STATE_KEY = "karaoketrainer-state";
       const RANGE_KEY = "karaoketrainer-range";
       function freshState() {
-        return { v: 1, vocal: 100, acc: 100, vocalMute: false, accMute: false, strict: "normal", latency: null, latencySrc: "auto", ns: false, ec: false, agc: false, phonesOk: false };
+        return { v: 1, vocal: 100, acc: 100, vocalMute: false, accMute: false, strict: "normal", latency: null, latencySrc: "auto", ns: false, ec: false, agc: false, phonesOk: false, reverb: 0 };
       }
       let store = (function () {
         const s = freshState();
@@ -1146,6 +1165,7 @@
             s.ns = o.ns === true; s.ec = o.ec === true; s.agc = o.agc === true;
             s.phonesOk = o.phonesOk === true;
             s.vocalMute = o.vocalMute === true; s.accMute = o.accMute === true;
+            s.reverb = pct(o.reverb, 0);
           }
         } catch (e) {}
         return s;
@@ -1319,9 +1339,14 @@
       async function saveSong(s) {
         try {
           const stems = s.stems.map(function (st) { return st[1] === st[0] ? [plain(st[0])] : [plain(st[0]), plain(st[1])]; });
+          // Separated again (newer SEP_VERSION): keep a recording kept with the old parts
+          const old = await dbGet("songs", s.hash).catch(function () { return null; });
+          const take = old && old.take ? old.take : null;
+          const rec = { hash: s.hash, stems: stems, line: s.line };
+          if (take) rec.take = take;
           await dbPut([
-            ["index", { hash: s.hash, name: s.name, duration: s.duration, used: Date.now(), bytes: pcmBytes(s.stems), take: false }],
-            ["songs", { hash: s.hash, stems: stems, line: s.line }]
+            ["index", { hash: s.hash, name: s.name, duration: s.duration, used: Date.now(), bytes: pcmBytes(s.stems) + (take ? take.audio.length * 2 : 0), take: !!take, sep: SEP_VERSION }],
+            ["songs", rec]
           ]);
           if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
           const all = await dbAll();
@@ -1419,10 +1444,15 @@
         showSongInfo(f.name, t("file.reading"));
         let hash;
         try { hash = await hashOf(f); } catch (e) { $("songMeta").textContent = ""; showError(t("err.decode")); return; }
-        // Loaded before: open it from this device (no separation, works offline)
+        // Loaded before: open it from this device (no separation, works offline). Separated by an older version:
+        // separate it again when the model is here or can be downloaded
         let saved = null;
         try { saved = await dbGet("index", hash); } catch (e) {}
-        if (saved) { openSaved(hash); return; }
+        if (saved && (saved.sep || 1) >= SEP_VERSION) { openSaved(hash); return; }
+        if (saved) {
+          await checkModel();
+          if (!modelCached && navigator.onLine === false) { openSaved(hash); return; }
+        }
         let d;
         try {
           d = await decode(f);
@@ -1436,7 +1466,8 @@
           showError(t("err.tooLong", { time: fmtTime(d.duration), max: MAX_SEC / 60 }));
           return;
         }
-        pending = { file: f, hash: hash, name: f.name, duration: d.duration, pcm: d };
+        pending = { file: f, hash: hash, name: f.name, duration: d.duration, pcm: d, saved: !!saved };
+        if (saved) toast(t("file.resep"));
         runSeparation();
       }
 
@@ -1547,7 +1578,11 @@
         showError("");
         await checkModel();
         if (!modelCached && navigator.onLine === false) { showError(t("err.offline")); return; }
-        if (!(await askNetwork())) { pending.pcm = null; return; }
+        if (!(await askNetwork())) {
+          pending.pcm = null;
+          if (pending.saved) { const h = pending.hash; pending = null; openSaved(h); }
+          return;
+        }
         stopSinging(false);
         pause();
         setBusy(true);
@@ -1829,6 +1864,7 @@
           const AC = window.AudioContext || window.webkitAudioContext;
           // 44.1 kHz like the song (no resampling) and low latency for singing
           try { ctx = new AC({ sampleRate: SR, latencyHint: "interactive" }); } catch (e) { ctx = new AC(); }
+          await ctx.audioWorklet.addModule("reverb.js"); // sets globalThis.KaraokeReverb for mixer.js
           await ctx.audioWorklet.addModule("mixer.js");
           node = new AudioWorkletNode(ctx, "karaoke-player", { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [2], channelCount: 1, channelCountMode: "explicit" });
           node.connect(ctx.destination);
@@ -1853,6 +1889,7 @@
         const mine = take && take.audio ? take.gain : 0;
         const g = cmp === "orig" ? [1, a, 0] : cmp === "mine" ? [0, a, mine] : cmp === "both" ? [1, a, mine] : [v, a, 0];
         node.port.postMessage({ type: "gains", gains: g });
+        node.port.postMessage({ type: "reverb", amount: store.reverb / 100 });
         ["orig", "mine", "both"].forEach(function (k) { $("cmp" + k[0].toUpperCase() + k.slice(1)).setAttribute("aria-pressed", String(cmp === k)); });
       }
       function onPlayerMessage(e) {
@@ -1938,12 +1975,19 @@
         $("accMute").setAttribute("aria-pressed", String(store.accMute));
         $("vocalVol").classList.toggle("off", store.vocalMute);
         $("accVol").classList.toggle("off", store.accMute);
+        $("revAmt").value = store.reverb; $("revVal").textContent = store.reverb ? store.reverb + "%" : t("rev.off");
       }
       // Moving a muted part's slider turns its mute off
       $("vocalVol").addEventListener("input", function () { store.vocal = Number(this.value); store.vocalMute = false; cmp = null; renderVols(); sendGains(); saveState(); });
       $("accVol").addEventListener("input", function () { store.acc = Number(this.value); store.accMute = false; renderVols(); sendGains(); saveState(); });
       $("vocalMute").addEventListener("click", function () { store.vocalMute = !store.vocalMute; cmp = null; renderVols(); sendGains(); saveState(); });
       $("accMute").addEventListener("click", function () { store.accMute = !store.accMute; renderVols(); sendGains(); saveState(); });
+      // Reverb on your recording (reverb.js): heard only with your voice, so choose "My voice" if nothing is chosen
+      $("revAmt").addEventListener("input", function () {
+        store.reverb = Number(this.value);
+        if (!cmp && take && take.audio) cmp = "mine";
+        renderVols(); sendGains(); saveState();
+      });
 
       // ---------- Key change (keyshift.js, one worker per track) ----------
       let keyJobs = [];
@@ -2381,7 +2425,8 @@
         saveBlob(name, new Blob([buf], { type: "audio/wav" }));
       });
       // ---------- Your singing with the song, as MP3 (personal use only) ----------
-      // The mix is what "My voice" plays in the comparison (with the original vocal when "Both" is chosen),
+      // The mix is what "My voice" plays in the comparison (with the original vocal when "Both" is chosen, and the
+      // reverb of reverb.js when it is on),
       // over the part of the song you sang (from half a second before). It is encoded by encoder.js (lamejs,
       // LGPL-3.0, loaded unmodified from the CDN), and the file gets an ID3 tag saying it is for personal use.
       function baseName() {
@@ -2447,14 +2492,18 @@
         const span = takeSpan();
         if (!span) return;
         const withOrig = cmp === "both";
-        $("useWhat").textContent = t("res.mp3.what", { time: fmtTime((span.s1 - span.s0) / SR), orig: withOrig ? t("res.mp3.orig") : "" });
+        $("useWhat").textContent = t("res.mp3.what", { time: fmtTime((span.s1 - span.s0) / SR), orig: withOrig ? t("res.mp3.orig") : "", rev: store.reverb ? t("res.mp3.rev", { n: store.reverb }) : "" });
         if (!(await askDlg($("useDlg"), "useOk", "useCancel"))) return;
         mp3Busy = true;
         $("mp3Btn").disabled = true;
         try {
-          const n = span.s1 - span.s0;
+          // With reverb, the song goes on for 1.5 s after you stop singing so the echo can fade
+          const wet = store.reverb / 100;
+          const s1 = wet > 0 ? Math.min(length, span.s1 + Math.round(1.5 * SR)) : span.s1;
+          const n = s1 - span.s0;
           const a = store.accMute ? 0 : store.acc / 100, g = take.gain;
           const acc = cur[1], voc = cur[0], mine = take.audio;
+          const rev = wet > 0 ? new (await import(new URL("reverb.js", document.baseURI).href)).Reverb(SR) : null;
           const L = new Float32Array(n), R = new Float32Array(n);
           let peak = 1;
           for (let i = 0; i < n; i++) {
@@ -2462,6 +2511,12 @@
             const me = mine[j] * g;
             let l = acc[0][j] * a + me, r = acc[1][j] * a + me;
             if (withOrig) { l += voc[0][j]; r += voc[1][j]; }
+            if (rev) {
+              rev.process(me);
+              l += rev.l * wet; r += rev.r * wet;
+              // Reverb takes a moment for a long song: let the page breathe every 2 s of audio
+              if (i % (2 * SR) === 2 * SR - 1) await new Promise(function (res) { setTimeout(res, 0); });
+            }
             L[i] = l; R[i] = r;
             const m = Math.max(l < 0 ? -l : l, r < 0 ? -r : r);
             if (m > peak) peak = m;

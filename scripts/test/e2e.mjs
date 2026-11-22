@@ -80,6 +80,11 @@ await page.waitForTimeout(800);
 if ((await page.getAttribute("#cmpBoth", "aria-pressed")) === "true") ok("compare: both"); else fail("compare mode not set");
 await page.click("#playBtn");
 
+// Reverb on your recording: the slider is kept in the settings and goes into the MP3
+await page.$eval("#revAmt", (el) => { el.value = "40"; el.dispatchEvent(new Event("input", { bubbles: true })); });
+const revSaved = await page.evaluate(() => JSON.parse(localStorage.getItem("karaoketrainer-state")).reverb);
+if ((await page.textContent("#revVal")) === "40%" && revSaved === 40) ok("reverb 40%"); else fail("reverb slider: " + (await page.textContent("#revVal")) + ", saved " + revSaved);
+
 // Save with the song (MP3): the personal-use dialog, then a file with an ID3 tag and MP3 frames
 await page.click("#playBtn"); // pause
 await page.click("#mp3Btn");
@@ -95,6 +100,7 @@ const tagged = mp3.subarray(0, 3).toString() === "ID3";
 const tagSize = (mp3[6] << 21) | (mp3[7] << 14) | (mp3[8] << 7) | mp3[9];
 const frame = mp3[10 + tagSize] === 0xff && (mp3[11 + tagSize] & 0xe0) === 0xe0;
 const comment = mp3.subarray(0, 10 + tagSize).toString("utf16le").includes("personal use");
+if (!/reverb 40%/.test(what)) fail("MP3 description without the reverb: " + what);
 if (tagged && frame && comment && mp3.length > 20000) ok(`MP3 saved: ${download.suggestedFilename()} (${(mp3.length / 1024).toFixed(0)} KB, ${what})`);
 else fail(`MP3: tag ${tagged}, frame ${frame}, comment ${comment}, ${mp3.length} bytes`);
 await page.click("#playBtn"); // play again
@@ -123,6 +129,35 @@ await page.waitForTimeout(2500);
 const tNow = await page.textContent("#timeNow");
 if (tNow !== "0:00") ok("plays offline (" + tNow + ")"); else fail("did not play offline");
 await context.setOffline(false);
+
+// A song saved by an older separation (no "sep" in its index entry) is separated again when its file is
+// chosen, and keeps the recording kept with it
+await page.evaluate(() => new Promise((resolve, reject) => {
+  const r = indexedDB.open("karaoketrainer");
+  r.onsuccess = () => {
+    const tx = r.result.transaction("index", "readwrite"), st = tx.objectStore("index");
+    st.getAll().onsuccess = (e) => { e.target.result.forEach((x) => { delete x.sep; st.put(x); }); };
+    tx.oncomplete = () => { r.result.close(); resolve(); };
+    tx.onerror = () => reject(tx.error);
+  };
+  r.onerror = () => reject(r.error);
+}));
+await page.setInputFiles("#fileInput", join(AUDIO, "song.wav"));
+await page.waitForSelector("#progress:not([hidden])", { timeout: 30000 });
+await page.waitForSelector("#progress", { state: "hidden", timeout: 120000 });
+await page.waitForTimeout(1000); // saving the parts
+const again = await page.evaluate(() => new Promise((resolve) => {
+  const r = indexedDB.open("karaoketrainer");
+  r.onsuccess = () => {
+    const tx = r.result.transaction(["index", "songs"]);
+    const out = {};
+    tx.objectStore("index").getAll().onsuccess = (e) => { out.info = e.target.result.map((x) => ({ sep: x.sep, take: x.take })); };
+    tx.objectStore("songs").getAll().onsuccess = (e) => { out.takes = e.target.result.map((x) => !!x.take); };
+    tx.oncomplete = () => { r.result.close(); resolve(out); };
+  };
+}));
+if (again.info.length === 1 && again.info[0].sep >= 2 && again.info[0].take && again.takes[0]) ok("old separation done again, kept recording still there");
+else fail("separating again: " + JSON.stringify(again));
 
 // Japanese page
 const ja = await context.newPage();

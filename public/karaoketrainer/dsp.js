@@ -13,10 +13,18 @@
 //     phone. Each split is independent in the model, so the result is the same.
 //   - 3072 zeros are put before the song, so its first samples are covered by 4 frames like every other
 //     sample (sherpa-onnx's first and last 3072 samples are covered by fewer frames).
-//   - Bins 1024 and up (above 11 kHz) are not passed through the model. sherpa-onnx sets their mask to 0
-//     for both stems, so cymbals and air disappear from the accompaniment; here they go to the
-//     accompaniment (mask 1) and not to the vocals (mask 0).
 //   - Left and right go through one complex FFT (left = real part, right = imaginary part).
+//   - Bins 1024 and up (above 11 kHz) are not passed through the model. sherpa-onnx sets their mask to 0 for
+//     both stems (cymbals and air disappear). Here the vocal mask there is the frame's average vocal mask
+//     over 8–11 kHz (weighted by the input's magnitude) (like Spleeter's own mask_extension "average", but from the top of the band), smoothed
+//     over 3 frames. With a fixed 0 (vocals) / 1 (accompaniment) there, the singer's "s" sounds and breaths above 11 kHz stayed in the
+//     accompaniment as a scratchy hiss, and the vocals sounded dull.
+//   - The vocal mask is smoothed (3 × 3 frames × bins, weighted by the input's magnitude) above 2 kHz, fully from 8 kHz up. The raw mask jumps
+//     between frames in quiet high bins, which is heard as a scratchy "musical noise" in both stems.
+//   - The accompaniment mask is 1 − the vocal mask (as in sherpa-onnx, where the two add up to 1), so vocals +
+//     accompaniment is still the input.
+// When the output changes, raise SEP_VERSION in index.html, so songs saved on the device are separated again
+// when their file is chosen.
 
 export function makeFft(n) {
   const bits = Math.round(Math.log2(n));
@@ -115,25 +123,68 @@ export function createSpleeter(left, right) {
     return v < 0 ? Math.round(v * 32768) : Math.round(v * 32767);
   };
 
+  // Smoothing of the vocal mask: weight of the 3 × 3 average per bin (0 below 2 kHz, 1 from 8 kHz)
+  const binHz = SPLEETER.rate / N;
+  const S0 = Math.round(2000 / binHz), S1 = Math.round(8000 / binHz);
+  const smoothW = new Float32Array(F);
+  for (let k = 0; k < F; k++) smoothW[k] = Math.max(0, Math.min(1, (k - S0) / (S1 - S0)));
+  const raw = new Float32Array(2 * T * F); // raw vocal mask [channel, frame, bin]
+  const mask = new Float32Array(2 * T * F); // smoothed vocal mask
+  const ext = new Float32Array(2 * T); // vocal mask above 11 kHz [channel, frame]
+  const extRaw = new Float32Array(2 * T);
+
+  // Vocal masks of the split from the two model outputs (accompaniment = 1 − vocal). The averages are
+  // weighted by the input's magnitude (mag, still that of this split), so silent bins (mask 0.5) and quiet
+  // ones count little.
+  function makeMasks(vocals, accompaniment) {
+    for (let i = 0; i < 2 * T * F; i++) {
+      const v = vocals[i], a = accompaniment[i];
+      raw[i] = (v * v + 5e-11) / (v * v + a * a + 1e-10);
+    }
+    for (let c = 0; c < 2; c++) {
+      const o = c * T * F;
+      for (let t = 0; t < T; t++) {
+        const t0 = t > 0 ? t - 1 : t, t1 = t < T - 1 ? t + 1 : t;
+        for (let k = 0; k < F; k++) {
+          const i = o + t * F + k, w = smoothW[k];
+          if (w === 0) { mask[i] = raw[i]; continue; }
+          const k0 = k > 0 ? k - 1 : k, k1 = k < F - 1 ? k + 1 : k;
+          let sum = 0, wsum = 0;
+          for (let tt = t0; tt <= t1; tt++) for (let kk = k0; kk <= k1; kk++) { const m = mag[o + tt * F + kk]; sum += raw[o + tt * F + kk] * m; wsum += m; }
+          mask[i] = wsum > 0 ? raw[i] + (sum / wsum - raw[i]) * w : raw[i];
+        }
+        let e = 0, ew = 0, eu = 0;
+        for (let k = S1; k < F; k++) { const m = mag[o + t * F + k], x = mask[o + t * F + k]; e += x * m; ew += m; eu += x; }
+        extRaw[c * T + t] = ew > 0 ? e / ew : eu / (F - S1);
+      }
+      for (let t = 0; t < T; t++) {
+        const t0 = t > 0 ? t - 1 : t, t1 = t < T - 1 ? t + 1 : t;
+        let e = 0;
+        for (let tt = t0; tt <= t1; tt++) e += extRaw[c * T + tt];
+        ext[c * T + t] = e / (t1 - t0 + 1);
+      }
+    }
+  }
+
   function output(s, vocals, accompaniment, outV, outA) {
     const f0 = s * T;
+    makeMasks(vocals, accompaniment);
     for (let t = 0; t < T; t++) {
       // Masked spectra: Z = Y_left + i·Y_right, so one inverse FFT gives both channels
       // (vocals first, then the accompaniment)
       for (let stem = 0; stem < 2; stem++) {
         re.fill(0); im.fill(0);
         const o = t * B;
+        const eL = ext[t], eR = ext[T + t];
         for (let k = 0; k < B; k++) {
           let mL, mR;
           if (k < F) {
-            const iL = t * F + k, iR = T * F + t * F + k;
-            const vL = vocals[iL], aL = accompaniment[iL], vR = vocals[iR], aR = accompaniment[iR];
-            const sL = vL * vL + aL * aL + 1e-10, sR = vR * vR + aR * aR + 1e-10;
-            mL = ((stem === 0 ? vL * vL : aL * aL) + 5e-11) / sL;
-            mR = ((stem === 0 ? vR * vR : aR * aR) + 5e-11) / sR;
+            mL = mask[t * F + k];
+            mR = mask[T * F + t * F + k];
           } else {
-            mL = mR = stem === 0 ? 0 : 1;
+            mL = eL; mR = eR;
           }
+          if (stem === 1) { mL = 1 - mL; mR = 1 - mR; }
           const ylr = specL.re[o + k] * mL, yli = k === 0 || k === N / 2 ? 0 : specL.im[o + k] * mL;
           const yrr = specR.re[o + k] * mR, yri = k === 0 || k === N / 2 ? 0 : specR.im[o + k] * mR;
           // Conjugated Z for the inverse transform through the forward FFT

@@ -17,7 +17,7 @@ import { fileURLToPath } from "node:url";
 const SLUG = "karaoketrainer";
 const NAME = "Karaoke Trainer";
 // Files the page fetches or starts with a relative URL
-const FILES = ["THIRD_PARTY_LICENSES.md", "icons/icon.svg", "separator.js", "dsp.js", "pitch.js", "mixer.js", "keyshift.js", "encoder.js", "vendor/pitchy.js", "vendor/fft.js"];
+const FILES = ["THIRD_PARTY_LICENSES.md", "icons/icon.svg", "separator.js", "dsp.js", "pitch.js", "mixer.js", "reverb.js", "keyshift.js", "encoder.js", "vendor/pitchy.js", "vendor/fft.js"];
 // The Artifact frame has no microphone and no AI model: say so above the app, and point to the demo song
 const NOTE = {
   en: "Preview: the microphone and the AI separation do not work here. Press “Try the demo song” to see the melody line, the vocal / accompaniment sliders and the key change.",

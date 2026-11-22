@@ -21,8 +21,8 @@ A free karaoke practice app in the browser: load a song file you have, AI separa
 
 ### How it works / 仕組み
 
-- `separator.js` (worker): ONNX Runtime Web (WebGPU or WebAssembly) runs `vocals.onnx` and `accompaniment.onnx` (Spleeter 2stems converted to ONNX by sherpa-onnx). `dsp.js` does the STFT / masks / inverse STFT around the model as sherpa-onnx does (44.1 kHz, FFT 4096, hop 1024, input `[2, splits, 512, 1024]`), one 11.9 s split at a time. Then `pitch.js` finds the melody (pitchy, McLeod Pitch Method).
-- `mixer.js` (AudioWorklet): plays the tracks and receives the microphone in the same node, tagging each microphone block with the song position, so only the device latency (calibration) is left to correct.
+- `separator.js` (worker): ONNX Runtime Web (WebGPU or WebAssembly) runs `vocals.onnx` and `accompaniment.onnx` (Spleeter 2stems converted to ONNX by sherpa-onnx). `dsp.js` does the STFT / masks / inverse STFT around the model as sherpa-onnx does (44.1 kHz, FFT 4096, hop 1024, input `[2, splits, 512, 1024]`), one 11.9 s split at a time; the vocal mask is smoothed above 2 kHz and carried above 11 kHz, which cuts the scratchy high-frequency noise. Then `pitch.js` finds the melody (pitchy, McLeod Pitch Method).
+- `mixer.js` (AudioWorklet): plays the tracks and receives the microphone in the same node, tagging each microphone block with the song position, so only the device latency (calibration) is left to correct. Your recording can get a reverb (`reverb.js`, Freeverb layout) in the comparison and the MP3.
 - `keyshift.js` (worker): phase vocoder key change, from Band Stem Mixer (same author).
 
 ## Privacy / プライバシー
@@ -40,7 +40,7 @@ public/
   _headers  404.html
   karaoketrainer/
     index.html            # the app (HTML/CSS/JS, English and Japanese text in I18N) / アプリ本体
-    separator.js dsp.js pitch.js mixer.js keyshift.js  # workers and the AudioWorklet
+    separator.js dsp.js pitch.js mixer.js reverb.js keyshift.js  # workers and the AudioWorklet
     vendor/pitchy.js vendor/fft.js                     # pitch detection (MIT, copied from npm)
     sw.js manifest.json icons/ og-image.png THIRD_PARTY_LICENSES.md
     models/spleeter-2stems-v1/   # fetched in the build (scripts/fetch-model.mjs), not in Git
@@ -85,7 +85,7 @@ node scripts/test/make-test-song.mjs /tmp/audio && node scripts/test/serve.mjs 8
 ```
 
 ```bash
-npm i --no-save onnxruntime-web@1.30.0 playwright && node scripts/test/e2e.mjs http://localhost:8788 /tmp/audio node_modules/onnxruntime-web/dist
+npm i --no-save onnxruntime-web@1.30.0 @breezystack/lamejs@1.2.7 playwright && node scripts/test/e2e.mjs http://localhost:8788 /tmp/audio node_modules/onnxruntime-web/dist
 ```
 
 Afterwards run `node scripts/fetch-model.mjs --force` to put the real model back. / 終わったら本物のモデルに戻す。
