@@ -1315,6 +1315,22 @@
           tx.onerror = function () { rej(tx.error); };
         });
       }
+      // The melody line's version: raise it when pitch.js finds a different line, and saved songs get
+      // their line found again from the saved vocals when they are opened (2: octave errors fixed)
+      const LINE_V = 2;
+      function findLine(left, right) {
+        return new Promise(function (resolve, reject) {
+          const w = new Worker("separator.js", { type: "module" });
+          w.onmessage = function (e) {
+            const m = e.data;
+            if (m.type === "progress") { onProgress(m); return; }
+            w.terminate();
+            if (m.type === "line") resolve(m.line); else reject(new Error(m.message));
+          };
+          w.onerror = function (e) { w.terminate(); if (e && e.preventDefault) e.preventDefault(); reject(new Error("worker")); };
+          w.postMessage({ type: "line", left: left, right: right });
+        });
+      }
       // IndexedDB cannot store SharedArrayBuffers: plain copies
       const plain = (a) => (a.buffer instanceof ArrayBuffer ? a : new a.constructor(a));
       function pcmBytes(stems) { return stems.reduce(function (s, st) { return s + st[0].length * 2 * (st[1] === st[0] ? 1 : 2); }, 0); }
@@ -1323,7 +1339,7 @@
           const stems = s.stems.map(function (st) { return st[1] === st[0] ? [plain(st[0])] : [plain(st[0]), plain(st[1])]; });
           await dbPut([
             ["index", { hash: s.hash, name: s.name, duration: s.duration, used: Date.now(), bytes: pcmBytes(s.stems), take: false }],
-            ["songs", { hash: s.hash, stems: stems, line: s.line }]
+            ["songs", { hash: s.hash, stems: stems, line: s.line, lineV: LINE_V }]
           ]);
           if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
           const all = await dbAll();
@@ -1378,6 +1394,19 @@
           info.used = Date.now();
           dbPut([["index", info]]).then(renderRecent, function () {});
           showSongInfo(info.name, t("file.cached", { time: fmtTime(info.duration) }));
+          if (rec.lineV !== LINE_V) {
+            setBusy(true);
+            setProgress(t("stage.pitch"), "", null);
+            try {
+              rec.line = await findLine(stems[0][0], stems[0][1]);
+              rec.lineV = LINE_V;
+              dbPut([["songs", rec]]).catch(function () {});
+            } catch (e) {
+              console.warn("Kept the saved melody line", e);
+            } finally {
+              setBusy(false);
+            }
+          }
           await setSong({ hash: hash, name: info.name, duration: info.duration, stems: stems, line: rec.line, demo: false });
           if (rec.take) restoreTake(rec.take);
           toast(t("opened"));
