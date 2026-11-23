@@ -82,9 +82,11 @@ await page.click("#phonesOk");
 await page.waitForFunction(() => document.querySelector("#singBtn").getAttribute("aria-pressed") === "true");
 await page.waitForTimeout(9000);
 if (SHOTS) await page.screenshot({ path: join(SHOTS, "2-singing.png") });
-const oct = await page.textContent("#octSel option[value=auto]");
 await page.click("#singBtn");
 await page.waitForSelector("#results:not([hidden])");
+// Your notes are found from the recording after you stop
+await page.waitForFunction(() => document.querySelector("#resMatch").textContent !== "…", null, { timeout: 30000 });
+const oct = await page.textContent("#octSel option[value=auto]");
 const res = await page.evaluate(() => ({ match: document.querySelector("#resMatch").textContent, sung: document.querySelector("#resSung").textContent, bias: document.querySelector("#resBias").textContent, note: document.querySelector("#resNote").textContent, worst: document.querySelector("#worst").innerText }));
 console.log("     results:", JSON.stringify(res), "octave:", oct);
 if (/lower/.test(oct)) ok("octave detected as lower"); else fail("octave not detected as lower: " + oct);
@@ -92,6 +94,17 @@ if (parseInt(res.sung) >= 50) ok("sung share " + res.sung); else fail("sung shar
 if (parseInt(res.match) >= 50) ok("on pitch " + res.match); else fail("on pitch low: " + res.match);
 if (/−/.test(res.bias)) ok("flat bias seen: " + res.bias); else fail("expected a flat bias: " + res.bias);
 if (SHOTS) await page.screenshot({ path: join(SHOTS, "3-results.png"), fullPage: true });
+
+// Recording position: moving the take half a second later puts it off the melody; back to 0 restores the score
+const setShift = (v) => page.evaluate((v) => { const r = document.querySelector("#shiftVol"); r.value = v; r.dispatchEvent(new Event("input")); }, v);
+await setShift(500);
+const shifted = await page.evaluate(() => ({ val: document.querySelector("#shiftVal").textContent, match: document.querySelector("#resMatch").textContent }));
+await page.click("#shiftEarlier");
+const nudged = await page.textContent("#shiftVal");
+await page.click("#shiftReset");
+const back = await page.evaluate(() => ({ val: document.querySelector("#shiftVal").textContent, match: document.querySelector("#resMatch").textContent }));
+if (shifted.val === "+500 ms" && parseInt(shifted.match) < parseInt(res.match) && nudged === "+490 ms" && back.val === "±0 ms" && back.match === res.match) ok(`recording position: +500 ms → ${shifted.match}, back to 0 → ${back.match}`);
+else fail("recording position: " + JSON.stringify({ shifted, nudged, back, before: res.match }));
 
 // Compare: plays with your recording
 await page.click("#cmpPlay");
