@@ -79,17 +79,16 @@ export default {
 
 <h2 id="results">Looking back: how you sang</h2>
 <figure class="shot">
-  ${img("en", "results", "How you sang: the share of the time on pitch, the share of the melody sung, the average in cents (a minus sign for lower), and a list of the parts that went off, each with its time and how many cents low or high. Below, buttons to compare the original vocal and my voice, and to save my singing with the song (MP3) or my voice only (WAV), with a note that the MP3 is for personal use only.")}
-  <figcaption>After singing the demo song (the demo song has no “Keep this recording” button).</figcaption>
+  ${img("en", "results", "How you sang: the share of the time on pitch, the average in cents (a minus sign for lower), and a list of the parts that went off, each with its time and how many cents low or high. Below, buttons to compare the original vocal and my voice, to save my singing with the song (MP3) or my voice only (WAV), and to delete my voice, with a note that the MP3 is for personal use only.")}
+  <figcaption>After singing the demo song (a take of the demo song is not kept on this device).</figcaption>
 </figure>
 <ul>
   <li><b>On pitch</b> – the share of the time you were in the green range. It counts only where the original singer sings and you sang, so pauses do not count against you.</li>
-  <li><b>Of the melody sung</b> – how much of the melody you sang at all.</li>
   <li><b>Average</b> – whether you tend to be higher (+) or lower (−) than the melody, in cents.</li>
   <li><b>Where it went off</b> – the phrases that were furthest off, with how far and in which direction. <b>Tap one</b> and the song plays from a second before that phrase, so you can sing it again right away.</li>
   <li><b>Listen and compare</b> – while the results are open, a “My voice” slider appears under “Vocal” and “Accompaniment”, so you can set each volume and mute each one. The original vocal starts muted after you sing; turn it on to hear it with your voice. “Play from the start of the take” plays from where you started singing.</li>
   <li><b>Delay correction</b> – the same slider as in Settings. If your bars sit to the right of the grey bars (your voice sounds behind the accompaniment), make it larger; if to the left, smaller. Your bars, the numbers, what you hear, and the saved files move with it, and your next takes use the new value too.</li>
-  <li><b>Keep this recording</b> keeps it on this device with the song. Otherwise the recording is gone when you sing again.</li>
+  <li><b>Your last take is kept</b> on this device with the song, by itself: next time you open the song, press <b>“See the last take”</b> (next to “Sing”) to see the results and listen again. Only the last take of each song is kept: singing again replaces it. <b>Delete my voice</b> deletes it (the song stays).</li>
   <li><b>Save with the song (MP3)</b> saves your voice with the accompaniment as one MP3 file (192 kbps): at the volumes you hear, with the original vocal too when it is on. It covers the part you sang. <b>Save my voice only (WAV)</b> saves just your voice.</li>
 </ul>
 <div class="note"><p><b>The MP3 is for your personal use only.</b> It contains the song, and the rights to the song belong to its rights holders. Use it to listen back to your own practice, and do not upload it to video or social media sites, send it to others, or distribute it. The app asks you to confirm this each time, and writes it into the file's tag (comment).</p></div>
@@ -129,7 +128,7 @@ export default {
 <p>Everything works on a phone, in one column: after a song is loaded, the screen scrolls to the melody line. Loading a new song takes longer than on a computer; keep the screen on until it is ready. On iPhone and iPad, the sound plays even with the silent switch on. The app can be added to the home screen and then works offline.</p>
 
 <h2 id="data">What is kept on your device</h2>
-<p>The AI model, the songs you loaded (the separated vocals and accompaniment and the melody line), recordings you chose to keep, your vocal range if you measured it, and your settings. Nothing is uploaded. Delete them with ⚙ → “Delete saved songs”, ⚙ → “Delete the AI model”, and “Delete” in “My vocal range”. See the <a href="../privacy/">privacy policy</a>.</p>
+<p>The AI model, the songs you loaded (the separated vocals and accompaniment and the melody line), your last take of each song, your vocal range if you measured it, and your settings. Nothing is uploaded. Delete them with ⚙ → “Delete saved songs”, ⚙ → “Delete the AI model”, and “Delete” in “My vocal range”. See the <a href="../privacy/">privacy policy</a>.</p>
 `,
   },
   ja: {
@@ -202,17 +201,16 @@ export default {
 
 <h2 id="results">答え合わせ</h2>
 <figure class="shot">
-  ${img("ja", "results", "答え合わせの画面。音程が合っていた割合、メロディのうち歌えた部分の割合、平均のズレ（セント。低めはマイナス）、ズレが大きかったところの一覧（時間と、何セント低いか高いか）。下に、原曲のボーカルと自分の声の聴き比べと、曲と一緒に保存（MP3）・自分の声だけ保存（WAV）のボタン、MP3 は個人の練習用だけという注意書き。")}
-  <figcaption>デモ曲を歌ったあと（デモ曲には「この録音を残す」ボタンはありません）。</figcaption>
+  ${img("ja", "results", "答え合わせの画面。音程が合っていた割合、平均のズレ（セント。低めはマイナス）、ズレが大きかったところの一覧（時間と、何セント低いか高いか）。下に、原曲のボーカルと自分の声の聴き比べと、曲と一緒に保存（MP3）・自分の声だけ保存（WAV）・自分の声を削除のボタン、MP3 は個人の練習用だけという注意書き。")}
+  <figcaption>デモ曲を歌ったあと（デモ曲の録音は端末に残りません）。</figcaption>
 </figure>
 <ul>
   <li><b>音程が合っていた</b> ― 緑の範囲に入っていた時間の割合です。原曲の歌手が歌っていて、あなたも歌った部分だけで数えるので、休んだところは減点になりません。</li>
-  <li><b>メロディのうち歌えた部分</b> ― メロディのどれだけを歌ったか。</li>
   <li><b>平均</b> ― メロディより高め（＋）か低め（−）かの傾向（セント）。</li>
   <li><b>ズレが大きかったところ</b> ― 一番ズレたフレーズと、どれだけ・どちらにズレたか。<b>タップすると</b>、そのフレーズの1秒前から曲が流れるので、すぐに歌い直せます。</li>
   <li><b>聴き比べ</b> ― 答え合わせを開いている間は「ボーカル」「伴奏」の下に「自分の声」のスライダーが出て、それぞれの音量とミュートを別々に変えられます。歌い終わった直後は原曲のボーカルがミュートです。オンにすると自分の声と重ねて聴けます。「録音の最初から再生」で、歌いはじめた位置から再生します。</li>
   <li><b>遅延の補正</b> ― 設定と同じスライダーです。あなたのバーがグレーのバーより右にある（声が伴奏より遅れて聞こえる）ときは大きく、左にあるときは小さくします。バー・数字・聞こえる音・保存するファイルが一緒に動き、次に歌うときもこの値を使います。</li>
-  <li><b>この録音を残す</b>で、曲と一緒にこの端末に保存します。しなければ、もう一度歌うと録音は消えます。</li>
+  <li><b>直前の録音は自動で残ります</b>（曲と一緒にこの端末に保存）。次にその曲を開いたら、「歌う」の横の<b>「前の録音を見る」</b>で、答え合わせを見たり聴き直したりできます。残るのは各曲の直前の1回分だけで、もう一度歌うと置き換わります。<b>自分の声を削除</b>で消せます（曲は残ります）。</li>
   <li><b>曲と一緒に保存（MP3）</b>で、あなたの声と伴奏を 1 つの MP3 ファイル（192 kbps）にします。聞こえている音量のままで、原曲のボーカルをオンにしているときはそれも入ります。保存するのは歌った範囲です。<b>自分の声だけ保存（WAV）</b>は、あなたの声だけを保存します。</li>
 </ul>
 <div class="note"><p><b>MP3 は個人の練習用にだけ使ってください。</b>曲が入っていて、曲の権利は権利者にあります。自分の練習を聴き返すためだけに使い、動画サイトや SNS への投稿、ほかの人に送ること、配布はしないでください。保存のたびに確認が出て、ファイルのタグ（コメント）にも書き込まれます。</p></div>
@@ -252,7 +250,7 @@ export default {
 <p>スマホでもすべての機能が1列の画面で使えます。曲を読み込むと、メロディの線のところまで画面が動きます。新しい曲の読み込みはパソコンより時間がかかるので、終わるまで画面をつけたままにしてください。iPhone・iPad では、消音スイッチがオンでも音が出ます。ホーム画面に追加すると、オフラインでも使えます。</p>
 
 <h2 id="data">端末に保存されるもの</h2>
-<p>AI モデル、読み込んだ曲（分離したボーカルと伴奏、メロディの線）、残すことにした録音、測った場合はマイ音域、設定です。どれもアップロードしません。⚙ →「保存した曲を削除」、⚙ →「AIモデルを削除」、「マイ音域」の「削除」で消せます。<a href="../privacy/">プライバシーポリシー</a>もご覧ください。</p>
+<p>AI モデル、読み込んだ曲（分離したボーカルと伴奏、メロディの線）、各曲の直前の録音、測った場合はマイ音域、設定です。どれもアップロードしません。⚙ →「保存した曲を削除」、⚙ →「AIモデルを削除」、「マイ音域」の「削除」で消せます。<a href="../privacy/">プライバシーポリシー</a>もご覧ください。</p>
 `,
   },
 };

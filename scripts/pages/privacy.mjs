@@ -10,7 +10,7 @@ const JSDELIVR = "https://www.jsdelivr.com/terms/privacy-policy-jsdelivr-net";
 export default {
   slug: "privacy",
   schemaType: "WebPage",
-  modified: "2026-11-22",
+  modified: "2026-11-23",
   en: {
     title: "Privacy Policy",
     heading: "Privacy policy",
@@ -33,7 +33,7 @@ export default {
 
 <h2 id="app">1. What you do in the app</h2>
 <p>The audio or video file you choose is read (for a video, only its sound), separated into the vocals and the accompaniment by the AI model, analyzed (the melody line of the vocals), moved to another key when you ask, and played only in your browser. The file, the separated audio, the melody line, and the file name are never sent to our server or to anyone else.</p>
-<p><b>Microphone:</b> the app uses the microphone only while you sing (“Sing”), measure your vocal range, or measure the delay, and only after your browser asks for your permission. Your voice is analyzed (its pitch) and recorded only in your browser; the recording and the results are never sent anywhere. A recording is kept on your device only when you press “Keep this recording”. “Save my voice only (WAV)” and “Save with the song (MP3)” only save a file on your device. A file saved with the song contains the song: use it only for your own practice, and do not post, share, or distribute it.</p>
+<p><b>Microphone:</b> the app uses the microphone only while you sing (“Sing”), measure your vocal range, or measure the delay, and only after your browser asks for your permission. Your voice is analyzed (its pitch) and recorded only in your browser; the recording and the results are never sent anywhere. Your last take of each song is kept on your device with the song (singing again replaces it; “Delete my voice” deletes it). “Save my voice only (WAV)” and “Save with the song (MP3)” only save a file on your device. A file saved with the song contains the song: use it only for your own practice, and do not post, share, or distribute it.</p>
 <p>This site has no accounts, and we do not ask for your name, email address, or other personal information.</p>
 
 <h2 id="storage">2. Data saved in your browser</h2>
@@ -41,7 +41,7 @@ export default {
 <ul>
   <li><b>The AI model:</b> the model files (about ${MODEL_MB} MB) downloaded the first time you load a song, so they are not downloaded again.</li>
   <li><b>Songs you loaded:</b> the separated vocals and accompaniment, the melody line, the file name, and the length of the last songs you loaded (up to ${KEEP_SONGS}), so they open at once next time, even offline. Your original file is not copied.</li>
-  <li><b>Recordings you chose to keep:</b> only when you press “Keep this recording”, with the song.</li>
+  <li><b>Your last take of each song:</b> kept with the song each time you stop singing, replacing the one before. “Delete my voice” on the results deletes it.</li>
   <li><b>Your vocal range:</b> only if you measure it (the lowest and highest notes).</li>
   <li><b>Settings:</b> the vocal and accompaniment levels, how strict the judging is, the delay correction, the microphone options, and whether to show the headphones notice. While a song is being separated, a short note of the progress is kept, so that if the page closes unexpectedly the app can tell you where it stopped.</li>
   <li><b>App files:</b> the pages and files of this site and the ONNX Runtime library, so the app works offline.</li>
@@ -75,7 +75,7 @@ export default {
 
 <h2 id="changes">8. Changes to this policy</h2>
 <p>We may update this policy when the site changes, for example when we add or remove a service. The updated policy applies from the time it is posted on this page.</p>
-<p>Effective: November 21, 2026 (updated November 22, 2026: saving your singing with the song as MP3, and the lamejs download for it; video files, of which only the sound is used)</p>
+<p>Effective: November 21, 2026 (updated November 22, 2026: saving your singing with the song as MP3, and the lamejs download for it; video files, of which only the sound is used; updated November 23, 2026: your last take of each song is kept on your device by itself)</p>
 `,
   },
   ja: {
@@ -100,7 +100,7 @@ export default {
 
 <h2 id="app">1. アプリで行うこと</h2>
 <p>選んだ音声・動画ファイルの読み込み（動画は音声だけ）、AI モデルによるボーカルと伴奏への分離、解析（ボーカルのメロディの線）、キーの変更、再生は、ブラウザの中だけで行います。ファイル、分離した音声、メロディの線、ファイル名が、運営者のサーバーやほかの誰かに送られることはありません。</p>
-<p><b>マイク：</b>マイクは、歌うとき（「歌う」）、音域を測るとき、遅延を測るときだけ、ブラウザが許可を求めたあとに使います。あなたの声の解析（音程）と録音はブラウザの中だけで行い、録音や結果をどこかに送ることはありません。録音は「この録音を残す」を押したときだけ端末に保存します。「自分の声だけ保存（WAV）」と「曲と一緒に保存（MP3）」も、端末にファイルを保存するだけです。曲と一緒に保存したファイルには曲が入っているので、自分の練習用だけに使い、投稿・共有・配布はしないでください。</p>
+<p><b>マイク：</b>マイクは、歌うとき（「歌う」）、音域を測るとき、遅延を測るときだけ、ブラウザが許可を求めたあとに使います。あなたの声の解析（音程）と録音はブラウザの中だけで行い、録音や結果をどこかに送ることはありません。各曲の直前の1回分の録音は、曲と一緒に端末に保存します（もう一度歌うと置き換わり、「自分の声を削除」で消せます）。「自分の声だけ保存（WAV）」と「曲と一緒に保存（MP3）」も、端末にファイルを保存するだけです。曲と一緒に保存したファイルには曲が入っているので、自分の練習用だけに使い、投稿・共有・配布はしないでください。</p>
 <p>本サイトにはアカウント登録はなく、氏名やメールアドレスなどの個人情報をお聞きすることもありません。</p>
 
 <h2 id="storage">2. ブラウザに保存するデータ</h2>
@@ -108,7 +108,7 @@ export default {
 <ul>
   <li><b>AI モデル：</b>次から再びダウンロードしなくて済むよう、初めて曲を読み込んだときにダウンロードしたモデルのファイル（約 ${MODEL_MB} MB）を保存します。</li>
   <li><b>読み込んだ曲：</b>次からすぐに（オフラインでも）開けるよう、最近読み込んだ曲（${KEEP_SONGS} 曲まで）の分離したボーカルと伴奏、メロディの線、ファイル名、長さを保存します。元のファイルはコピーしません。</li>
-  <li><b>残すことにした録音：</b>「この録音を残す」を押したときだけ、曲と一緒に保存します。</li>
+  <li><b>各曲の直前の録音：</b>歌い終わるたびに曲と一緒に保存し、前の録音と置き換えます。答え合わせの「自分の声を削除」で消せます。</li>
   <li><b>マイ音域：</b>測った場合だけ（一番低い音と一番高い音）。</li>
   <li><b>設定：</b>ボーカルと伴奏の音量、判定の厳しさ、遅延の補正、マイクの設定、ヘッドホンの案内を表示するかどうか。分離の途中は、予期せずページが閉じたときにどこで止まったかを伝えられるよう、進み具合を短く記録します。</li>
   <li><b>アプリのファイル：</b>オフラインでも使えるよう、本サイトのページやファイルと ONNX Runtime のライブラリを保存します。</li>
@@ -142,7 +142,7 @@ export default {
 
 <h2 id="changes">8. 改定</h2>
 <p>サービスの追加・終了など本サイトの変更に合わせて、本ポリシーを改定することがあります。改定後のポリシーは、このページに掲載した時点から適用されます。</p>
-<p>制定日：2026 年 11 月 21 日（2026 年 11 月 22 日改定：歌を曲と一緒に MP3 で保存する機能と、そのための lamejs のダウンロードを追加。動画ファイルの読み込み（音声だけを使う）を追加）</p>
+<p>制定日：2026 年 11 月 21 日（2026 年 11 月 22 日改定：歌を曲と一緒に MP3 で保存する機能と、そのための lamejs のダウンロードを追加。動画ファイルの読み込み（音声だけを使う）を追加。2026 年 11 月 23 日改定：各曲の直前の録音を自動で端末に保存）</p>
 `,
   },
 };

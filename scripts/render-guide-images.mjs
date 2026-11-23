@@ -88,7 +88,7 @@ try {
     const row = await page.locator("#singBtn").boundingBox();
     await page.screenshot({ path: join(OUT, `${lang}-sing.png`), clip: { x: box.x, y: box.y, width: box.width, height: row.y + row.height + 14 - box.y } });
     await page.locator("#results").screenshot({ path: join(OUT, `${lang}-results.png`) });
-    console.log(lang, await page.textContent("#resMatch"), await page.textContent("#resSung"), await page.textContent("#resBias"), JSON.stringify(await page.innerText("#worst")));
+    console.log(lang, await page.textContent("#resMatch"), await page.textContent("#resBias"), JSON.stringify(await page.innerText("#worst")));
     await context.close();
   }
 } finally {

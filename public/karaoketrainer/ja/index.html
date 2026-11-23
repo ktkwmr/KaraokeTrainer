@@ -380,13 +380,13 @@
               <option value="-1" data-i18n="oct.down">1オクターブ下</option>
               <option value="1" data-i18n="oct.up">1オクターブ上</option>
             </select>
+            <button class="chip" id="prevBtn" type="button" data-i18n="prev" hidden>前の録音を見る</button>
             <p class="hint" id="singHint" data-i18n="sing.hint">ヘッドホンを使ってください。スピーカーだと、マイクが曲の音も拾います。</p>
           </div>
           <div id="results" class="results" hidden aria-labelledby="resultsTitle">
             <h2 id="resultsTitle" data-i18n="res.title">答え合わせ</h2>
             <div class="scores">
               <div class="score"><b id="resMatch">–</b><span data-i18n="res.match">音程が合っていた（緑）</span></div>
-              <div class="score"><b id="resSung">–</b><span data-i18n="res.sung">メロディのうち歌えた部分</span></div>
               <div class="score"><b id="resBias">–</b><span data-i18n="res.bias">平均：高め（＋）／低め（−）</span></div>
             </div>
             <p class="hint" id="resNote"></p>
@@ -410,10 +410,11 @@
               <p class="hint" id="takeLatencyHint" data-i18n="res.delay.hint">⚙ →「設定」と同じものです。自分のバーがグレーのバーより右にある（声が遅れて聞こえる）ときは大きく、左にあるときは小さくします。この録音も一緒に動き、次に歌うときもこの値を使います。</p>
             </div>
             <div class="setrow">
-              <button class="chip" id="keepBtn" type="button" data-i18n="res.keep">この録音を残す</button>
               <button class="chip" id="mp3Btn" type="button" data-i18n="res.mp3">曲と一緒に保存（MP3）</button>
               <button class="chip" id="wavBtn" type="button" data-i18n="res.wav">自分の声だけ保存（WAV）</button>
+              <button class="chip" id="delTakeBtn" type="button" data-i18n="res.del">自分の声を削除</button>
             </div>
+            <p class="hint" id="keptNote" data-i18n="res.kept.note">各曲の直前の1回分の録音がこの端末に残り、次に開いたときも見られます（「前の録音を見る」）。もう一度歌うと置き換わります。</p>
             <p class="hint" id="mp3Note" data-i18n="res.mp3.note">「曲と一緒に保存」は、聞こえている音量のまま、あなたの声と伴奏を（原曲のボーカルをオンにしているときはそれも）1つの MP3 にします。曲が入っているので、自分の練習用だけに使い、投稿・共有はしないでください。</p>
           </div>
           <div class="row">
@@ -538,7 +539,7 @@
   <dialog class="msg help" id="helpDlg" tabindex="-1" aria-labelledby="helpTitle">
     <h2 id="helpTitle" data-i18n="menu.help">使い方</h2>
     <div class="help-body">
-      <ol class="help-list" data-i18n-html="help.body"><li><b>曲を読み込む</b> ― 手持ちの曲のファイル（MP3、WAV、M4A、FLAC など。MP4 などの動画も可で、音声だけを使う。10分まで）を選ぶか、枠にドロップします。AIが歌手の声と伴奏を分け、メロディを取り出します。初回はAIモデル（約75MB、1回だけ）をダウンロードします。読み込んだ曲はこの端末に保存されるので、次からはすぐに（オフラインでも）開けます。</li><li><b>聴く</b> ― ▶ を押します。グレーのバーが歌手のメロディで（1つの音に1本）、画面の上ほど高い音です。「ボーカル」のスライダーは 0% でカラオケ、100% で原曲どおり、間にすると歌手の声が小さなガイドになります。スピーカーのボタンでボーカルや伴奏をミュートできます。線はピンチで時間方向に拡大・縮小でき、スマホでは1本指のドラッグ、パソコンでは2本指のスクロール（またはホイール）で前後・上下を見られます。▶ を押すと再生位置に戻ります。</li><li><b>歌う</b> ― ヘッドホンをつけて「歌う」を押します。止めると、録音からあなたの音程を調べ、グレーのバーに重ねてバーで表示します。<b>緑</b>＝合っている、<b>黄</b>＝惜しい、<b>赤</b>＝外れ。原曲より1オクターブ下や上で歌っても正解です。あなたのオクターブは自動で判定します（選ぶこともできます）。</li><li><b>答え合わせ</b> ― 止めると（または曲が終わると）、音程が合っていた割合と、ズレが大きかったところが表示されます（タップでその少し前から再生）。自分の録音と原曲の歌手の声を聴き比べることもできます（「ボーカル」「伴奏」の下に「自分の声」のスライダーが出ます。原曲のボーカルは最初はミュートで、オンにすると重ねて聴けます）。録音は「この録音を残す」を押さない限り残りません。「曲と一緒に保存（MP3）」で、あなたの声と伴奏を1つのファイルにできます。自分の練習用だけに使い、投稿・共有はしないでください。</li><li><b>キーを変える</b> ― − / ＋ で曲を最大6半音まで上げ下げできます。グレーのバーも一緒に動きます。</li><li><b>自分に合うキー（任意）</b> ― 一度音域を測っておくと（⚙ →「マイ音域」）、曲ごとにおすすめのキーが表示されます。練習には必要ありません。</li><li><b>バーがずれるとき</b> ― Bluetoothのヘッドホンや一部の端末では遅れが出ます。答え合わせの「遅延の補正」（⚙ →「設定」と同じもの）で合わせるか、⚙ →「設定」→「遅延を測る」で測ってください。</li><li><b>使ってよい曲で</b> ― 購入した曲や自分で録音した曲のファイルを使ってください。YouTube などのサイトから曲を取り込む機能はありません。</li></ol>
+      <ol class="help-list" data-i18n-html="help.body"><li><b>曲を読み込む</b> ― 手持ちの曲のファイル（MP3、WAV、M4A、FLAC など。MP4 などの動画も可で、音声だけを使う。10分まで）を選ぶか、枠にドロップします。AIが歌手の声と伴奏を分け、メロディを取り出します。初回はAIモデル（約75MB、1回だけ）をダウンロードします。読み込んだ曲はこの端末に保存されるので、次からはすぐに（オフラインでも）開けます。</li><li><b>聴く</b> ― ▶ を押します。グレーのバーが歌手のメロディで（1つの音に1本）、画面の上ほど高い音です。「ボーカル」のスライダーは 0% でカラオケ、100% で原曲どおり、間にすると歌手の声が小さなガイドになります。スピーカーのボタンでボーカルや伴奏をミュートできます。線はピンチで時間方向に拡大・縮小でき、スマホでは1本指のドラッグ、パソコンでは2本指のスクロール（またはホイール）で前後・上下を見られます。▶ を押すと再生位置に戻ります。</li><li><b>歌う</b> ― ヘッドホンをつけて「歌う」を押します。止めると、録音からあなたの音程を調べ、グレーのバーに重ねてバーで表示します。<b>緑</b>＝合っている、<b>黄</b>＝惜しい、<b>赤</b>＝外れ。原曲より1オクターブ下や上で歌っても正解です。あなたのオクターブは自動で判定します（選ぶこともできます）。</li><li><b>答え合わせ</b> ― 止めると（または曲が終わると）、音程が合っていた割合と、ズレが大きかったところが表示されます（タップでその少し前から再生）。自分の録音と原曲の歌手の声を聴き比べることもできます（「ボーカル」「伴奏」の下に「自分の声」のスライダーが出ます。原曲のボーカルは最初はミュートで、オンにすると重ねて聴けます）。各曲の直前の1回分の録音はこの端末に残り、次に開いたときは「歌う」の横の「前の録音を見る」で見られます。もう一度歌うと置き換わり、「自分の声を削除」で消せます。「曲と一緒に保存（MP3）」で、あなたの声と伴奏を1つのファイルにできます。自分の練習用だけに使い、投稿・共有はしないでください。</li><li><b>キーを変える</b> ― − / ＋ で曲を最大6半音まで上げ下げできます。グレーのバーも一緒に動きます。</li><li><b>自分に合うキー（任意）</b> ― 一度音域を測っておくと（⚙ →「マイ音域」）、曲ごとにおすすめのキーが表示されます。練習には必要ありません。</li><li><b>バーがずれるとき</b> ― Bluetoothのヘッドホンや一部の端末では遅れが出ます。答え合わせの「遅延の補正」（⚙ →「設定」と同じもの）で合わせるか、⚙ →「設定」→「遅延を測る」で測ってください。</li><li><b>使ってよい曲で</b> ― 購入した曲や自分で録音した曲のファイルを使ってください。YouTube などのサイトから曲を取り込む機能はありません。</li></ol>
       <p class="help-more"><a href="/karaoketrainer/ja/guide/" target="_blank" rel="noopener" data-i18n="help.more" data-i18n-attr="href:guide.url">詳しいガイドを読む →</a></p>
     </div>
     <div class="dlg-actions">
@@ -549,7 +550,7 @@
   <dialog class="msg help" id="privacyDlg" tabindex="-1" aria-labelledby="privacyTitle">
     <h2 id="privacyTitle" data-i18n="menu.privacy">プライバシー</h2>
     <div class="help-body">
-      <ul class="help-list" data-i18n-html="privacy.body"><li><b>曲と声は端末の中だけ</b> ― 曲のファイルの分離と解析は、ブラウザの中だけで行います。マイクは歌っているときと音域を測るときだけ使い、声の解析と録音もブラウザの中だけで行います。サーバーには何も送りません。アカウント・Cookie・広告はありません。</li><li><b>ダウンロード</b> ― 曲を分離するために、ブラウザがこのサイトからAIモデルを、jsDelivr（CDN）から ONNX Runtime のライブラリをダウンロードします。歌を曲と一緒に MP3 で保存するときは、MP3 を作る lamejs も jsDelivr からダウンロードします。通常のダウンロードと同じく、IPアドレスとブラウザの情報が相手に届きます。曲や声の情報は送りません。</li><li><b>ブラウザに保存するもの</b> ― AIモデル、読み込んだ曲（次回すぐ開けるよう、分離したボーカルと伴奏、メロディの線）、残すことにした録音、測った場合はマイ音域、設定、オフラインで使うためのアプリ本体。曲は ⚙ →「保存した曲を削除」、モデルは ⚙ →「AIモデルを削除」、音域は「マイ音域」で削除できます。ブラウザの設定でこのサイトのデータを消すこともできます。</li><li><b>サーバーのログとアクセス数</b> ― このサイトは Cloudflare で公開しています。運用と安全のため、通常のアクセスログ（IPアドレス、日時、ページなど）が残ります。Cloudflare Web Analytics で、Cookie を使わずにページの表示回数を数えています（ページのURL、参照元、ブラウザの情報、読み込み時間）。</li><li><b>お問い合わせ</b> ― ご質問・ご意見は <a href="https://github.com/ktkwmr/KaraokeTrainer/issues" target="_blank" rel="noopener">GitHub Issues</a> へ。</li><li><b>詳しくは</b> ― <a href="/karaoketrainer/ja/privacy/" target="_blank" rel="noopener">プライバシーポリシー</a>と<a href="/karaoketrainer/ja/about/" target="_blank" rel="noopener">運営者情報</a>をご覧ください。</li></ul>
+      <ul class="help-list" data-i18n-html="privacy.body"><li><b>曲と声は端末の中だけ</b> ― 曲のファイルの分離と解析は、ブラウザの中だけで行います。マイクは歌っているときと音域を測るときだけ使い、声の解析と録音もブラウザの中だけで行います。サーバーには何も送りません。アカウント・Cookie・広告はありません。</li><li><b>ダウンロード</b> ― 曲を分離するために、ブラウザがこのサイトからAIモデルを、jsDelivr（CDN）から ONNX Runtime のライブラリをダウンロードします。歌を曲と一緒に MP3 で保存するときは、MP3 を作る lamejs も jsDelivr からダウンロードします。通常のダウンロードと同じく、IPアドレスとブラウザの情報が相手に届きます。曲や声の情報は送りません。</li><li><b>ブラウザに保存するもの</b> ― AIモデル、読み込んだ曲（次回すぐ開けるよう、分離したボーカルと伴奏、メロディの線）、各曲の直前の録音、測った場合はマイ音域、設定、オフラインで使うためのアプリ本体。曲は ⚙ →「保存した曲を削除」、モデルは ⚙ →「AIモデルを削除」、音域は「マイ音域」で削除できます。ブラウザの設定でこのサイトのデータを消すこともできます。</li><li><b>サーバーのログとアクセス数</b> ― このサイトは Cloudflare で公開しています。運用と安全のため、通常のアクセスログ（IPアドレス、日時、ページなど）が残ります。Cloudflare Web Analytics で、Cookie を使わずにページの表示回数を数えています（ページのURL、参照元、ブラウザの情報、読み込み時間）。</li><li><b>お問い合わせ</b> ― ご質問・ご意見は <a href="https://github.com/ktkwmr/KaraokeTrainer/issues" target="_blank" rel="noopener">GitHub Issues</a> へ。</li><li><b>詳しくは</b> ― <a href="/karaoketrainer/ja/privacy/" target="_blank" rel="noopener">プライバシーポリシー</a>と<a href="/karaoketrainer/ja/about/" target="_blank" rel="noopener">運営者情報</a>をご覧ください。</li></ul>
     </div>
     <div class="dlg-actions">
       <button class="primary" id="privacyClose" type="button" data-i18n="close">閉じる</button>
@@ -655,7 +656,7 @@
           "recent.del": "Delete {name}",
           "recent.confirm": "Delete?",
           "recent.meta": "{time} · {date}",
-          "recent.take": " · recording kept",
+          "recent.take": " · last take kept",
           "range.title": "My vocal range (optional)",
           "range.open": "Measure my vocal range",
           "range.redo": "Measure again",
@@ -708,7 +709,6 @@
           "oct.short.2": "2 higher",
           "res.title": "How you sang",
           "res.match": "on pitch (green)",
-          "res.sung": "of the melody sung",
           "res.bias": "average: higher (+) / lower (−)",
           "res.cents": "{n} cents",
           "res.noteShort": "This take was short ({time}). Sing a whole verse or chorus for a clearer picture.",
@@ -720,10 +720,14 @@
           "res.low": "{n} cents low",
           "res.missed": "mostly not sung",
           "res.compare": "Listen and compare (with the accompaniment)",
-          "res.keep": "Keep this recording",
-          "res.kept": "Recording kept",
-          "res.keptToast": "The recording was saved on this device with the song.",
-          "res.keepFail": "Could not save (storage full?).",
+          "res.keepFail": "Could not keep this take on this device (storage full?). You can still listen and save it as a file now.",
+          "res.del": "Delete my voice",
+          "res.del.title": "Delete your recording?",
+          "res.del.body": "This deletes this take (your voice and its results) from this device. The song stays.",
+          "res.del.done": "Your recording was deleted.",
+          "res.kept.note": "Your last take of each song is kept on this device, so you can see it again next time (“See the last take”). Singing again replaces it.",
+          "prev": "See the last take",
+          "prev.fail": "Could not open the last take.",
           "res.wav": "Save my voice only (WAV)",
           "res.mp3": "Save with the song (MP3)",
           "res.mp3.note": "“Save with the song” saves your voice with the accompaniment (and the original vocal too when it is on), at the volumes you hear. It contains the song, so it is for your own practice only: do not post or share it.",
@@ -788,7 +792,7 @@
           "menu.songs": "Delete saved songs",
           "menu.model": "Delete the AI model",
           "songs.del.title": "Delete all saved songs?",
-          "songs.del.body": "This deletes the separated songs, melody lines, and kept recordings saved in this browser ({mb} MB). Your original files are not touched.",
+          "songs.del.body": "This deletes the separated songs, melody lines, and recordings saved in this browser ({mb} MB). Your original files are not touched.",
           "songs.del.done": "Saved songs deleted.",
           "model.del.title": "Delete the AI model?",
           "model.del.body": "This deletes the AI model (about {mb} MB) saved in this browser, to free up space. It is downloaded again the next time you load a new song.",
@@ -836,8 +840,8 @@
           "home.url": "https://ktkwmr.com/",
           "help.more": "Read the full guide →",
           "about.license": "© 2026 ktkwmr · Licensed under the <a href=\"https://github.com/ktkwmr/KaraokeTrainer/blob/main/LICENSE\" target=\"_blank\" rel=\"noopener\">MIT License</a> · <a href=\"/karaoketrainer/about/\" target=\"_blank\" rel=\"noopener\">About this site</a>",
-          "help.body": "<li><b>Load a song</b> – Choose a song file you have (MP3, WAV, M4A, FLAC…, or a video such as MP4, of which only the sound is used; up to 10 minutes) or drop it on the box. The app separates the singer's voice from the accompaniment with AI and finds the melody. The first time it downloads the AI model (about 75 MB, once). Songs you loaded are kept on this device, so next time they open at once, even offline.</li><li><b>Listen</b> – Press ▶. The grey bars are the singer's melody, one bar per note: higher on the screen is a higher note. Use the “Vocal” slider: 0% is karaoke, 100% is the original, in between the singer becomes a quiet guide. The speaker buttons mute the vocal or the accompaniment. Pinch the line to zoom in or out in time; on a phone, drag it with one finger; on a computer, scroll with two fingers (or the wheel) to look ahead, back, up, or down. ▶ brings it back to where the song is playing.</li><li><b>Sing</b> – Put on headphones and press “Sing”. When you stop, your notes are found from the recording and shown as bars over the grey ones: <b>green</b> = on pitch, <b>yellow</b> = close, <b>red</b> = off. Singing an octave lower or higher than the original counts as on pitch; the app finds your octave (or choose it).</li><li><b>Look back</b> – When you stop (or the song ends), you see how much was on pitch, the parts that went off (tap one to play it again from just before it), and you can listen to your recording against the original singer: a “My voice” slider appears next to Vocal and Accompaniment, and the original vocal starts muted (turn it on to hear both). The recording is not kept unless you press “Keep this recording”. “Save with the song (MP3)” saves your voice with the accompaniment as one file, for your own practice only: do not post or share it.</li><li><b>Change the key</b> – − / + moves the song up or down by up to 6 semitones; the grey bars move with it.</li><li><b>Find your key (optional)</b> – Measure your vocal range once (⚙ → My vocal range) and each song shows a suggested key. You do not need it to practice.</li><li><b>If your bars are late</b> – Bluetooth headphones and some devices add delay. Move the “Delay correction” slider on the results (the same as in ⚙ → Settings), or measure the delay there with “Measure the delay”.</li><li><b>Use songs you may use</b> – Use song files you bought or recorded. The app does not take songs from YouTube or other sites.</li>",
-          "privacy.body": "<li><b>Your song and your voice stay on your device</b> – The song file is separated and analyzed only in your browser. The microphone is used only while you sing or measure your range, and your voice is analyzed and recorded only in your browser. Nothing is sent to a server. This app has no accounts, cookies, or ads.</li><li><b>Downloads</b> – To separate a song, your browser downloads the AI model from this site and the ONNX Runtime library from jsDelivr (a CDN); when you save your singing with the song as MP3, also the lamejs MP3 encoder from jsDelivr. Like any download, they receive your IP address and browser information. Nothing about your song or voice is sent.</li><li><b>Data saved in your browser</b> – The AI model, the songs you loaded (the separated vocals and accompaniment and the melody line, so they open at once next time), recordings you chose to keep, your vocal range if you measured it, your settings, and the app itself (to work offline). Delete songs with ⚙ → “Delete saved songs”, the model with ⚙ → “Delete the AI model”, your range in “My vocal range”, or clear this site's data in your browser settings.</li><li><b>Server logs and page views</b> – This site is hosted on Cloudflare. Standard access logs (such as IP address, time, and the requested page) are kept for operation and security. Cloudflare Web Analytics counts page views without cookies (the page URL, referrer, browser information, and page load time).</li><li><b>Contact</b> – Questions and feedback: <a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">GitHub Issues</a>.</li><li><b>Full policy</b> – See the <a href=\"/karaoketrainer/privacy/\" target=\"_blank\" rel=\"noopener\">privacy policy</a> and <a href=\"/karaoketrainer/about/\" target=\"_blank\" rel=\"noopener\">about this site</a>.</li>",
+          "help.body": "<li><b>Load a song</b> – Choose a song file you have (MP3, WAV, M4A, FLAC…, or a video such as MP4, of which only the sound is used; up to 10 minutes) or drop it on the box. The app separates the singer's voice from the accompaniment with AI and finds the melody. The first time it downloads the AI model (about 75 MB, once). Songs you loaded are kept on this device, so next time they open at once, even offline.</li><li><b>Listen</b> – Press ▶. The grey bars are the singer's melody, one bar per note: higher on the screen is a higher note. Use the “Vocal” slider: 0% is karaoke, 100% is the original, in between the singer becomes a quiet guide. The speaker buttons mute the vocal or the accompaniment. Pinch the line to zoom in or out in time; on a phone, drag it with one finger; on a computer, scroll with two fingers (or the wheel) to look ahead, back, up, or down. ▶ brings it back to where the song is playing.</li><li><b>Sing</b> – Put on headphones and press “Sing”. When you stop, your notes are found from the recording and shown as bars over the grey ones: <b>green</b> = on pitch, <b>yellow</b> = close, <b>red</b> = off. Singing an octave lower or higher than the original counts as on pitch; the app finds your octave (or choose it).</li><li><b>Look back</b> – When you stop (or the song ends), you see how much was on pitch, the parts that went off (tap one to play it again from just before it), and you can listen to your recording against the original singer: a “My voice” slider appears next to Vocal and Accompaniment, and the original vocal starts muted (turn it on to hear both). Your last take of each song is kept on this device: next time, “See the last take” (next to “Sing”) opens it. Singing again replaces it, and “Delete my voice” deletes it. “Save with the song (MP3)” saves your voice with the accompaniment as one file, for your own practice only: do not post or share it.</li><li><b>Change the key</b> – − / + moves the song up or down by up to 6 semitones; the grey bars move with it.</li><li><b>Find your key (optional)</b> – Measure your vocal range once (⚙ → My vocal range) and each song shows a suggested key. You do not need it to practice.</li><li><b>If your bars are late</b> – Bluetooth headphones and some devices add delay. Move the “Delay correction” slider on the results (the same as in ⚙ → Settings), or measure the delay there with “Measure the delay”.</li><li><b>Use songs you may use</b> – Use song files you bought or recorded. The app does not take songs from YouTube or other sites.</li>",
+          "privacy.body": "<li><b>Your song and your voice stay on your device</b> – The song file is separated and analyzed only in your browser. The microphone is used only while you sing or measure your range, and your voice is analyzed and recorded only in your browser. Nothing is sent to a server. This app has no accounts, cookies, or ads.</li><li><b>Downloads</b> – To separate a song, your browser downloads the AI model from this site and the ONNX Runtime library from jsDelivr (a CDN); when you save your singing with the song as MP3, also the lamejs MP3 encoder from jsDelivr. Like any download, they receive your IP address and browser information. Nothing about your song or voice is sent.</li><li><b>Data saved in your browser</b> – The AI model, the songs you loaded (the separated vocals and accompaniment and the melody line, so they open at once next time), your last take of each song, your vocal range if you measured it, your settings, and the app itself (to work offline). Delete songs with ⚙ → “Delete saved songs”, the model with ⚙ → “Delete the AI model”, your range in “My vocal range”, or clear this site's data in your browser settings.</li><li><b>Server logs and page views</b> – This site is hosted on Cloudflare. Standard access logs (such as IP address, time, and the requested page) are kept for operation and security. Cloudflare Web Analytics counts page views without cookies (the page URL, referrer, browser information, and page load time).</li><li><b>Contact</b> – Questions and feedback: <a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">GitHub Issues</a>.</li><li><b>Full policy</b> – See the <a href=\"/karaoketrainer/privacy/\" target=\"_blank\" rel=\"noopener\">privacy policy</a> and <a href=\"/karaoketrainer/about/\" target=\"_blank\" rel=\"noopener\">about this site</a>.</li>",
           "intro.title": "Karaoke practice: sing along and see your pitch over the original melody",
           "intro.body": "<p>Karaoke Trainer is a free practice tool for people who love singing, no sheet music needed. Load a song file you have, and AI separates the singer's voice from the accompaniment and turns the singer's melody into <b>note bars</b>, as on a karaoke machine. Press “Sing”, and when you stop, your own pitch is shown over it as bars too, so you can <b>see</b> where you went flat or sharp.</p><p>The <b>Vocal</b> slider goes from 0% (karaoke: the accompaniment only) to 100% (the original); in between, the singer becomes a quiet guide voice. You can change the key by up to 6 semitones up or down; the bars move with it. Singing an octave lower or higher than the original singer, as many men do with songs by women and the other way round, counts as on pitch.</p><p>When you stop, the app shows how much of the melody you sang on pitch, lists the parts that went off (tap one to sing it again), and lets you listen to your recording against the original singer's voice. If you measure your vocal range once, each song also shows the key that suits your voice. You can skip that: the practice works without it.</p><p>Everything runs <b>in your browser</b>: your song and your voice are not uploaded anywhere. The first song downloads the AI model (about 75 MB, once); songs you loaded are kept on this device and open at once next time, even offline. Use headphones while singing. Supported files: MP3, WAV, M4A (AAC), FLAC, OGG and most formats your browser can play, and video files such as MP4 (only the sound is used), up to 10 minutes. Free, no sign-up, no ads.</p><h2>Guides</h2><ul><li><a href=\"/karaoketrainer/guide/\" target=\"_blank\" rel=\"noopener\">How to use Karaoke Trainer</a></li><li><a href=\"/karaoketrainer/faq/\" target=\"_blank\" rel=\"noopener\">Frequently asked questions</a></li></ul>",
           "foot.meta": "<span>Karaoke Trainer · © 2026 ktkwmr</span><a href=\"/karaoketrainer/privacy/\" target=\"_blank\" rel=\"noopener\">Privacy policy</a><a href=\"/karaoketrainer/about/\" target=\"_blank\" rel=\"noopener\">About this site</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer\" target=\"_blank\" rel=\"noopener\">Source code on GitHub</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">Feedback</a><a href=\"https://ktkwmr.com/\" target=\"_blank\" rel=\"noopener\">More apps by ktkwmr</a>"
@@ -945,7 +949,6 @@
           "oct.short.2": "2つ上",
           "res.title": "答え合わせ",
           "res.match": "音程が合っていた（緑）",
-          "res.sung": "メロディのうち歌えた部分",
           "res.bias": "平均：高め（＋）／低め（−）",
           "res.cents": "{n}セント",
           "res.noteShort": "短い録音でした（{time}）。1コーラス歌うと、傾向がよくわかります。",
@@ -957,10 +960,14 @@
           "res.low": "{n}セント低い",
           "res.missed": "ほとんど歌っていない",
           "res.compare": "聴き比べ（伴奏つき）",
-          "res.keep": "この録音を残す",
-          "res.kept": "録音を残しました",
-          "res.keptToast": "録音を曲と一緒にこの端末に保存しました。",
-          "res.keepFail": "保存できませんでした（容量不足かもしれません）。",
+          "res.keepFail": "この録音を端末に残せませんでした（容量不足かもしれません）。今は聴いたり、ファイルに保存したりできます。",
+          "res.del": "自分の声を削除",
+          "res.del.title": "録音を削除しますか？",
+          "res.del.body": "この録音（あなたの声と答え合わせ）をこの端末から削除します。曲は残ります。",
+          "res.del.done": "録音を削除しました。",
+          "res.kept.note": "各曲の直前の1回分の録音がこの端末に残り、次に開いたときも見られます（「前の録音を見る」）。もう一度歌うと置き換わります。",
+          "prev": "前の録音を見る",
+          "prev.fail": "前の録音を開けませんでした。",
           "res.wav": "自分の声だけ保存（WAV）",
           "res.mp3": "曲と一緒に保存（MP3）",
           "res.mp3.note": "「曲と一緒に保存」は、聞こえている音量のまま、あなたの声と伴奏を（原曲のボーカルをオンにしているときはそれも）1つの MP3 にします。曲が入っているので、自分の練習用だけに使い、投稿・共有はしないでください。",
@@ -1025,7 +1032,7 @@
           "menu.songs": "保存した曲を削除",
           "menu.model": "AIモデルを削除",
           "songs.del.title": "保存したすべての曲を削除しますか？",
-          "songs.del.body": "このブラウザに保存した、分離した曲・メロディの線・残した録音を削除します（{mb}MB）。元のファイルには影響しません。",
+          "songs.del.body": "このブラウザに保存した、分離した曲・メロディの線・録音を削除します（{mb}MB）。元のファイルには影響しません。",
           "songs.del.done": "保存した曲を削除しました。",
           "model.del.title": "AIモデルを削除しますか？",
           "model.del.body": "このブラウザに保存したAIモデル（約{mb}MB）を削除して、空き容量を増やします。次に新しい曲を読み込むときに、もう一度ダウンロードします。",
@@ -1073,8 +1080,8 @@
           "home.url": "https://ktkwmr.com/ja/",
           "help.more": "詳しいガイドを読む →",
           "about.license": "© 2026 ktkwmr・<a href=\"https://github.com/ktkwmr/KaraokeTrainer/blob/main/LICENSE\" target=\"_blank\" rel=\"noopener\">MITライセンス</a>・<a href=\"/karaoketrainer/ja/about/\" target=\"_blank\" rel=\"noopener\">運営者情報</a>",
-          "help.body": "<li><b>曲を読み込む</b> ― 手持ちの曲のファイル（MP3、WAV、M4A、FLAC など。MP4 などの動画も可で、音声だけを使う。10分まで）を選ぶか、枠にドロップします。AIが歌手の声と伴奏を分け、メロディを取り出します。初回はAIモデル（約75MB、1回だけ）をダウンロードします。読み込んだ曲はこの端末に保存されるので、次からはすぐに（オフラインでも）開けます。</li><li><b>聴く</b> ― ▶ を押します。グレーのバーが歌手のメロディで（1つの音に1本）、画面の上ほど高い音です。「ボーカル」のスライダーは 0% でカラオケ、100% で原曲どおり、間にすると歌手の声が小さなガイドになります。スピーカーのボタンでボーカルや伴奏をミュートできます。線はピンチで時間方向に拡大・縮小でき、スマホでは1本指のドラッグ、パソコンでは2本指のスクロール（またはホイール）で前後・上下を見られます。▶ を押すと再生位置に戻ります。</li><li><b>歌う</b> ― ヘッドホンをつけて「歌う」を押します。止めると、録音からあなたの音程を調べ、グレーのバーに重ねてバーで表示します。<b>緑</b>＝合っている、<b>黄</b>＝惜しい、<b>赤</b>＝外れ。原曲より1オクターブ下や上で歌っても正解です。あなたのオクターブは自動で判定します（選ぶこともできます）。</li><li><b>答え合わせ</b> ― 止めると（または曲が終わると）、音程が合っていた割合と、ズレが大きかったところが表示されます（タップでその少し前から再生）。自分の録音と原曲の歌手の声を聴き比べることもできます（「ボーカル」「伴奏」の下に「自分の声」のスライダーが出ます。原曲のボーカルは最初はミュートで、オンにすると重ねて聴けます）。録音は「この録音を残す」を押さない限り残りません。「曲と一緒に保存（MP3）」で、あなたの声と伴奏を1つのファイルにできます。自分の練習用だけに使い、投稿・共有はしないでください。</li><li><b>キーを変える</b> ― − / ＋ で曲を最大6半音まで上げ下げできます。グレーのバーも一緒に動きます。</li><li><b>自分に合うキー（任意）</b> ― 一度音域を測っておくと（⚙ →「マイ音域」）、曲ごとにおすすめのキーが表示されます。練習には必要ありません。</li><li><b>バーがずれるとき</b> ― Bluetoothのヘッドホンや一部の端末では遅れが出ます。答え合わせの「遅延の補正」（⚙ →「設定」と同じもの）で合わせるか、⚙ →「設定」→「遅延を測る」で測ってください。</li><li><b>使ってよい曲で</b> ― 購入した曲や自分で録音した曲のファイルを使ってください。YouTube などのサイトから曲を取り込む機能はありません。</li>",
-          "privacy.body": "<li><b>曲と声は端末の中だけ</b> ― 曲のファイルの分離と解析は、ブラウザの中だけで行います。マイクは歌っているときと音域を測るときだけ使い、声の解析と録音もブラウザの中だけで行います。サーバーには何も送りません。アカウント・Cookie・広告はありません。</li><li><b>ダウンロード</b> ― 曲を分離するために、ブラウザがこのサイトからAIモデルを、jsDelivr（CDN）から ONNX Runtime のライブラリをダウンロードします。歌を曲と一緒に MP3 で保存するときは、MP3 を作る lamejs も jsDelivr からダウンロードします。通常のダウンロードと同じく、IPアドレスとブラウザの情報が相手に届きます。曲や声の情報は送りません。</li><li><b>ブラウザに保存するもの</b> ― AIモデル、読み込んだ曲（次回すぐ開けるよう、分離したボーカルと伴奏、メロディの線）、残すことにした録音、測った場合はマイ音域、設定、オフラインで使うためのアプリ本体。曲は ⚙ →「保存した曲を削除」、モデルは ⚙ →「AIモデルを削除」、音域は「マイ音域」で削除できます。ブラウザの設定でこのサイトのデータを消すこともできます。</li><li><b>サーバーのログとアクセス数</b> ― このサイトは Cloudflare で公開しています。運用と安全のため、通常のアクセスログ（IPアドレス、日時、ページなど）が残ります。Cloudflare Web Analytics で、Cookie を使わずにページの表示回数を数えています（ページのURL、参照元、ブラウザの情報、読み込み時間）。</li><li><b>お問い合わせ</b> ― ご質問・ご意見は <a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">GitHub Issues</a> へ。</li><li><b>詳しくは</b> ― <a href=\"/karaoketrainer/ja/privacy/\" target=\"_blank\" rel=\"noopener\">プライバシーポリシー</a>と<a href=\"/karaoketrainer/ja/about/\" target=\"_blank\" rel=\"noopener\">運営者情報</a>をご覧ください。</li>",
+          "help.body": "<li><b>曲を読み込む</b> ― 手持ちの曲のファイル（MP3、WAV、M4A、FLAC など。MP4 などの動画も可で、音声だけを使う。10分まで）を選ぶか、枠にドロップします。AIが歌手の声と伴奏を分け、メロディを取り出します。初回はAIモデル（約75MB、1回だけ）をダウンロードします。読み込んだ曲はこの端末に保存されるので、次からはすぐに（オフラインでも）開けます。</li><li><b>聴く</b> ― ▶ を押します。グレーのバーが歌手のメロディで（1つの音に1本）、画面の上ほど高い音です。「ボーカル」のスライダーは 0% でカラオケ、100% で原曲どおり、間にすると歌手の声が小さなガイドになります。スピーカーのボタンでボーカルや伴奏をミュートできます。線はピンチで時間方向に拡大・縮小でき、スマホでは1本指のドラッグ、パソコンでは2本指のスクロール（またはホイール）で前後・上下を見られます。▶ を押すと再生位置に戻ります。</li><li><b>歌う</b> ― ヘッドホンをつけて「歌う」を押します。止めると、録音からあなたの音程を調べ、グレーのバーに重ねてバーで表示します。<b>緑</b>＝合っている、<b>黄</b>＝惜しい、<b>赤</b>＝外れ。原曲より1オクターブ下や上で歌っても正解です。あなたのオクターブは自動で判定します（選ぶこともできます）。</li><li><b>答え合わせ</b> ― 止めると（または曲が終わると）、音程が合っていた割合と、ズレが大きかったところが表示されます（タップでその少し前から再生）。自分の録音と原曲の歌手の声を聴き比べることもできます（「ボーカル」「伴奏」の下に「自分の声」のスライダーが出ます。原曲のボーカルは最初はミュートで、オンにすると重ねて聴けます）。各曲の直前の1回分の録音はこの端末に残り、次に開いたときは「歌う」の横の「前の録音を見る」で見られます。もう一度歌うと置き換わり、「自分の声を削除」で消せます。「曲と一緒に保存（MP3）」で、あなたの声と伴奏を1つのファイルにできます。自分の練習用だけに使い、投稿・共有はしないでください。</li><li><b>キーを変える</b> ― − / ＋ で曲を最大6半音まで上げ下げできます。グレーのバーも一緒に動きます。</li><li><b>自分に合うキー（任意）</b> ― 一度音域を測っておくと（⚙ →「マイ音域」）、曲ごとにおすすめのキーが表示されます。練習には必要ありません。</li><li><b>バーがずれるとき</b> ― Bluetoothのヘッドホンや一部の端末では遅れが出ます。答え合わせの「遅延の補正」（⚙ →「設定」と同じもの）で合わせるか、⚙ →「設定」→「遅延を測る」で測ってください。</li><li><b>使ってよい曲で</b> ― 購入した曲や自分で録音した曲のファイルを使ってください。YouTube などのサイトから曲を取り込む機能はありません。</li>",
+          "privacy.body": "<li><b>曲と声は端末の中だけ</b> ― 曲のファイルの分離と解析は、ブラウザの中だけで行います。マイクは歌っているときと音域を測るときだけ使い、声の解析と録音もブラウザの中だけで行います。サーバーには何も送りません。アカウント・Cookie・広告はありません。</li><li><b>ダウンロード</b> ― 曲を分離するために、ブラウザがこのサイトからAIモデルを、jsDelivr（CDN）から ONNX Runtime のライブラリをダウンロードします。歌を曲と一緒に MP3 で保存するときは、MP3 を作る lamejs も jsDelivr からダウンロードします。通常のダウンロードと同じく、IPアドレスとブラウザの情報が相手に届きます。曲や声の情報は送りません。</li><li><b>ブラウザに保存するもの</b> ― AIモデル、読み込んだ曲（次回すぐ開けるよう、分離したボーカルと伴奏、メロディの線）、各曲の直前の録音、測った場合はマイ音域、設定、オフラインで使うためのアプリ本体。曲は ⚙ →「保存した曲を削除」、モデルは ⚙ →「AIモデルを削除」、音域は「マイ音域」で削除できます。ブラウザの設定でこのサイトのデータを消すこともできます。</li><li><b>サーバーのログとアクセス数</b> ― このサイトは Cloudflare で公開しています。運用と安全のため、通常のアクセスログ（IPアドレス、日時、ページなど）が残ります。Cloudflare Web Analytics で、Cookie を使わずにページの表示回数を数えています（ページのURL、参照元、ブラウザの情報、読み込み時間）。</li><li><b>お問い合わせ</b> ― ご質問・ご意見は <a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">GitHub Issues</a> へ。</li><li><b>詳しくは</b> ― <a href=\"/karaoketrainer/ja/privacy/\" target=\"_blank\" rel=\"noopener\">プライバシーポリシー</a>と<a href=\"/karaoketrainer/ja/about/\" target=\"_blank\" rel=\"noopener\">運営者情報</a>をご覧ください。</li>",
           "intro.title": "カラオケ練習：原曲のメロディと自分の音程を重ねて見られる無料ツール",
           "intro.body": "<p>Karaoke Trainer（カラオケトレーナー）は、楽譜が読めなくても使える歌の練習ツールです。手持ちの曲のファイルを読み込むと、AIが歌手の声と伴奏を分け、歌手のメロディをカラオケのような<b>音のバー</b>にします。「歌う」を押して歌い、止めると、あなたの音程もバーで重ねて表示されるので、どこで高すぎたか・低すぎたかが<b>目で見て</b>わかります。</p><p><b>ボーカル</b>のスライダーは、0%（カラオケ：伴奏だけ）から100%（原曲どおり）まで。間にすると、歌手の声が小さなガイドボーカルになります。最大6半音までキーを変えることもでき、バーも一緒に動きます。男性が女性の曲を（またはその逆を）1オクターブ下や上で歌うのはよくあることなので、オクターブ違いは正解として判定します。</p><p>止めると、メロディのうち音程が合っていた割合と、ズレが大きかったところの一覧（タップでそこから歌い直せます）が表示され、自分の録音と原曲の歌手の声を聴き比べられます。一度自分の音域を測っておくと、曲ごとに自分の声に合うキーも表示されます。測らなくても練習には使えます。</p><p>すべて<b>ブラウザの中</b>で動き、曲もあなたの声もアップロードしません。最初の曲でAIモデル（約75MB、1回だけ）をダウンロードします。読み込んだ曲はこの端末に保存され、次からはすぐに（オフラインでも）開けます。歌うときはヘッドホンを使ってください。対応形式：MP3、WAV、M4A（AAC）、FLAC、OGG など、ブラウザで再生できるほとんどの形式と、MP4 などの動画（音声だけを使う）。10分まで。無料・登録不要・広告なし。</p><h2>ガイド</h2><ul><li><a href=\"/karaoketrainer/ja/guide/\" target=\"_blank\" rel=\"noopener\">Karaoke Trainer の使い方</a></li><li><a href=\"/karaoketrainer/ja/faq/\" target=\"_blank\" rel=\"noopener\">よくある質問</a></li></ul>",
           "foot.meta": "<span>Karaoke Trainer・© 2026 ktkwmr</span><a href=\"/karaoketrainer/ja/privacy/\" target=\"_blank\" rel=\"noopener\">プライバシーポリシー</a><a href=\"/karaoketrainer/ja/about/\" target=\"_blank\" rel=\"noopener\">運営者情報</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer\" target=\"_blank\" rel=\"noopener\">ソースコード（GitHub）</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">フィードバック</a><a href=\"https://ktkwmr.com/ja/\" target=\"_blank\" rel=\"noopener\">ktkwmr のほかのアプリ</a>"
@@ -1290,19 +1297,31 @@
 
       // ---------- Songs saved in IndexedDB (key: SHA-256 of the file) ----------
       // "index": { hash, name, duration, used, bytes, take } (small, for the list)
-      // "songs": { hash, stems: [[vocal L, R], [acc L, R]] (Int16Array), line (Float32Array), lineV, beats (Float64Array | null), beatsV, take? }
+      // "songs": { hash, stems: [[vocal L, R], [acc L, R]] (Int16Array), line (Float32Array), lineV, beats (Float64Array | null), beatsV }
+      // "takes": { hash, take } – your last take of the song, saved by itself each time you stop, so the
+      //   song's stems are not written again (version 1 kept it in "songs" as take: moved when the song opens)
+      const STORES = ["index", "songs", "takes"];
       let dbPromise = null;
       function db() {
         if (!dbPromise) {
           dbPromise = new Promise(function (resolve, reject) {
             if (!window.indexedDB) { reject(new Error("no IndexedDB")); return; }
-            const r = indexedDB.open("karaoketrainer", 1);
-            r.onupgradeneeded = function () {
+            const r = indexedDB.open("karaoketrainer", 2);
+            r.onupgradeneeded = function (e) {
               const d = r.result;
-              d.createObjectStore("index", { keyPath: "hash" });
-              d.createObjectStore("songs", { keyPath: "hash" });
+              if (e.oldVersion < 1) {
+                d.createObjectStore("index", { keyPath: "hash" });
+                d.createObjectStore("songs", { keyPath: "hash" });
+              }
+              if (e.oldVersion < 2) d.createObjectStore("takes", { keyPath: "hash" });
             };
-            r.onsuccess = function () { resolve(r.result); };
+            // Another tab with the old version open: it is asked to close its connection (below)
+            r.onblocked = function () { console.warn("IndexedDB upgrade blocked by another tab"); };
+            r.onsuccess = function () {
+              const d = r.result;
+              d.onversionchange = function () { d.close(); dbPromise = null; };
+              resolve(d);
+            };
             r.onerror = function () { reject(r.error); };
           });
           dbPromise.catch(function () { dbPromise = null; });
@@ -1321,7 +1340,7 @@
       async function dbPut(entries) {
         const d = await db();
         return new Promise(function (res, rej) {
-          const tx = d.transaction(["index", "songs"], "readwrite");
+          const tx = d.transaction(STORES, "readwrite");
           entries.forEach(function (e) { tx.objectStore(e[0]).put(e[1]); });
           tx.oncomplete = function () { res(); };
           tx.onerror = function () { rej(tx.error); };
@@ -1331,8 +1350,8 @@
       async function dbDelete(hashes) {
         const d = await db();
         return new Promise(function (res, rej) {
-          const tx = d.transaction(["index", "songs"], "readwrite");
-          hashes.forEach(function (h) { tx.objectStore("index").delete(h); tx.objectStore("songs").delete(h); });
+          const tx = d.transaction(STORES, "readwrite");
+          hashes.forEach(function (h) { STORES.forEach(function (s) { tx.objectStore(s).delete(h); }); });
           tx.oncomplete = function () { res(); };
           tx.onerror = function () { rej(tx.error); };
         });
@@ -1446,9 +1465,15 @@
               setBusy(false);
             }
           }
+          // A take kept by version 1 inside the song: moved to "takes" (the song is written once more without it)
+          if (rec.take) {
+            const old = rec.take;
+            delete rec.take;
+            try { await dbPut([["takes", { hash: hash, take: old }], ["songs", rec]]); info.take = true; } catch (e) { console.warn(e); }
+          }
           const fresh = rec.beatsV === BEATS_V;
-          await setSong({ hash: hash, name: info.name, duration: info.duration, stems: stems, line: rec.line, beats: fresh ? rec.beats : null, demo: false });
-          if (rec.take) restoreTake(rec.take);
+          // Your last take is not shown by itself: "See the last take" opens it
+          await setSong({ hash: hash, name: info.name, duration: info.duration, stems: stems, line: rec.line, beats: fresh ? rec.beats : null, demo: false, hasTake: !!info.take });
           toast(t("opened"));
           if (!fresh) addBeats(hash, stems[1]);
         } catch (e) {
@@ -1880,7 +1905,7 @@
         pos = 0;
         $("timeNow").textContent = "0:00";
         $("timeEnd").textContent = fmtTime(length / SR);
-        $("keepBtn").hidden = !!s.demo;
+        renderPrev();
         renderKey();
         try {
           await ensureAudio();
@@ -2214,7 +2239,7 @@
       // rawLine / rawCovered: your note bars and the frames you sang, as recorded (the delay correction of the
       // time, lat ms, subtracted); line / covered: the same moved by the change of the delay correction since
       // (shift ms, later +), so moving the delay correction on the results moves this take too
-      let take = null; // { line, covered, rawLine, rawCovered, audio, start, semis, singOct, gain, lat, shift, kept, busy }
+      let take = null; // { line, covered, rawLine, rawCovered, audio, start, semis, singOct, gain, lat, shift, busy }
       let singOctManual = null; // null = auto
       function latencyMs() { return store.latency != null ? store.latency : autoLatency(); }
       function latencySec() { return latencyMs() / 1000; }
@@ -2272,6 +2297,7 @@
         take = newTake();
         $("results").hidden = true;
         setReviewing(false);
+        renderPrev();
         loadTracks(true);
         renderSing();
         renderOct();
@@ -2303,18 +2329,19 @@
       });
 
       async function finishTake(show) {
-        const tk = take;
+        const tk = take, sg = song;
         // Your recording's level, so it plays about as loud as the singer
         if (tk.audio) {
           let peak = 0;
           for (let i = 0; i < tk.audio.length; i += 4) { const v = Math.abs(tk.audio[i]); if (v > peak) peak = v; }
           tk.gain = peak > 0 ? Math.min(8, (0.7 * 32768) / peak) : 1;
         }
-        tk.kept = false;
         reviewVocalMute = true;
         loadTracks(true);
         if (show) { tk.busy = true; showResults(); }
         await findTakeLine(tk);
+        // Kept by itself as the song's last take (replacing the one before), even if you moved on meanwhile
+        tk.saving = keepTake(tk, sg);
         if (take !== tk) return;
         tk.busy = false;
         applyShift();
@@ -2322,7 +2349,7 @@
       }
       async function restoreTake(saved) {
         const covered = saved.covered;
-        const tk = { line: saved.line, covered: covered, rawLine: saved.line, rawCovered: covered, audio: saved.audio ? toShared(saved.audio) : null, start: saved.start, semis: saved.semis, singOct: null, gain: saved.gain || 1, lat: saved.lat != null ? saved.lat : latencyMs(), shift: 0, kept: true };
+        const tk = { line: saved.line, covered: covered, rawLine: saved.line, rawCovered: covered, audio: saved.audio ? toShared(saved.audio) : null, start: saved.start, semis: saved.semis, singOct: null, gain: saved.gain || 1, lat: saved.lat != null ? saved.lat : latencyMs(), shift: 0 };
         take = tk;
         reviewVocalMute = true;
         loadTracks(true);
@@ -2444,18 +2471,18 @@
         if (!take || !song) return;
         $("results").hidden = false;
         setReviewing(true);
+        renderPrev();
         renderLatency();
         if (take.busy) {
-          ["resMatch", "resSung", "resBias"].forEach(function (id) { $(id).textContent = "…"; });
+          ["resMatch", "resBias"].forEach(function (id) { $(id).textContent = "…"; });
           $("resNote").textContent = t("res.busy");
           $("worst").textContent = "";
-          ["keepBtn", "wavBtn", "mp3Btn"].forEach(function (id) { $(id).disabled = true; });
+          ["delTakeBtn", "wavBtn", "mp3Btn"].forEach(function (id) { $(id).disabled = true; });
           draw();
           return;
         }
         const r = analyzeTake();
         $("resMatch").textContent = r.U ? Math.round((r.green / r.U) * 100) + "%" : "–";
-        $("resSung").textContent = r.R ? Math.round((r.U / r.R) * 100) + "%" : "–";
         const b = Math.round(r.bias);
         $("resBias").textContent = r.U ? (b > 0 ? "+" : b < 0 ? "−" : "±") + t("res.cents", { n: Math.abs(b) }) : "–";
         $("resNote").textContent = !r.U ? t("res.noteNone") : r.R < 8 * FPS ? t("res.noteShort", { time: fmtTime(r.R / FPS) }) : t("res.noteOk", { time: fmtTime(r.R / FPS) });
@@ -2479,8 +2506,8 @@
           li.appendChild(btn);
           ul.appendChild(li);
         });
-        $("keepBtn").disabled = !!take.kept || !take.audio;
-        $("keepBtn").textContent = t(take.kept ? "res.kept" : "res.keep");
+        $("delTakeBtn").disabled = false;
+        $("keptNote").hidden = !!song.demo;
         $("wavBtn").disabled = !take.audio;
         $("mp3Btn").disabled = !take.audio;
         draw();
@@ -2490,24 +2517,76 @@
         seekTo(take.start / SR);
         play();
       });
-      $("keepBtn").addEventListener("click", async function () {
-        if (!take || !take.audio || take.busy || !song || song.demo) return;
+      // ---------- Your last take of each song, kept on this device ("takes") ----------
+      // Saved each time you stop (not the demo song, not a take with nothing recorded); singing again replaces
+      // it, "Delete my voice" deletes it. Opening the song does not show it: "See the last take" does.
+      async function keepTake(tk, sg) {
+        if (!sg || sg.demo || !tk.audio || tk.rawCovered.indexOf(1) < 0) return;
         try {
-          const rec = await dbGet("songs", song.hash);
-          const info = await dbGet("index", song.hash);
-          if (!rec || !info) throw new Error("song not saved");
-          rec.take = { v: TAKE_V, line: take.rawLine, covered: take.rawCovered, lat: take.lat, audio: plain(take.audio), start: take.start, semis: take.semis, gain: take.gain };
+          const info = await dbGet("index", sg.hash);
+          if (!info) return; // the song itself is not saved (storage full, or removed meanwhile)
+          const saved = { v: TAKE_V, line: tk.rawLine, covered: tk.rawCovered, lat: tk.lat, audio: plain(tk.audio), start: tk.start, semis: tk.semis, gain: tk.gain };
           info.take = true;
-          info.bytes = pcmBytes(rec.stems.map(function (s) { return [s[0], s[1] || s[0]]; })) + take.audio.length * 2;
-          await dbPut([["songs", rec], ["index", info]]);
-          take.kept = true;
-          showResults();
+          info.bytes = pcmBytes(sg.stems) + tk.audio.length * 2;
+          await dbPut([["takes", { hash: sg.hash, take: saved }], ["index", info]]);
+          if (song === sg) song.hasTake = true;
           renderRecent();
-          toast(t("res.keptToast"));
         } catch (e) {
           console.warn(e);
-          toast(t("res.keepFail"));
+          if (take === tk) toast(t("res.keepFail"));
         }
+      }
+      function renderPrev() {
+        $("prevBtn").hidden = !(song && song.hasTake && !singing && $("results").hidden);
+      }
+      $("prevBtn").addEventListener("click", async function () {
+        if (!song || singing) return;
+        const sg = song;
+        try {
+          const rec = await dbGet("takes", sg.hash);
+          if (song !== sg || singing) return;
+          if (!rec) { sg.hasTake = false; renderPrev(); toast(t("prev.fail")); return; }
+          restoreTake(rec.take);
+        } catch (e) {
+          console.warn(e);
+          toast(t("prev.fail"));
+        }
+      });
+      $("delTakeBtn").addEventListener("click", async function () {
+        if (!take || take.busy || !song) return;
+        const tk = take, sg = song;
+        $("confirmTitle").textContent = t("res.del.title");
+        $("confirmBody").textContent = t("res.del.body");
+        if (!(await askDlg($("confirmDlg"), "confirmOk", "confirmCancel"))) return;
+        if (take !== tk) return;
+        if (tk.saving) await tk.saving; // a save still going on would put it back
+        if (take !== tk) return;
+        if (playing) pause();
+        take = null;
+        $("results").hidden = true;
+        setReviewing(false);
+        loadTracks(true);
+        if (!sg.demo) {
+          try {
+            const d = await db();
+            const info = await dbGet("index", sg.hash);
+            await new Promise(function (res, rej) {
+              const tx = d.transaction(["index", "takes"], "readwrite");
+              tx.objectStore("takes").delete(sg.hash);
+              if (info) { info.take = false; info.bytes = pcmBytes(sg.stems); tx.objectStore("index").put(info); }
+              tx.oncomplete = function () { res(); };
+              tx.onerror = function () { rej(tx.error); };
+              tx.onabort = function () { rej(tx.error); };
+            });
+          } catch (e) {
+            console.warn(e);
+          }
+          sg.hasTake = false;
+        }
+        renderPrev();
+        renderRecent();
+        draw();
+        toast(t("res.del.done"));
       });
       $("wavBtn").addEventListener("click", function () {
         if (!take || !take.audio) return;
