@@ -1125,8 +1125,8 @@
 
       // ---------- Constants ----------
       // Keep MODEL_DIR / MODEL_CACHE in sync with separator.js, sw.js and scripts/fetch-model.mjs
-      const MODEL_DIR = "models/spleeter-2stems-v1/";
-      const MODEL_CACHE = "karaoketrainer-model-v1";
+      const MODEL_DIR = "models/spleeter-2stems-v2/";
+      const MODEL_CACHE = "karaoketrainer-model-v2";
       const MODEL_NAMES = ["vocals", "accompaniment"];
       let MODEL_MB = 75; // replaced by the real size from the model's manifest.json when it can be read
       // ONNX Runtime's WebAssembly file: CPU build / WebGPU build (used when the browser has WebGPU)
@@ -1341,6 +1341,10 @@
       // The beats' version (beats.js): raise it when the beats change, and saved songs get theirs found again
       // (in the background, after the song has opened). Songs saved before the beats have no beatsV.
       const BEATS_V = 1;
+      // The separation's version (dsp.js, the model): a song saved with another one still opens from the list as
+      // it was saved, and opening its file again separates it anew (2: up to 16 kHz). Songs saved before have no sepV.
+      // A song with a kept recording is not separated again (that would drop the recording).
+      const SEP_V = 2;
       // One job in a fresh worker (separator.js): "line" (the melody line of the vocals) or "beats" (of the accompaniment)
       function workerJob(type, left, right, progress) {
         return new Promise(function (resolve, reject) {
@@ -1374,7 +1378,7 @@
         try {
           const stems = s.stems.map(function (st) { return st[1] === st[0] ? [plain(st[0])] : [plain(st[0]), plain(st[1])]; });
           await dbPut([
-            ["index", { hash: s.hash, name: s.name, duration: s.duration, used: Date.now(), bytes: pcmBytes(s.stems), take: false }],
+            ["index", { hash: s.hash, name: s.name, duration: s.duration, used: Date.now(), bytes: pcmBytes(s.stems), take: false, sepV: SEP_V }],
             ["songs", { hash: s.hash, stems: stems, line: s.line, lineV: LINE_V, beats: s.beats || null, beatsV: BEATS_V }]
           ]);
           if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
@@ -1501,10 +1505,11 @@
         // Read once: the same bytes give the hash and then the sound (a video can be large)
         let data, hash;
         try { data = await f.arrayBuffer(); hash = await hashOf(f, data); } catch (e) { $("songMeta").textContent = ""; showError(t(decodeErr)); return; }
-        // Loaded before: open it from this device (no separation, works offline)
+        // Loaded before: open it from this device (no separation, works offline), unless it was separated
+        // the older way (SEP_V)
         let saved = null;
         try { saved = await dbGet("index", hash); } catch (e) {}
-        if (saved) { openSaved(hash); return; }
+        if (saved && (saved.sepV === SEP_V || saved.take)) { openSaved(hash); return; }
         let d;
         try {
           d = await decode(data);

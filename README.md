@@ -21,7 +21,7 @@ A free karaoke practice app in the browser: load a song file you have, AI separa
 
 ### How it works / 仕組み
 
-- `separator.js` (worker): ONNX Runtime Web (WebGPU or WebAssembly) runs `vocals.onnx` and `accompaniment.onnx` (Spleeter 2stems converted to ONNX by sherpa-onnx). `dsp.js` does the STFT / masks / inverse STFT around the model as sherpa-onnx does (44.1 kHz, FFT 4096, hop 1024, input `[2, splits, 512, 1024]`), one 11.9 s split at a time. Then `pitch.js` finds the melody (pitchy, McLeod Pitch Method), and `beats.js` the beats of the accompaniment (copied from Loop Trainer, same author: spectral flux → tempo by autocorrelation → beats by dynamic programming).
+- `separator.js` (worker): ONNX Runtime Web (WebGPU or WebAssembly) runs `vocals.onnx` and `accompaniment.onnx` (Spleeter 2stems converted to ONNX by sherpa-onnx). `dsp.js` does the STFT / masks / inverse STFT around the model as sherpa-onnx does (44.1 kHz, FFT 4096, hop 1024, input `[2, splits, 512, 1536]`: up to 16 kHz, as Spleeter's own `2stems-16kHz` configuration with the same weights; `fetch-model.mjs` frees the frequency axis declared as 1024 in the ONNX files), one 11.9 s split at a time. Then `pitch.js` finds the melody (pitchy, McLeod Pitch Method), and `beats.js` the beats of the accompaniment (copied from Loop Trainer, same author: spectral flux → tempo by autocorrelation → beats by dynamic programming).
 - `mixer.js` (AudioWorklet): plays the tracks and receives the microphone in the same node, tagging each microphone block with the song position, so only the device latency (calibration) is left to correct.
 - `keyshift.js` (worker): phase vocoder key change, from Band Stem Mixer (same author).
 
@@ -43,7 +43,7 @@ public/
     separator.js dsp.js pitch.js beats.js mixer.js keyshift.js  # workers and the AudioWorklet
     vendor/pitchy.js vendor/fft.js                     # pitch detection (MIT, copied from npm)
     sw.js manifest.json icons/ og-image.png THIRD_PARTY_LICENSES.md
-    models/spleeter-2stems-v1/   # fetched in the build (scripts/fetch-model.mjs), not in Git
+    models/spleeter-2stems-v2/   # fetched in the build (scripts/fetch-model.mjs), not in Git
     ja/index.html                # generated / 生成
     guide/ faq/ about/ privacy/ ja/… sitemap.xml   # generated / 生成
     images/guide/                # screenshots (scripts/render-guide-images.mjs)

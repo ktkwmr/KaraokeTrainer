@@ -18,7 +18,10 @@ The app's own code is in plain HTML, CSS, and JavaScript.
 - Source: https://github.com/deezer/spleeter
 - Model files: vocals.onnx and accompaniment.onnx, the ONNX conversion by the
   sherpa-onnx project (below; its release "source-separation-models" states no
-  separate license for these files), served by this site (models/).
+  separate license for these files), served by this site (models/). Changed
+  here: the frequency axis of the input and output is declared free instead of
+  1024 bins, so the model runs on 1536 bins (16 kHz) as Spleeter's own
+  2stems-16kHz configuration does; the weights are unchanged.
 - Use: the AI model that separates the vocals from the accompaniment.
 
 MIT License

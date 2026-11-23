@@ -4,9 +4,9 @@ const PREFIX = "karaoketrainer-";
 const CACHE = PREFIX + "cache";
 const CORE = ["./", "index.html", "ja/", "manifest.json", "THIRD_PARTY_LICENSES.md", "icons/icon.svg",
   "separator.js", "dsp.js", "pitch.js", "beats.js", "mixer.js", "keyshift.js", "encoder.js", "vendor/pitchy.js", "vendor/fft.js"];
-// The AI model is kept by separator.js in its own cache (karaoketrainer-model-v1), which activate below leaves
+// The AI model is kept by separator.js in its own cache (karaoketrainer-model-v2), which activate below leaves
 // alone; its files (models/) are not cached here a second time (WEBAPP_BASELINE.md §2-20).
-const KEEP = ["karaoketrainer-model-v1"];
+const KEEP = ["karaoketrainer-model-v2"];
 // Libraries loaded from a CDN with a pinned version (WEBAPP_BASELINE.md §3-10): the content of such a URL
 // never changes, so it is cached on first use and served from the cache, which makes it work offline.
 // Also add the host to connect-src in public/_headers. Leave empty when no CDN library is used.

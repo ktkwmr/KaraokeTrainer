@@ -27,8 +27,8 @@ import { detectBeats, beatGrid } from "./beats.js";
 
 // Keep these in sync with MODEL_DIR / MODEL_CACHE in index.html, CDN / KEEP in sw.js and scripts/fetch-model.mjs
 const ORT_BASE = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/";
-const MODEL_DIR = "models/spleeter-2stems-v1/";
-const MODEL_CACHE = "karaoketrainer-model-v1";
+const MODEL_DIR = "models/spleeter-2stems-v2/";
+const MODEL_CACHE = "karaoketrainer-model-v2";
 const STEMS = ["vocals", "accompaniment"];
 
 const post = (msg, transfer) => self.postMessage(msg, transfer || []);
