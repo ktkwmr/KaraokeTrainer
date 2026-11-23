@@ -95,15 +95,15 @@ if (parseInt(res.match) >= 50) ok("on pitch " + res.match); else fail("on pitch 
 if (/−/.test(res.bias)) ok("flat bias seen: " + res.bias); else fail("expected a flat bias: " + res.bias);
 if (SHOTS) await page.screenshot({ path: join(SHOTS, "3-results.png"), fullPage: true });
 
-// Delay correction on the results (the same as in the settings): a large change moves the take off the melody;
+// Delay correction and "Measure the delay" are on the results (not in the settings): a large change moves the take off the melody;
 // back to the value it was sung with restores the score
-const setDelay = (v) => page.evaluate((v) => { const r = document.querySelector("#takeLatency"); r.value = v; r.dispatchEvent(new Event("input")); }, v);
-const delay0 = Number(await page.inputValue("#takeLatency"));
+const setDelay = (v) => page.evaluate((v) => { const r = document.querySelector("#latency"); r.value = v; r.dispatchEvent(new Event("input")); }, v);
+const delay0 = Number(await page.inputValue("#latency"));
 await setDelay(500);
-const moved = await page.evaluate(() => ({ val: document.querySelector("#takeLatencyVal").textContent, settings: document.querySelector("#latency").value, match: document.querySelector("#resMatch").textContent }));
+const moved = await page.evaluate(() => ({ val: document.querySelector("#latencyVal").textContent, inSettings: !!document.querySelector("#setDlg #latency, #setDlg #calibBtn"), calibHere: !!document.querySelector("#results #calibBtn"), match: document.querySelector("#resMatch").textContent }));
 await setDelay(delay0);
 const back = await page.evaluate(() => document.querySelector("#resMatch").textContent);
-if (moved.val === "500 ms" && moved.settings === "500" && parseInt(moved.match) < parseInt(res.match) && back === res.match) ok(`delay correction on the results: ${delay0} → 500 ms: ${moved.match}, back: ${back}`);
+if (moved.val === "500 ms" && !moved.inSettings && moved.calibHere && parseInt(moved.match) < parseInt(res.match) && back === res.match) ok(`delay correction on the results: ${delay0} → 500 ms: ${moved.match}, back: ${back}`);
 else fail("delay correction on the results: " + JSON.stringify({ delay0, moved, back, before: res.match }));
 
 // Compare: plays with your recording

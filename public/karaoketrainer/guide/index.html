@@ -181,7 +181,7 @@
   <main>
     <article>
       <h1>How to use Karaoke Trainer</h1>
-<p class="lead">Karaoke Trainer shows the original singer's melody as note bars, as on a karaoke machine, and, when you stop singing, shows your pitch over them as bars too, so you can see where you went flat or sharp. This guide walks through each part of the screen.</p>
+<p class="lead">Karaoke Trainer shows the original singer's melody as note bars, as on a karaoke machine, and draws your pitch over them while you sing, so you can see where you went flat or sharp. This guide walks through each part of the screen.</p>
 
 <nav class="toc" aria-label="Contents"><b>Contents</b><ol>
   <li><a href="#quick">Start in three steps</a></li>
@@ -191,7 +191,7 @@
   <li><a href="#results">Looking back: how you sang</a></li>
   <li><a href="#practice">Vocal volume and key</a></li>
   <li><a href="#range">Finding your key (optional)</a></li>
-  <li><a href="#settings">Settings: how strict, delay, microphone</a></li>
+  <li><a href="#settings">Settings: how strict, microphone</a></li>
   <li><a href="#phone">On a phone or tablet</a></li>
   <li><a href="#data">What is kept on your device</a></li>
 </ol></nav>
@@ -199,8 +199,8 @@
 <h2 id="quick">Start in three steps</h2>
 <ol>
   <li><b>Load a song.</b> Tap “Choose a song file” and pick a song you have (MP3, WAV, M4A, FLAC…, or a video such as MP4). Wait until the bar is full.</li>
-  <li><b>Put on headphones and press “Sing”.</b> The song starts. Sing along.</li>
-  <li><b>Press “Stop singing”.</b> Your notes appear over the grey melody bars. See how much was on pitch, and tap a part that went off to sing it again.</li>
+  <li><b>Put on headphones and press “Sing”.</b> The song starts and your pitch is drawn over the grey melody bars.</li>
+  <li><b>Press “Stop singing”.</b> See how much was on pitch, and tap a part that went off to sing it again.</li>
 </ol>
 <p>No song at hand? Press <b>“Try the demo song”</b>: a short song made for this app, which needs no download.</p>
 
@@ -217,14 +217,15 @@
 
 <h2 id="roll">Reading the melody line</h2>
 <figure class="shot">
-  <a href="/karaoketrainer/images/guide/en-sing.png"><img src="/karaoketrainer/images/guide/en-sing.png" alt="The practice screen after singing: a piano keyboard on the left with note names, the grey note bars of the demo song, and the singer's notes as thinner bars over them: green where they are on pitch, with the grey bar filled in green, and yellow below the bars where they are lower than the note. A black vertical line marks now." width="1488" height="1042" loading="lazy" decoding="async"></a>
-  <figcaption>The demo song after singing. Tap the image to enlarge it.</figcaption>
+  <a href="/karaoketrainer/images/guide/en-sing.png"><img src="/karaoketrainer/images/guide/en-sing.png" alt="The practice screen while singing: a piano keyboard on the left with note names, the grey note bars of the demo song, and the singer's line drawn over them: green where it is on pitch, with the bar filled in green, and yellow where it is lower than the note. A black vertical line marks now, and the note being sung shows at the top right." width="1488" height="1042" loading="lazy" decoding="async"></a>
+  <figcaption>The demo song while singing. Tap the image to enlarge it.</figcaption>
 </figure>
 <ul>
   <li><b>Across</b> is time. The black vertical line is <b>now</b>; the song scrolls to the left, so you see the next notes coming.</li>
   <li><b>Up and down</b> is pitch, like a piano keyboard turned on its side (the note names are on the left; C4 is middle C).</li>
   <li><b>The grey bars</b> are the original singer's melody, one bar per note, each on the row of its note. Where you sing on pitch, the bar fills with green.</li>
-  <li><b>Your bars</b> (thinner, shown after you stop singing) are your notes, found from your recording and rounded like the melody's, so you see the rough difference. Each sits as far above or below the grey bar as you were and is coloured by how close you were: <b>green</b> within ±70 cents, <b>yellow</b> within ±140 cents, <b>red</b> further off. 100 cents is one semitone.</li>
+  <li><b>Your line</b> is coloured by how close you are to the note: <b>green</b> within ±70 cents, <b>yellow</b> within ±140 cents, <b>red</b> further off. 100 cents is one semitone.</li>
+  <li>The note you are singing now, and how far it is from the melody, show at the top right.</li>
 </ul>
 <ul>
   <li><b>Zoom</b> – pinch the line (on a phone, or on a laptop's trackpad) to see more or fewer seconds at once; with a mouse, Ctrl + wheel. Only the time is zoomed.</li>
@@ -235,16 +236,16 @@
 
 <h2 id="sing">Singing</h2>
 <ol>
-  <li><b>Put on headphones.</b> With a speaker, the microphone hears the song too, and the original singer's voice gets mixed into your line. Wired headphones are best; Bluetooth headphones add a delay (see <a href="#settings">Settings</a>).</li>
+  <li><b>Put on headphones.</b> With a speaker, the microphone hears the song too, and the original singer's voice gets mixed into your line. Wired headphones are best; Bluetooth headphones add a delay (see “Delay correction” in <a href="#results">Looking back</a>).</li>
   <li><b>Press “Sing”.</b> The first time, the browser asks to use the microphone: allow it. The song starts from where it is.</li>
-  <li><b>Sing along.</b> The microphone only records while you sing; nothing is drawn yet.</li>
-  <li><b>Press “Stop singing”</b> (or pause, or let the song end). Your notes are found from the recording (it takes a moment) and shown as bars with the results.</li>
+  <li><b>Sing along.</b> Your line appears as you sing.</li>
+  <li><b>Press “Stop singing”</b> (or pause, or let the song end) to see how you sang.</li>
 </ol>
-<p><b>Octaves:</b> many people sing a song an octave lower or higher than the original singer (a man singing a song by a woman, for example). That counts as on pitch. The app finds your octave from your recording and shows your bars next to the melody; the menu next to “Sing” shows what it found (“Octave: auto (lower)”), and you can choose the octave yourself.</p>
+<p><b>Octaves:</b> many people sing a song an octave lower or higher than the original singer (a man singing a song by a woman, for example). That counts as on pitch. The app finds your octave in the first seconds you sing and draws your line next to the melody; the menu next to “Sing” shows what it found (“Octave: auto (lower)”), and you can choose the octave yourself.</p>
 
 <h2 id="results">Looking back: how you sang</h2>
 <figure class="shot">
-  <a href="/karaoketrainer/images/guide/en-results.png"><img src="/karaoketrainer/images/guide/en-results.png" alt="How you sang: the share of the time on pitch, the share of the melody sung, the average in cents (a minus sign for lower), and a list of the parts that went off, each with its time and how many cents low or high. Below, buttons to compare the original vocal and my voice, and to save my singing with the song (MP3) or my voice only (WAV), with a note that the MP3 is for personal use only." width="1484" height="1134" loading="lazy" decoding="async"></a>
+  <a href="/karaoketrainer/images/guide/en-results.png"><img src="/karaoketrainer/images/guide/en-results.png" alt="How you sang: the share of the time on pitch, the share of the melody sung, the average in cents (a minus sign for lower), and a list of the parts that went off, each with its time and how many cents low or high. Below, buttons to compare the original vocal and my voice, and to save my singing with the song (MP3) or my voice only (WAV), with a note that the MP3 is for personal use only." width="1484" height="1326" loading="lazy" decoding="async"></a>
   <figcaption>After singing the demo song (the demo song has no “Keep this recording” button).</figcaption>
 </figure>
 <ul>
@@ -253,12 +254,12 @@
   <li><b>Average</b> – whether you tend to be higher (+) or lower (−) than the melody, in cents.</li>
   <li><b>Where it went off</b> – the phrases that were furthest off, with how far and in which direction. <b>Tap one</b> and the song plays from a second before that phrase, so you can sing it again right away.</li>
   <li><b>Listen and compare</b> – while the results are open, a “My voice” slider appears under “Vocal” and “Accompaniment”, so you can set each volume and mute each one. The original vocal starts muted after you sing; turn it on to hear it with your voice. “Play from the start of the take” plays from where you started singing.</li>
-  <li><b>Delay correction</b> – the same slider as in Settings. If your bars sit to the right of the grey bars (your voice sounds behind the accompaniment), make it larger; if to the left, smaller. Your bars, the numbers, what you hear, and the saved files move with it, and your next takes use the new value too.</li>
+  <li><b>Delay correction</b> – every device takes a moment to play the sound and to hear the microphone (Bluetooth headphones much more), and the app subtracts this delay. If your line sits to the right of the grey bars even though you sang in time (your voice sounds behind the accompaniment), make the value larger; if to the left, smaller. Your line, the numbers, what you hear, and the saved files move with it, and your next takes use the new value too. To measure it instead, press <b>“Measure the delay”</b> with your headphones on and say “ta” with each of the 8 beeps.</li>
   <li><b>Keep this recording</b> keeps it on this device with the song. Otherwise the recording is gone when you sing again.</li>
   <li><b>Save with the song (MP3)</b> saves your voice with the accompaniment as one MP3 file (192 kbps): at the volumes you hear, with the original vocal too when it is on. It covers the part you sang. <b>Save my voice only (WAV)</b> saves just your voice.</li>
 </ul>
 <div class="note"><p><b>The MP3 is for your personal use only.</b> It contains the song, and the rights to the song belong to its rights holders. Use it to listen back to your own practice, and do not upload it to video or social media sites, send it to others, or distribute it. The app asks you to confirm this each time, and writes it into the file's tag (comment).</p></div>
-<p>The numbers are a guide for practice, not a score. The bars and the list tell you more: where you go flat at the end of a long note, which jump you overshoot, which phrase starts late.</p>
+<p>The numbers are a guide for practice, not a score. The line and the list tell you more: where you go flat at the end of a long note, which jump you overshoot, which phrase starts late.</p>
 
 <h2 id="practice">Vocal volume and key</h2>
 <ul>
@@ -277,7 +278,7 @@
 </ol>
 <p>The range is shown on a keyboard and saved on this device. From then on, each song shows a suggestion next to the key, such as “Suggested for you: −3”. Tap it to use that key. The app compares the melody's range (its low and high notes, leaving out the lowest and highest 5% of the time so a stray note does not count) with your range, and picks the change that fits best; sometimes the best fit is the original key sung an octave lower or higher.</p>
 
-<h2 id="settings">Settings: how strict, delay, microphone</h2>
+<h2 id="settings">Settings: how strict, microphone</h2>
 <p>⚙ → <b>Settings</b>.</p>
 <div class="table-wrap">
   <table>
@@ -289,7 +290,6 @@
     </tbody>
   </table>
 </div>
-<p><b>Delay correction:</b> every device takes a moment to play the sound and to hear the microphone (Bluetooth headphones much more). The app subtracts this delay. If your bars are later than the melody even when you sing in time, move the slider on the results until they sit on the grey bars, or press <b>“Measure the delay”</b> and say “ta” with each of the 8 beeps, or move the slider by hand.</p>
 <p><b>Microphone:</b> noise suppression, echo cancellation, and automatic gain are off by default, because they can cut or change parts of the voice and make the pitch harder to follow. Turn on echo cancellation only if you must use a speaker.</p>
 
 <h2 id="phone">On a phone or tablet</h2>
