@@ -159,19 +159,22 @@ await page.click("#keyUp");
 await page.click("#keyUp");
 await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
 ok("key " + (await page.textContent("#keyVal")));
-// In another key than the take: with my voice, not saved; my voice muted, the mix is saved (no voice in it)
+// In another key than the take: my voice is shifted to it too (a note while it is made), then saved with it;
+// muted, the mix is saved without it
 {
+  await page.waitForFunction(() => document.querySelector("#cmpTempo").hidden && document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
   await page.click("#mp3Btn");
-  await page.waitForTimeout(300);
-  const refused = !(await page.evaluate(() => document.querySelector("#useDlg").open));
+  await page.waitForSelector("#useDlg[open]");
+  const w1 = await page.textContent("#useWhat");
+  const [d1] = await Promise.all([page.waitForEvent("download", { timeout: 60000 }), page.click("#useOk")]);
   await page.click("#mineMute");
   await page.click("#mp3Btn");
   await page.waitForSelector("#useDlg[open]");
   const w = await page.textContent("#useWhat");
   const [d] = await Promise.all([page.waitForEvent("download", { timeout: 60000 }), page.click("#useOk")]);
   await page.click("#mineMute");
-  if (refused && !/your voice/.test(w) && /mix-personal-use\.mp3$/.test(d.suggestedFilename())) ok(`key +2: with my voice refused; muted: ${d.suggestedFilename()} (${w})`);
-  else fail("MP3 in another key: " + JSON.stringify({ refused, w, name: d.suggestedFilename() }));
+  if (/your voice/.test(w1) && /my-singing-personal-use\.mp3$/.test(d1.suggestedFilename()) && !/your voice/.test(w) && /mix-personal-use\.mp3$/.test(d.suggestedFilename())) ok(`key +2: my voice shifted and saved (${w1}); muted: ${d.suggestedFilename()} (${w})`);
+  else fail("MP3 in another key: " + JSON.stringify({ w1, n1: d1.suggestedFilename(), w, name: d.suggestedFilename() }));
 }
 
 // Double tap (double click) on a volume slider: back to 100%
