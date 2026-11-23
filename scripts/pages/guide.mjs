@@ -64,7 +64,7 @@ export default {
 </ul>
 <ul>
   <li><b>Zoom</b> – pinch the line (on a phone, or on a laptop's trackpad) to see more or fewer seconds at once; with a mouse, Ctrl + wheel. Only the time is zoomed.</li>
-  <li><b>Look around</b> – on a computer, scroll with two fingers on the trackpad: sideways moves in time, up and down moves to higher or lower notes (with a mouse, the wheel moves up and down and Shift + wheel moves in time). On a phone, drag sideways; move two fingers to go up or down.</li>
+  <li><b>Look around</b> – on a computer, scroll with two fingers on the trackpad: sideways moves in time, up and down moves to higher or lower notes (with a mouse, the wheel moves up and down and Shift + wheel moves in time). On a phone, drag the line with one finger: sideways moves in time, up and down moves to higher or lower notes. To scroll the page, swipe outside the line.</li>
   <li>While the song plays, the line follows it again when the playing position comes back to its place, or when you press ▶. Tap the line to jump to that point of the song.</li>
   <li>The thin vertical lines and the times at the bottom move with the song, so you can see it playing even in the intro. Before the singing starts, the time until it does is shown (“Singing starts in 12 s”).</li>
 </ul>
@@ -88,9 +88,9 @@ export default {
   <li><b>Of the melody sung</b> – how much of the melody you sang at all.</li>
   <li><b>Average</b> – whether you tend to be higher (+) or lower (−) than the melody, in cents.</li>
   <li><b>Where it went off</b> – the phrases that were furthest off, with how far and in which direction. <b>Tap one</b> and the song plays from a second before that phrase, so you can sing it again right away.</li>
-  <li><b>Listen and compare</b> – “Original vocal”, “My voice”, or “Both”, with the accompaniment. “Play from the start of the take” plays from where you started singing.</li>
+  <li><b>Listen and compare</b> – while the results are open, a “My voice” slider appears under “Vocal” and “Accompaniment”, so you can set each volume and mute each one. The original vocal starts muted after you sing; turn it on to hear it with your voice. “Play from the start of the take” plays from where you started singing.</li>
   <li><b>Keep this recording</b> keeps it on this device with the song. Otherwise the recording is gone when you sing again.</li>
-  <li><b>Save with the song (MP3)</b> saves your voice with the accompaniment as one MP3 file (192 kbps): what “My voice” plays in the comparison, or with the original vocal too when “Both” is chosen. It covers the part you sang. <b>Save my voice only (WAV)</b> saves just your voice.</li>
+  <li><b>Save with the song (MP3)</b> saves your voice with the accompaniment as one MP3 file (192 kbps): at the volumes you hear, with the original vocal too when it is on. It covers the part you sang. <b>Save my voice only (WAV)</b> saves just your voice.</li>
 </ul>
 <div class="note"><p><b>The MP3 is for your personal use only.</b> It contains the song, and the rights to the song belong to its rights holders. Use it to listen back to your own practice, and do not upload it to video or social media sites, send it to others, or distribute it. The app asks you to confirm this each time, and writes it into the file's tag (comment).</p></div>
 <p>The numbers are a guide for practice, not a score. The line and the list tell you more: where you go flat at the end of a long note, which jump you overshoot, which phrase starts late.</p>
@@ -187,7 +187,7 @@ export default {
 </ul>
 <ul>
   <li><b>拡大・縮小</b> ― 線をピンチすると（スマホや、ノートパソコンのトラックパッドで）、一度に見える秒数が変わります。マウスでは Ctrl＋ホイール。時間の方向だけが伸び縮みします。</li>
-  <li><b>前後・上下を見る</b> ― パソコンではトラックパッドの2本指のスクロールで、横に動かすと時間、縦に動かすと音の高さの方向に動きます（マウスはホイールで上下、Shift＋ホイールで時間）。スマホでは横にドラッグ、2本指を上下に動かすと音の高さの方向に動きます。</li>
+  <li><b>前後・上下を見る</b> ― パソコンではトラックパッドの2本指のスクロールで、横に動かすと時間、縦に動かすと音の高さの方向に動きます（マウスはホイールで上下、Shift＋ホイールで時間）。スマホでは線を1本指でドラッグします。横に動かすと時間、縦に動かすと音の高さの方向に動きます。ページをスクロールするときは線の外をスワイプします。</li>
   <li>再生中は、再生位置が元の場所まで来るか ▶ を押すと、また曲について動きます。線をタップすると、曲のその位置に移ります。</li>
   <li>細い縦線と下の時刻は曲に合わせて動くので、前奏でも再生中かどうかがわかります。歌い出しの前には、歌い出しまでの秒数（「歌い出しまで 12秒」）が出ます。</li>
 </ul>
@@ -211,9 +211,9 @@ export default {
   <li><b>メロディのうち歌えた部分</b> ― メロディのどれだけを歌ったか。</li>
   <li><b>平均</b> ― メロディより高め（＋）か低め（−）かの傾向（セント）。</li>
   <li><b>ズレが大きかったところ</b> ― 一番ズレたフレーズと、どれだけ・どちらにズレたか。<b>タップすると</b>、そのフレーズの1秒前から曲が流れるので、すぐに歌い直せます。</li>
-  <li><b>聴き比べ</b> ― 「原曲のボーカル」「自分の声」「両方」を、伴奏つきで。「録音の最初から再生」で、歌いはじめた位置から再生します。</li>
+  <li><b>聴き比べ</b> ― 答え合わせを開いている間は「ボーカル」「伴奏」の下に「自分の声」のスライダーが出て、それぞれの音量とミュートを別々に変えられます。歌い終わった直後は原曲のボーカルがミュートです。オンにすると自分の声と重ねて聴けます。「録音の最初から再生」で、歌いはじめた位置から再生します。</li>
   <li><b>この録音を残す</b>で、曲と一緒にこの端末に保存します。しなければ、もう一度歌うと録音は消えます。</li>
-  <li><b>曲と一緒に保存（MP3）</b>で、あなたの声と伴奏を 1 つの MP3 ファイル（192 kbps）にします。聴き比べの「自分の声」で聞こえる音で、「両方」を選んでいるときは原曲のボーカルも入ります。保存するのは歌った範囲です。<b>自分の声だけ保存（WAV）</b>は、あなたの声だけを保存します。</li>
+  <li><b>曲と一緒に保存（MP3）</b>で、あなたの声と伴奏を 1 つの MP3 ファイル（192 kbps）にします。聞こえている音量のままで、原曲のボーカルをオンにしているときはそれも入ります。保存するのは歌った範囲です。<b>自分の声だけ保存（WAV）</b>は、あなたの声だけを保存します。</li>
 </ul>
 <div class="note"><p><b>MP3 は個人の練習用にだけ使ってください。</b>曲が入っていて、曲の権利は権利者にあります。自分の練習を聴き返すためだけに使い、動画サイトや SNS への投稿、ほかの人に送ること、配布はしないでください。保存のたびに確認が出て、ファイルのタグ（コメント）にも書き込まれます。</p></div>
 <p>数字は練習の目安で、点数ではありません。線と一覧のほうが多くを教えてくれます。伸ばした音の終わりで下がる、跳ぶ音で行き過ぎる、歌い出しが遅れる、といったクセが見えてきます。</p>
