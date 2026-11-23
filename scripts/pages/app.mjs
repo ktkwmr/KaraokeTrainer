@@ -22,6 +22,14 @@ const strict = html.match(/const STRICT = \{ easy: \[(\d+), (\d+)\], normal: \[(
 if (!strict) throw new Error("scripts/pages/app.mjs: STRICT not found in index.html");
 export const STRICT = { easy: [+strict[1], +strict[2]], normal: [+strict[3], +strict[4]], strict: [+strict[5], +strict[6]] };
 
+// The settings' "How strict" labels write the ranges as text: they must match STRICT
+for (const [key, en, ja] of [["easy", "Easy", "やさしい"], ["normal", "Normal", "ふつう"], ["strict", "Strict", "きびしい"]]) {
+  const [g, y] = STRICT[key];
+  for (const s of [`${en} (green ±${g} cents, yellow ±${y})`, `${ja}（緑 ±${g}セント、黄 ±${y}）`]) {
+    if (!html.includes(s)) throw new Error(`scripts/pages/app.mjs: "${s}" not found in index.html (the "How strict" label should match STRICT)`);
+  }
+}
+
 // The intro and the help in index.html write the model size as text: they must match MODEL_MB
 for (const s of [`about ${MODEL_MB} MB`, `約${MODEL_MB}MB`]) {
   const n = html.split(s).length - 1;

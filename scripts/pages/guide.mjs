@@ -58,8 +58,8 @@ export default {
 <ul>
   <li><b>Across</b> is time. The black vertical line is <b>now</b>; the song scrolls to the left, so you see the next notes coming.</li>
   <li><b>Up and down</b> is pitch, like a piano keyboard turned on its side (the note names are on the left; C4 is middle C).</li>
-  <li><b>The grey bars</b> are the original singer's melody, one bar per note, each on the row of its note. Where you sing on pitch, the bar fills with green.</li>
-  <li><b>Your line</b> is coloured by how close you are to the note: <b>green</b> within ±${G} cents, <b>yellow</b> within ±${Y} cents, <b>red</b> further off. 100 cents is one semitone.</li>
+  <li><b>The grey bars</b> are the original singer's melody, one bar per note, each on the row of its note. A note you sing on pitch fills with green: each note is judged by the middle (median) of your pitch over it, so vibrato or a short slide into the note does not make it wrong, while a note sung too high or too low does.</li>
+  <li><b>Your line</b> is coloured by how close you are to the note: <b>green</b> within ±${G} cents, <b>yellow</b> within ±${Y} cents, <b>red</b> further off. 100 cents is one semitone. The line is coloured moment by moment, so a wide vibrato can show yellow at its peaks while the note's bar is green.</li>
   <li>The note you are singing now, and how far it is from the melody, show at the top right.</li>
 </ul>
 <ul>
@@ -84,7 +84,7 @@ export default {
   <figcaption>After singing the demo song (a take of the demo song is not kept on this device).</figcaption>
 </figure>
 <ul>
-  <li><b>On pitch</b> – the share of the time you were in the green range. It counts only where the original singer sings and you sang, so pauses do not count against you.</li>
+  <li><b>On pitch</b> – the share of the melody you sang on pitch: the notes whose bar turned green, a long note counting more than a short one. It counts only where the original singer sings and you sang, so pauses do not count against you.</li>
   <li><b>Average</b> – whether you tend to be higher (+) or lower (−) than the melody, in cents.</li>
   <li><b>Where it went off</b> – the phrases that were furthest off, with how far and in which direction. <b>Tap one</b> and the song plays from a second before that phrase, so you can sing it again right away.</li>
   <li><b>Listen and compare</b> – while the results are open, a “My voice” slider appears under “Vocal” and “Accompaniment”, so you can set each volume and mute each one. The original vocal starts muted after you sing; turn it on to hear it with your voice. “Play from the start of the take” plays from where you started singing.</li>
@@ -180,8 +180,8 @@ export default {
 <ul>
   <li><b>横</b>は時間です。黒い縦線が<b>いま</b>で、曲は左へ流れていくので、次の音が右から近づいてきます。</li>
   <li><b>縦</b>は音の高さで、ピアノの鍵盤を横に倒した形です（左に音名。C4 が真ん中のド）。</li>
-  <li><b>グレーのバー</b>が原曲の歌手のメロディです。1つの音に1本で、その音の段に置かれます。音程が合っていると、バーが緑に塗られます。</li>
-  <li><b>あなたの線</b>は、バーの音との近さで色が変わります。<b>緑</b>は±${G}セント以内、<b>黄</b>は±${Y}セント以内、<b>赤</b>はそれより外れ。100セントが半音です。</li>
+  <li><b>グレーのバー</b>が原曲の歌手のメロディです。1つの音に1本で、その音の段に置かれます。音程が合っていると、バーが緑に塗られます。音ごとに、その間のあなたの音程の真ん中（中央値）で判定するので、ビブラートや音の入りのしゃくりでは外れにならず、音全体が高すぎたり低すぎたりすると外れになります。</li>
+  <li><b>あなたの線</b>は、バーの音との近さで色が変わります。<b>緑</b>は±${G}セント以内、<b>黄</b>は±${Y}セント以内、<b>赤</b>はそれより外れ。100セントが半音です。線は瞬間ごとの色なので、深いビブラートでは揺れの山が黄になっても、その音のバーは緑になることがあります。</li>
   <li>いま歌っている音と、メロディとのズレが右上に出ます。</li>
 </ul>
 <ul>
@@ -206,7 +206,7 @@ export default {
   <figcaption>デモ曲を歌ったあと（デモ曲の録音は端末に残りません）。</figcaption>
 </figure>
 <ul>
-  <li><b>音程が合っていた</b> ― 緑の範囲に入っていた時間の割合です。原曲の歌手が歌っていて、あなたも歌った部分だけで数えるので、休んだところは減点になりません。</li>
+  <li><b>音程が合っていた</b> ― メロディのうち、音程が合っていた（バーが緑になった）音の割合です。長い音ほど大きく数えます。原曲の歌手が歌っていて、あなたも歌った部分だけで数えるので、休んだところは減点になりません。</li>
   <li><b>平均</b> ― メロディより高め（＋）か低め（−）かの傾向（セント）。</li>
   <li><b>ズレが大きかったところ</b> ― 一番ズレたフレーズと、どれだけ・どちらにズレたか。<b>タップすると</b>、そのフレーズの1秒前から曲が流れるので、すぐに歌い直せます。</li>
   <li><b>聴き比べ</b> ― 答え合わせを開いている間は「ボーカル」「伴奏」の下に「自分の声」のスライダーが出て、それぞれの音量とミュートを別々に変えられます。歌い終わった直後は原曲のボーカルがミュートです。オンにすると自分の声と重ねて聴けます。「録音の最初から再生」で、歌いはじめた位置から再生します。</li>
