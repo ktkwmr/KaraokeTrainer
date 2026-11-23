@@ -48,7 +48,7 @@ const EN = [
   },
   {
     q: "My line is drawn later than the melody.",
-    a: "Every device takes a little time to play sound and to hear the microphone; Bluetooth headphones take more. Use Settings → “Measure the delay” (say “ta” with each beep), or move the slider until your line sits on the melody when you sing in time. The same slider is also on the results after you sing: your line, the score, and what you hear move with it.",
+    a: "Every device takes a little time to play sound and to hear the microphone; Bluetooth headphones take more. After you sing, move “Delay correction” on the results until your line sits on the melody (your line, the score, and what you hear move with it, and your next takes use it too), or press “Measure the delay” there and say “ta” with each beep.",
   },
   {
     q: "The grey line is missing or wrong in some places.",
@@ -128,7 +128,7 @@ const JA = [
   },
   {
     q: "自分の線がメロディより遅れて描かれます。",
-    a: "どの端末でも、音を出すのとマイクで聞くのに少し時間がかかり、Bluetooth のヘッドホンではさらに遅れます。設定の「遅延を測る」（「ピッ」に合わせて「タッ」と声を出す）を使うか、合わせて歌ったときに線がメロディに重なるまでスライダーを動かしてください。同じスライダーは歌ったあとの答え合わせにもあり、動かすと線・判定・聞こえる音も一緒に動きます。",
+    a: "どの端末でも、音を出すのとマイクで聞くのに少し時間がかかり、Bluetooth のヘッドホンではさらに遅れます。歌ったあと、答え合わせの「遅延の補正」を線がメロディに重なるまで動かすか（線・判定・聞こえる音も一緒に動き、次に歌うときもこの値を使います）、そこにある「遅延を測る」を押して「ピッ」に合わせて「タッ」と声を出してください。",
   },
   {
     q: "グレーの線がないところや、おかしいところがあります。",

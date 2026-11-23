@@ -26,7 +26,7 @@ export default {
   <li><a href="#results">Looking back: how you sang</a></li>
   <li><a href="#practice">Vocal volume and key</a></li>
   <li><a href="#range">Finding your key (optional)</a></li>
-  <li><a href="#settings">Settings: how strict, delay, microphone</a></li>
+  <li><a href="#settings">Settings: how strict, microphone</a></li>
   <li><a href="#phone">On a phone or tablet</a></li>
   <li><a href="#data">What is kept on your device</a></li>
 </ol></nav>
@@ -71,7 +71,7 @@ export default {
 
 <h2 id="sing">Singing</h2>
 <ol>
-  <li><b>Put on headphones.</b> With a speaker, the microphone hears the song too, and the original singer's voice gets mixed into your line. Wired headphones are best; Bluetooth headphones add a delay (see <a href="#settings">Settings</a>).</li>
+  <li><b>Put on headphones.</b> With a speaker, the microphone hears the song too, and the original singer's voice gets mixed into your line. Wired headphones are best; Bluetooth headphones add a delay (see “Delay correction” in <a href="#results">Looking back</a>).</li>
   <li><b>Press “Sing”.</b> The first time, the browser asks to use the microphone: allow it. The song starts from where it is.</li>
   <li><b>Sing along.</b> Your line appears as you sing.</li>
   <li><b>Press “Stop singing”</b> (or pause, or let the song end) to see how you sang.</li>
@@ -89,7 +89,7 @@ export default {
   <li><b>Average</b> – whether you tend to be higher (+) or lower (−) than the melody, in cents.</li>
   <li><b>Where it went off</b> – the phrases that were furthest off, with how far and in which direction. <b>Tap one</b> and the song plays from a second before that phrase, so you can sing it again right away.</li>
   <li><b>Listen and compare</b> – while the results are open, a “My voice” slider appears under “Vocal” and “Accompaniment”, so you can set each volume and mute each one. The original vocal starts muted after you sing; turn it on to hear it with your voice. “Play from the start of the take” plays from where you started singing.</li>
-  <li><b>Delay correction</b> – the same slider as in Settings. If your line sits to the right of the grey bars (your voice sounds behind the accompaniment), make it larger; if to the left, smaller. Your line, the numbers, what you hear, and the saved files move with it, and your next takes use the new value too.</li>
+  <li><b>Delay correction</b> – every device takes a moment to play the sound and to hear the microphone (Bluetooth headphones much more), and the app subtracts this delay. If your line sits to the right of the grey bars even though you sang in time (your voice sounds behind the accompaniment), make the value larger; if to the left, smaller. Your line, the numbers, what you hear, and the saved files move with it, and your next takes use the new value too. To measure it instead, press <b>“Measure the delay”</b> with your headphones on and say “ta” with each of the 8 beeps.</li>
   <li><b>Keep this recording</b> keeps it on this device with the song. Otherwise the recording is gone when you sing again.</li>
   <li><b>Save with the song (MP3)</b> saves your voice with the accompaniment as one MP3 file (192 kbps): at the volumes you hear, with the original vocal too when it is on. It covers the part you sang. <b>Save my voice only (WAV)</b> saves just your voice.</li>
 </ul>
@@ -113,7 +113,7 @@ export default {
 </ol>
 <p>The range is shown on a keyboard and saved on this device. From then on, each song shows a suggestion next to the key, such as “Suggested for you: −3”. Tap it to use that key. The app compares the melody's range (its low and high notes, leaving out the lowest and highest 5% of the time so a stray note does not count) with your range, and picks the change that fits best; sometimes the best fit is the original key sung an octave lower or higher.</p>
 
-<h2 id="settings">Settings: how strict, delay, microphone</h2>
+<h2 id="settings">Settings: how strict, microphone</h2>
 <p>⚙ → <b>Settings</b>.</p>
 <div class="table-wrap">
   <table>
@@ -123,7 +123,6 @@ export default {
     </tbody>
   </table>
 </div>
-<p><b>Delay correction:</b> every device takes a moment to play the sound and to hear the microphone (Bluetooth headphones much more). The app subtracts this delay. If your line is drawn later than the melody even when you sing in time, move the slider on the results after you sing until it sits on the grey bars, or press <b>“Measure the delay”</b> and say “ta” with each of the 8 beeps, or move the slider by hand.</p>
 <p><b>Microphone:</b> noise suppression, echo cancellation, and automatic gain are off by default, because they can cut or change parts of the voice and make the pitch harder to follow. Turn on echo cancellation only if you must use a speaker.</p>
 
 <h2 id="phone">On a phone or tablet</h2>
@@ -150,7 +149,7 @@ export default {
   <li><a href="#results">答え合わせ</a></li>
   <li><a href="#practice">ボーカルの音量とキー</a></li>
   <li><a href="#range">自分に合うキーを探す（任意）</a></li>
-  <li><a href="#settings">設定：判定の厳しさ・遅延・マイク</a></li>
+  <li><a href="#settings">設定：判定の厳しさ・マイク</a></li>
   <li><a href="#phone">スマホ・タブレットで使う</a></li>
   <li><a href="#data">端末に保存されるもの</a></li>
 </ol></nav>
@@ -195,7 +194,7 @@ export default {
 
 <h2 id="sing">歌う</h2>
 <ol>
-  <li><b>ヘッドホンをつけます。</b>スピーカーだとマイクが曲の音も拾い、原曲の歌手の声があなたの線に混ざります。有線のヘッドホンがおすすめです。Bluetooth のヘッドホンでは遅れが出ます（<a href="#settings">設定</a>で補正できます）。</li>
+  <li><b>ヘッドホンをつけます。</b>スピーカーだとマイクが曲の音も拾い、原曲の歌手の声があなたの線に混ざります。有線のヘッドホンがおすすめです。Bluetooth のヘッドホンでは遅れが出ます（<a href="#results">答え合わせ</a>の「遅延の補正」で合わせられます）。</li>
   <li><b>「歌う」を押します。</b>初回はブラウザがマイクの使用を確認するので、許可してください。曲がいまの位置から始まります。</li>
   <li><b>一緒に歌います。</b>歌うとあなたの線が描かれます。</li>
   <li><b>「歌うのをやめる」を押す</b>（一時停止する、曲が終わる、でも同じ）と答え合わせが出ます。</li>
@@ -213,7 +212,7 @@ export default {
   <li><b>平均</b> ― メロディより高め（＋）か低め（−）かの傾向（セント）。</li>
   <li><b>ズレが大きかったところ</b> ― 一番ズレたフレーズと、どれだけ・どちらにズレたか。<b>タップすると</b>、そのフレーズの1秒前から曲が流れるので、すぐに歌い直せます。</li>
   <li><b>聴き比べ</b> ― 答え合わせを開いている間は「ボーカル」「伴奏」の下に「自分の声」のスライダーが出て、それぞれの音量とミュートを別々に変えられます。歌い終わった直後は原曲のボーカルがミュートです。オンにすると自分の声と重ねて聴けます。「録音の最初から再生」で、歌いはじめた位置から再生します。</li>
-  <li><b>遅延の補正</b> ― 設定と同じスライダーです。あなたの線がグレーのバーより右にある（声が伴奏より遅れて聞こえる）ときは大きく、左にあるときは小さくします。線・数字・聞こえる音・保存するファイルが一緒に動き、次に歌うときもこの値を使います。</li>
+  <li><b>遅延の補正</b> ― どの端末でも、音を出すのとマイクで聞くのに少し時間がかかり（Bluetooth のヘッドホンではずっと長くなります）、アプリはこの遅れを差し引いて線を描きます。合わせて歌ったのに線がグレーのバーより右にある（声が伴奏より遅れて聞こえる）ときは値を大きく、左にあるときは小さくします。線・数字・聞こえる音・保存するファイルが一緒に動き、次に歌うときもこの値を使います。<b>「遅延を測る」</b>を押し、ヘッドホンをつけて8回の「ピッ」に合わせて「タッ」と声を出せば、測って合わせることもできます。</li>
   <li><b>この録音を残す</b>で、曲と一緒にこの端末に保存します。しなければ、もう一度歌うと録音は消えます。</li>
   <li><b>曲と一緒に保存（MP3）</b>で、あなたの声と伴奏を 1 つの MP3 ファイル（192 kbps）にします。聞こえている音量のままで、原曲のボーカルをオンにしているときはそれも入ります。保存するのは歌った範囲です。<b>自分の声だけ保存（WAV）</b>は、あなたの声だけを保存します。</li>
 </ul>
@@ -237,7 +236,7 @@ export default {
 </ol>
 <p>音域は鍵盤の上に表示され、この端末に保存されます。以後、曲ごとにキーの横に「あなたへのおすすめ：−3」のような表示が出て、タップするとそのキーになります。メロディの音域（一瞬だけの外れた音を数えないよう、一番低い5%と一番高い5%の時間を除いた低い音と高い音）とあなたの音域を比べ、一番よく収まる移調量を選びます。原曲キーのまま1オクターブ下（上）で歌うのが一番合う、という結果になることもあります。</p>
 
-<h2 id="settings">設定：判定の厳しさ・遅延・マイク</h2>
+<h2 id="settings">設定：判定の厳しさ・マイク</h2>
 <p>⚙ →<b>「設定」</b>です。</p>
 <div class="table-wrap">
   <table>
@@ -247,7 +246,6 @@ export default {
     </tbody>
   </table>
 </div>
-<p><b>遅延の補正：</b>どの端末でも、音を出すのとマイクで聞くのに少し時間がかかります（Bluetooth のヘッドホンではずっと長くなります）。アプリはこの遅れを差し引いて線を描きます。合わせて歌ったのに線がメロディより遅れて描かれるときは、歌ったあとの答え合わせのスライダーで線が重なるまで動かすか、<b>「遅延を測る」</b>を押して8回の「ピッ」に合わせて「タッ」と声を出すか、スライダーで調整してください。</p>
 <p><b>マイク：</b>ノイズ抑制・エコーキャンセル・自動音量調整は、最初はオフです。声の一部を消したり変えたりして、音程を追いにくくすることがあるためです。どうしてもスピーカーを使うときだけ、エコーキャンセルをオンにしてください。</p>
 
 <h2 id="phone">スマホ・タブレットで使う</h2>

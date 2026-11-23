@@ -16,7 +16,7 @@ A free karaoke practice app in the browser: load a song file you have, AI separa
 - **Sing and see your pitch** over the bars: green / yellow / red by how far from the note (±70 / ±140 cents by default, three settings; up to 0.1 s early or late is judged against that note); the bar fills in green where you sang on pitch. The delay correction is also on the results, and the take's line moves with it. Singing an octave lower or higher counts as on pitch; the octave is found automatically. / **歌うと音程を重ねて表示**（合っているとバーが緑に。答え合わせの遅延の補正で線のずれを合わせられる）。オクターブ違いは正解。
 - **Results**: on-pitch share, sung share, average high/low, the phrases that went off (tap to sing it again), compare your recording with the original vocal (a “My voice” slider next to Vocal and Accompaniment; the vocal starts muted after a take), keep it, save your voice (WAV) or your singing with the song (MP3, 192 kbps, lamejs; a dialog and an ID3 comment say it is for personal use only). / **答え合わせ**：一致率、ズレた区間（タップで歌い直し）、聴き比べ、録音の保存。
 - **My vocal range (optional)**: measure the lowest / highest note (and falsetto), then each song suggests a key. / **マイ音域（任意）** と曲ごとのおすすめキー。
-- **Delay correction** (measured with beeps, or by hand), microphone options, judging strictness. / 遅延補正、マイク設定、判定の厳しさ。
+- **Delay correction** on the results (measured with beeps, or by hand; the take's line moves with it). Settings: microphone options, judging strictness. / 答え合わせに遅延補正（測定か手動。録音の線も一緒に動く）。設定はマイクと判定の厳しさ。
 - Songs are kept in IndexedDB (key: SHA-256 of the file), so they open at once and offline. PWA. English / Japanese. / 曲は IndexedDB に保存（次回はすぐに・オフラインでも）。PWA。日英。
 
 ### How it works / 仕組み
