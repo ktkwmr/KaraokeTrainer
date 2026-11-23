@@ -1,10 +1,15 @@
 #!/usr/bin/env node
 // Puts the Spleeter 2stems ONNX model (vocals.onnx / accompaniment.onnx) into
-// public/karaoketrainer/models/spleeter-2stems-v1/, so this site serves it itself (no outside CDN).
+// public/karaoketrainer/models/spleeter-2stems-v2/, so this site serves it itself (no outside CDN).
 //
 // Source: the sherpa-onnx project (k2-fsa, Apache-2.0) converted Deezer's Spleeter 2stems model (MIT) to ONNX
 // and publishes it as a GitHub release asset (MODEL_URL below; docs:
 // https://k2-fsa.github.io/sherpa/onnx/source-separation/index.html).
+//
+// The ONNX files declare the frequency axis (the last one of input x and output y) as 1024 bins (11 kHz). The
+// network has no fixed size along it, so it is changed to a free dimension "F", and dsp.js passes 1536 bins
+// (16 kHz), as Spleeter's own 2stems-16kHz configuration does with the same trained weights. Nothing else in
+// the files changes (v1 was the files as published).
 //
 // Cloudflare Workers static assets take files up to 25 MiB, so each model file is cut into parts of
 // PART_BYTES. manifest.json lists the parts, the size, and the SHA-256 of each whole file; separator.js
@@ -31,7 +36,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const MODEL_URL = "https://github.com/k2-fsa/sherpa-onnx/releases/download/source-separation-models/sherpa-onnx-spleeter-2stems.tar.bz2";
-const OUT = fileURLToPath(new URL("../public/karaoketrainer/models/spleeter-2stems-v1/", import.meta.url));
+const OUT = fileURLToPath(new URL("../public/karaoketrainer/models/spleeter-2stems-v2/", import.meta.url));
 const NAMES = ["vocals", "accompaniment"];
 const LIMIT = 25 * 1024 * 1024;
 const PART_BYTES = 20 * 1024 * 1024;
@@ -42,6 +47,53 @@ const FORCE = args.includes("--force");
 const CHECK = args.includes("--check");
 const FROM = opt("--from");
 const partBytes = Number(opt("--part-bytes")) || PART_BYTES;
+
+// ---- The frequency axis made free: a minimal protobuf walk (ModelProto → graph → input / output → type →
+// tensor_type → shape → the 4th dim). A Dimension {dim_value: 1024} is the bytes 08 80 08 and
+// {dim_param: "F"} is 12 01 46: the same length, so the bytes are replaced in place and no length around them
+// changes.
+function varint(buf, pos) {
+  let v = 0, mul = 1, b;
+  do { b = buf[pos++]; v += (b & 0x7f) * mul; mul *= 128; } while (b & 0x80);
+  return [v, pos];
+}
+// Fields of the message in buf[start, end): [{ field, wire, start, end }] (start / end of the value; LEN only)
+function fieldsOf(buf, start, end) {
+  const out = [];
+  let pos = start;
+  while (pos < end) {
+    let tag, len;
+    [tag, pos] = varint(buf, pos);
+    const field = Math.floor(tag / 8), wire = tag & 7;
+    if (wire === 0) { [, pos] = varint(buf, pos); continue; }
+    if (wire === 1) { pos += 8; continue; }
+    if (wire === 5) { pos += 4; continue; }
+    if (wire !== 2) throw new Error("Unexpected protobuf wire type " + wire);
+    [len, pos] = varint(buf, pos);
+    out.push({ field, start: pos, end: pos + len });
+    pos += len;
+  }
+  return out;
+}
+const child = (buf, m, field) => fieldsOf(buf, m.start, m.end).filter((f) => f.field === field);
+function freeFrequencyAxis(bytes) {
+  const buf = Buffer.from(bytes);
+  const graph = child(buf, { start: 0, end: buf.length }, 7)[0];
+  if (!graph) throw new Error("No graph in the ONNX file");
+  let changed = 0;
+  for (const io of [...child(buf, graph, 11), ...child(buf, graph, 12)]) {
+    const tensor = child(buf, child(buf, io, 2)[0], 1)[0];
+    const dims = child(buf, child(buf, tensor, 2)[0], 1);
+    if (dims.length !== 4) throw new Error("Expected 4 dimensions, found " + dims.length);
+    const d = dims[3], raw = buf.subarray(d.start, d.end);
+    if (raw[0] === 0x12 && raw[1] === raw.length - 2) continue; // already free (a dim_param only)
+    if (!raw.equals(Buffer.from([0x08, 0x80, 0x08]))) throw new Error("The last dimension is not 1024: " + raw.toString("hex"));
+    raw.set([0x12, 0x01, 0x46]);
+    changed++;
+  }
+  if (!changed && !child(buf, graph, 11).length) throw new Error("No inputs in the ONNX graph");
+  return buf;
+}
 
 async function current() {
   try {
@@ -102,7 +154,7 @@ const manifest = { source: FROM ? "local files" : MODEL_URL, files: {} };
 for (const name of NAMES) {
   const file = await findFile(srcDir, name + ".onnx");
   if (!file) throw new Error(name + ".onnx not found in " + srcDir);
-  const bytes = await readFile(file);
+  const bytes = freeFrequencyAxis(await readFile(file));
   const parts = [];
   for (let at = 0, i = 0; at < bytes.length; at += partBytes, i++) {
     const part = `${name}.onnx.${String(i).padStart(3, "0")}`;

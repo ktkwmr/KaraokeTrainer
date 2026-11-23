@@ -4,7 +4,7 @@
 // The Spleeter steps follow sherpa-onnx (Apache-2.0), offline-source-separation-spleeter-impl.h, with the
 // STFT of kaldi-native-fbank (Apache-2.0) as configured there:
 //   44.1 kHz, n_fft 4096, hop 1024, periodic Hann window, center = false
-//   model input: the magnitude of the first 1024 bins, float32 [2 (channels), splits, 512 (frames), 1024]
+//   model input: the magnitude of the low bins, float32 [2 (channels), splits, 512 (frames), bins]
 //   model output (vocals.onnx / accompaniment.onnx): an estimated magnitude of the same shape
 //   mask = est² / (vocals² + accompaniment² + 1e-10) (+ 1e-10 / 2 on top), multiplied with the complex STFT
 //   inverse STFT: overlap-add of window × frame, divided by the summed squared window
@@ -13,7 +13,11 @@
 //     phone. Each split is independent in the model, so the result is the same.
 //   - 3072 zeros are put before the song, so its first samples are covered by 4 frames like every other
 //     sample (sherpa-onnx's first and last 3072 samples are covered by fewer frames).
-//   - Bins 1024 and up (above 11 kHz) are not passed through the model. sherpa-onnx sets their mask to 0
+//   - 1536 bins (up to 16 kHz) go through the model, not 1024 (11 kHz): Spleeter's own 2stems-16kHz
+//     configuration, which runs the same trained weights on a wider input (the network has no fixed size along
+//     the frequency axis; scripts/fetch-model.mjs frees that axis in the ONNX files). With 1024 bins the "s"
+//     sounds and breath of the singer above 11 kHz stayed in the accompaniment as a scratchy noise.
+//   - Bins above that (16 kHz and up) are not passed through the model. sherpa-onnx sets their mask to 0
 //     for both stems, so cymbals and air disappear from the accompaniment; here they go to the
 //     accompaniment (mask 1) and not to the vocals (mask 0).
 //   - Left and right go through one complex FFT (left = real part, right = imaginary part).
@@ -49,7 +53,8 @@ export function makeFft(n) {
   };
 }
 
-export const SPLEETER = { rate: 44100, nFft: 4096, hop: 1024, bins: 1024, frames: 512 };
+// bins: 1536 (16 kHz), Spleeter's 2stems-16kHz (a multiple of 64, as the 6 down-sampling layers of the network need)
+export const SPLEETER = { rate: 44100, nFft: 4096, hop: 1024, bins: 1536, frames: 512 };
 const PAD = SPLEETER.nFft - SPLEETER.hop; // 3072 zeros before the song
 
 // Number of 512-frame splits for a song of n samples
@@ -59,9 +64,9 @@ export function splitCount(n) {
 }
 
 // left, right: Float32Array (44.1 kHz). Returns an object that runs the song split by split:
-//   input(s)  → Float32Array [2, 1, 512, 1024]: the magnitudes of split s (the model's input)
+//   input(s)  → Float32Array [2, 1, 512, bins]: the magnitudes of split s (the model's input)
 //   output(s, vocals, accompaniment, outV, outA) → applies the masks from the two model outputs
-//     ([2, 1, 512, 1024] each) and writes the finished samples into outV / outA ([Int16Array L, R])
+//     ([2, 1, 512, bins] each) and writes the finished samples into outV / outA ([Int16Array L, R])
 // input(s) must be followed by output(s) before input(s + 1).
 export function createSpleeter(left, right) {
   const { nFft: N, hop: H, bins: F, frames: T } = SPLEETER;
