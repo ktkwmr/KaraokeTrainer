@@ -2,7 +2,7 @@
 //   - ONNX Runtime Web comes from the npm package (ORT_DIR), routed in place of jsDelivr
 //   - the model is the small fake (scripts/test/make-fake-model.py → scripts/fetch-model.mjs --from)
 //   - the microphone is Chromium's fake device playing voice.wav (the melody an octave lower, 30 cents flat)
-// Steps: load song.wav → separation → sing → results → key change → reload and open from this device
+// Steps: load song.wav → separation (and beats) → sing → results → key change → reload and open from this device
 // offline → the Japanese page.
 //
 // Usage: node scripts/test/e2e.mjs <base url, e.g. http://localhost:8788> <audio dir> <onnxruntime-web dist dir> [shots dir]
@@ -54,6 +54,25 @@ await page.waitForSelector("#practice:not(.ghost)", { timeout: 120000 });
 ok("separated in " + ((Date.now() - t0) / 1000).toFixed(1) + " s; " + (await page.textContent("#backend")));
 await page.waitForFunction(() => !document.querySelector("#recentSect").hidden, null, { timeout: 10000 });
 ok("saved to the recent list: " + (await page.textContent("#recent")).trim());
+// Beats of the accompaniment (beats.js): the test song's hi-hat and bass are at 120 BPM (a beat every 0.5 s)
+const beatsOf = () => page.evaluate(() => new Promise((res, rej) => {
+  const r = indexedDB.open("karaoketrainer", 1);
+  r.onsuccess = () => {
+    const g = r.result.transaction("songs").objectStore("songs").getAll();
+    g.onsuccess = () => res(g.result.map((x) => {
+      const b = x.beats ? Array.from(x.beats) : [];
+      const gaps = b.slice(1).map((v, i) => v - b[i]).sort((p, q) => p - q);
+      return { v: x.beatsV, n: b.length, first: b[0], last: b[b.length - 1], gap: gaps[gaps.length >> 1] };
+    }));
+    g.onerror = () => rej(g.error);
+  };
+}));
+const goodBeats = (x) => x.v === 1 && Math.abs(x.gap - 0.5) < 0.01 && x.first < 0.5 && x.last > 19.4 && x.n >= 38;
+{
+  const b = await beatsOf();
+  if (b.length && b.every(goodBeats)) ok("beats saved with the song: " + JSON.stringify(b));
+  else fail("beats not found: " + JSON.stringify(b));
+}
 
 // Sing for 9 seconds from the start
 await page.click("#singBtn");
@@ -111,7 +130,8 @@ await page.waitForFunction(() => document.querySelector("#keepBtn").disabled);
 await page.waitForTimeout(1500); // the Service Worker caches the app files
 await page.reload();
 await page.waitForSelector("#recent .open");
-// A song saved before the melody line changed (no lineV): its line is found again when it is opened
+// A song saved before the melody line changed (no lineV) and before the beats (no beatsV): its line is found again when
+// it is opened, its beats right after
 const lineOf = () => page.evaluate(() => new Promise((res, rej) => {
   const r = indexedDB.open("karaoketrainer", 1);
   r.onsuccess = () => {
@@ -125,7 +145,7 @@ await page.evaluate(() => new Promise((res) => {
   const r = indexedDB.open("karaoketrainer", 1);
   r.onsuccess = () => {
     const st = r.result.transaction("songs", "readwrite").objectStore("songs");
-    st.getAll().onsuccess = (e) => { for (const x of e.target.result) { delete x.lineV; x.line = new Float32Array(x.line.length).fill(NaN); st.put(x); } st.transaction.oncomplete = res; };
+    st.getAll().onsuccess = (e) => { for (const x of e.target.result) { delete x.lineV; delete x.beatsV; delete x.beats; x.line = new Float32Array(x.line.length).fill(NaN); st.put(x); } st.transaction.oncomplete = res; };
   };
 }));
 await context.setOffline(true);
@@ -139,6 +159,13 @@ await page.waitForTimeout(500);
 const after = await lineOf();
 if (after.every((x) => x.v === 3 && x.voiced > 100)) ok("old melody line found again offline: " + JSON.stringify(after));
 else fail("old melody line not found again: " + JSON.stringify(after));
+// A song saved before the beats: they are found in the background after it opened, and saved
+await page.waitForTimeout(1500);
+{
+  const b = await beatsOf();
+  if (b.length && b.every(goodBeats)) ok("beats of a song saved before them found offline: " + JSON.stringify(b));
+  else fail("beats of an old song not found again: " + JSON.stringify(b));
+}
 await page.click("#playBtn");
 await page.waitForTimeout(2500);
 const tNow = await page.textContent("#timeNow");

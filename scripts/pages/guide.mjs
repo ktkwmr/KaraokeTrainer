@@ -66,7 +66,7 @@ export default {
   <li><b>Zoom</b> – pinch the line (on a phone, or on a laptop's trackpad) to see more or fewer seconds at once; with a mouse, Ctrl + wheel. Only the time is zoomed.</li>
   <li><b>Look around</b> – on a computer, scroll with two fingers on the trackpad: sideways moves in time, up and down moves to higher or lower notes (with a mouse, the wheel moves up and down and Shift + wheel moves in time). On a phone, drag sideways; move two fingers to go up or down.</li>
   <li>While the song plays, the line follows it again when the playing position comes back to its place, or when you press ▶. Tap the line to jump to that point of the song.</li>
-  <li>The thin vertical lines and the times at the bottom move with the song, so you can see it playing even in the intro. Before the singing starts, the time until it does is shown (“Singing starts in 12 s”).</li>
+  <li>The thin vertical lines are the <b>beats</b> (quarter notes), found in the accompaniment, so you can see where each note starts against the beat and that the song is playing even in the intro. For a song without a steady beat (free tempo, no drums or rhythm part), lines every few seconds with the time are shown instead. Before the singing starts, the time until it does is shown (“Singing starts in 12 s”).</li>
 </ul>
 
 <h2 id="sing">Singing</h2>
@@ -189,7 +189,7 @@ export default {
   <li><b>拡大・縮小</b> ― 線をピンチすると（スマホや、ノートパソコンのトラックパッドで）、一度に見える秒数が変わります。マウスでは Ctrl＋ホイール。時間の方向だけが伸び縮みします。</li>
   <li><b>前後・上下を見る</b> ― パソコンではトラックパッドの2本指のスクロールで、横に動かすと時間、縦に動かすと音の高さの方向に動きます（マウスはホイールで上下、Shift＋ホイールで時間）。スマホでは横にドラッグ、2本指を上下に動かすと音の高さの方向に動きます。</li>
   <li>再生中は、再生位置が元の場所まで来るか ▶ を押すと、また曲について動きます。線をタップすると、曲のその位置に移ります。</li>
-  <li>細い縦線と下の時刻は曲に合わせて動くので、前奏でも再生中かどうかがわかります。歌い出しの前には、歌い出しまでの秒数（「歌い出しまで 12秒」）が出ます。</li>
+  <li>細い縦線は伴奏から見つけた<b>拍</b>（4分音符）です。音が拍のどこで始まるかがわかり、前奏でも再生中かどうかがわかります。テンポが自由に揺れる曲や、ドラムなどのリズムがない曲では、代わりに数秒ごとの縦線と時刻が出ます。歌い出しの前には、歌い出しまでの秒数（「歌い出しまで 12秒」）が出ます。</li>
 </ul>
 
 <h2 id="sing">歌う</h2>

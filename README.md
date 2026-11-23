@@ -12,7 +12,7 @@ A free karaoke practice app in the browser: load a song file you have, AI separa
 - **Load a song file** (MP3, WAV, M4A, FLAC, Ogg…, up to 10 minutes), or a video file (MP4, MOV, WebM…: only its sound is used). No URLs or YouTube: only files on your device. / **曲のファイルを読み込む**（10分まで。動画のファイルも可で、音声だけを使う）。URL や YouTube からの取り込みはなし。
 - **Vocal separation** with Spleeter 2stems (vocals / accompaniment) in the browser, then the melody of the vocals (pitchy, every 10 ms) as karaoke-style **note bars** (each note on the nearest semitone, with the song's tuning). / ブラウザの中で **ボーカルを分離**し、ボーカルのメロディを **音のバー**（カラオケのように一番近い半音に寄せる）にする。
 - **Mixer**: vocal 0–100% (0% = karaoke, in between = a quiet guide), accompaniment, mute for each, key −6…+6 semitones (the bars move with it). / **ボーカル音量**（0%＝カラオケ）・伴奏・キー変更（バーも連動）。
-- **The roll** zooms in time with a pinch (touch, trackpad, Ctrl + wheel) and scrolls in time and pitch (two-finger scroll, drag); time lines and an intro countdown show that it is playing. / **ロール** はピンチで時間方向に拡大・縮小、2本指のスクロールやドラッグで前後・上下へ。時間の目盛りと歌い出しまでの秒数。
+- **The roll** zooms in time with a pinch (touch, trackpad, Ctrl + wheel) and scrolls in time and pitch (two-finger scroll, drag); a thin line on every beat (quarter note, found in the accompaniment) and an intro countdown; songs without a steady beat get time lines instead. / **ロール** はピンチで時間方向に拡大・縮小、2本指のスクロールやドラッグで前後・上下へ。拍（4分音符、伴奏から検出）ごとの縦線と歌い出しまでの秒数（拍が見つからない曲は時間の目盛り）。
 - **Sing and see your pitch** over the bars: green / yellow / red by how far from the note (±70 / ±140 cents by default, three settings; up to 0.1 s early or late is judged against that note); the bar fills in green where you sang on pitch. Singing an octave lower or higher counts as on pitch; the octave is found automatically. / **歌うと音程を重ねて表示**（合っているとバーが緑に）。オクターブ違いは正解。
 - **Results**: on-pitch share, sung share, average high/low, the phrases that went off (tap to sing it again), compare your recording with the original vocal, keep it, save your voice (WAV) or your singing with the song (MP3, 192 kbps, lamejs; a dialog and an ID3 comment say it is for personal use only). / **答え合わせ**：一致率、ズレた区間（タップで歌い直し）、聴き比べ、録音の保存。
 - **My vocal range (optional)**: measure the lowest / highest note (and falsetto), then each song suggests a key. / **マイ音域（任意）** と曲ごとのおすすめキー。
@@ -21,7 +21,7 @@ A free karaoke practice app in the browser: load a song file you have, AI separa
 
 ### How it works / 仕組み
 
-- `separator.js` (worker): ONNX Runtime Web (WebGPU or WebAssembly) runs `vocals.onnx` and `accompaniment.onnx` (Spleeter 2stems converted to ONNX by sherpa-onnx). `dsp.js` does the STFT / masks / inverse STFT around the model as sherpa-onnx does (44.1 kHz, FFT 4096, hop 1024, input `[2, splits, 512, 1024]`), one 11.9 s split at a time. Then `pitch.js` finds the melody (pitchy, McLeod Pitch Method).
+- `separator.js` (worker): ONNX Runtime Web (WebGPU or WebAssembly) runs `vocals.onnx` and `accompaniment.onnx` (Spleeter 2stems converted to ONNX by sherpa-onnx). `dsp.js` does the STFT / masks / inverse STFT around the model as sherpa-onnx does (44.1 kHz, FFT 4096, hop 1024, input `[2, splits, 512, 1024]`), one 11.9 s split at a time. Then `pitch.js` finds the melody (pitchy, McLeod Pitch Method), and `beats.js` the beats of the accompaniment (copied from Loop Trainer, same author: spectral flux → tempo by autocorrelation → beats by dynamic programming).
 - `mixer.js` (AudioWorklet): plays the tracks and receives the microphone in the same node, tagging each microphone block with the song position, so only the device latency (calibration) is left to correct.
 - `keyshift.js` (worker): phase vocoder key change, from Band Stem Mixer (same author).
 
@@ -40,7 +40,7 @@ public/
   _headers  404.html
   karaoketrainer/
     index.html            # the app (HTML/CSS/JS, English and Japanese text in I18N) / アプリ本体
-    separator.js dsp.js pitch.js mixer.js keyshift.js  # workers and the AudioWorklet
+    separator.js dsp.js pitch.js beats.js mixer.js keyshift.js  # workers and the AudioWorklet
     vendor/pitchy.js vendor/fft.js                     # pitch detection (MIT, copied from npm)
     sw.js manifest.json icons/ og-image.png THIRD_PARTY_LICENSES.md
     models/spleeter-2stems-v1/   # fetched in the build (scripts/fetch-model.mjs), not in Git

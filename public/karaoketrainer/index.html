@@ -1277,7 +1277,7 @@
 
       // ---------- Songs saved in IndexedDB (key: SHA-256 of the file) ----------
       // "index": { hash, name, duration, used, bytes, take } (small, for the list)
-      // "songs": { hash, stems: [[vocal L, R], [acc L, R]] (Int16Array), line (Float32Array), take? }
+      // "songs": { hash, stems: [[vocal L, R], [acc L, R]] (Int16Array), line (Float32Array), lineV, beats (Float64Array | null), beatsV, take? }
       let dbPromise = null;
       function db() {
         if (!dbPromise) {
@@ -1328,18 +1328,34 @@
       // their line found again from the saved vocals when they are opened (2: octave errors fixed;
       // 3: note bars, soft notes kept, stray notes removed)
       const LINE_V = 3;
-      function findLine(left, right) {
+      // The beats' version (beats.js): raise it when the beats change, and saved songs get theirs found again
+      // (in the background, after the song has opened). Songs saved before the beats have no beatsV.
+      const BEATS_V = 1;
+      // One job in a fresh worker (separator.js): "line" (the melody line of the vocals) or "beats" (of the accompaniment)
+      function workerJob(type, left, right, progress) {
         return new Promise(function (resolve, reject) {
-          const w = new Worker("separator.js", { type: "module" });
+          let w;
+          try { w = new Worker("separator.js", { type: "module" }); } catch (e) { reject(new Error("worker")); return; }
           w.onmessage = function (e) {
             const m = e.data;
-            if (m.type === "progress") { onProgress(m); return; }
+            if (m.type === "progress") { if (progress) onProgress(m); return; }
             w.terminate();
-            if (m.type === "line") resolve(m.line); else reject(new Error(m.message));
+            if (m.type === type) resolve(m[type]); else reject(new Error(m.message));
           };
           w.onerror = function (e) { w.terminate(); if (e && e.preventDefault) e.preventDefault(); reject(new Error("worker")); };
-          w.postMessage({ type: "line", left: left, right: right });
+          w.postMessage({ type: type, left: left, right: right });
         });
+      }
+      function findLine(left, right) { return workerJob("line", left, right, true); }
+      // Beats of a song saved before them (or with older beats): found after the song has opened, then shown and saved
+      async function addBeats(hash, acc) {
+        let beats;
+        try { beats = await workerJob("beats", acc[0], acc[1], false); } catch (e) { console.warn("No beats", e); return; }
+        if (song && song.hash === hash) { setBeats(beats); draw(); }
+        try {
+          const rec = await dbGet("songs", hash);
+          if (rec) { rec.beats = beats; rec.beatsV = BEATS_V; await dbPut([["songs", rec]]); }
+        } catch (e) {}
       }
       // IndexedDB cannot store SharedArrayBuffers: plain copies
       const plain = (a) => (a.buffer instanceof ArrayBuffer ? a : new a.constructor(a));
@@ -1349,7 +1365,7 @@
           const stems = s.stems.map(function (st) { return st[1] === st[0] ? [plain(st[0])] : [plain(st[0]), plain(st[1])]; });
           await dbPut([
             ["index", { hash: s.hash, name: s.name, duration: s.duration, used: Date.now(), bytes: pcmBytes(s.stems), take: false }],
-            ["songs", { hash: s.hash, stems: stems, line: s.line, lineV: LINE_V }]
+            ["songs", { hash: s.hash, stems: stems, line: s.line, lineV: LINE_V, beats: s.beats || null, beatsV: BEATS_V }]
           ]);
           if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
           const all = await dbAll();
@@ -1417,9 +1433,11 @@
               setBusy(false);
             }
           }
-          await setSong({ hash: hash, name: info.name, duration: info.duration, stems: stems, line: rec.line, demo: false });
+          const fresh = rec.beatsV === BEATS_V;
+          await setSong({ hash: hash, name: info.name, duration: info.duration, stems: stems, line: rec.line, beats: fresh ? rec.beats : null, demo: false });
           if (rec.take) restoreTake(rec.take);
           toast(t("opened"));
+          if (!fresh) addBeats(hash, stems[1]);
         } catch (e) {
           console.error(e);
           showError(t("err.decode"));
@@ -1663,7 +1681,7 @@
             setBusy(false);
             pending = null;
             toast(t("done", { time: fmtTime((Date.now() - startedAt) / 1000) }));
-            const s = { hash: job.hash, name: job.name, duration: job.duration, stems: m.stems, line: m.line, demo: false };
+            const s = { hash: job.hash, name: job.name, duration: job.duration, stems: m.stems, line: m.line, beats: m.beats, demo: false };
             setSong(s);
             saveSong(s);
           } else if (m.type === "error") {
@@ -1792,33 +1810,29 @@
         pause();
         const d = makeDemo();
         showSongInfo(t("demo.name"), t("file.demo", { time: fmtTime(d.duration) }));
-        // The melody line comes from the same worker as for a real song (pitch.js), from the made-up voice
-        let w;
-        try { w = new Worker("separator.js", { type: "module" }); } catch (e) { showError(t("err.worker")); return; }
+        // The melody line and the beats come from the same worker as for a real song (pitch.js, beats.js),
+        // from the made-up voice and accompaniment
         setBusy(true);
         setProgress(t("stage.pitch"), "", null);
-        w.onmessage = function (e) {
-          const m = e.data;
-          if (m.type === "progress") onProgress(m);
-          else {
-            w.terminate();
-            setBusy(false);
-            if (m.type === "line") setSong({ hash: "demo", name: t("demo.name"), duration: d.duration, stems: d.stems, line: m.line, demo: true });
-            else showError(t("err.run", { msg: m.message, where: t("where.pitch") }));
-          }
-        };
-        w.onerror = function (e) { w.terminate(); setBusy(false); showError(t("err.worker")); if (e && e.preventDefault) e.preventDefault(); };
-        w.postMessage({ type: "line", left: d.stems[0][0], right: d.stems[0][1] });
+        Promise.all([findLine(d.stems[0][0], d.stems[0][1]), workerJob("beats", d.stems[1][0], d.stems[1][1], false).catch(function () { return null; })]).then(function (r) {
+          setBusy(false);
+          setSong({ hash: "demo", name: t("demo.name"), duration: d.duration, stems: d.stems, line: r[0], beats: r[1], demo: true });
+        }, function (e) {
+          setBusy(false);
+          showError(e && e.message === "worker" ? t("err.worker") : t("err.run", { msg: e && e.message, where: t("where.pitch") }));
+        });
       });
 
       // ---------- The song in the practice panel ----------
-      let song = null;     // { hash, name, duration, stems (original key), line, demo }
+      let song = null;     // { hash, name, duration, stems (original key), line, beats, demo }
       let cur = null;      // the stems in the current key
       let semis = 0;       // key change
       let melody = null;   // { low, high } of the line (5th–95th percentile, original key)
       let view = { lo: 55, hi: 76 }; // MIDI range shown in the roll (original key)
       let length = 0;      // samples
       let nextVoiced = null; // frame → the next frame where the singer sings (−1: none)
+      let beats = null;    // seconds of each beat (quarter note) over the whole song, for the lines in the roll; null: no steady beat
+      function setBeats(b) { beats = b && b.length >= 4 ? b : null; }
 
       function lineRange(line, lo, hi) {
         const v = [];
@@ -1838,6 +1852,7 @@
         cmp = null;
         length = s.stems[0][0].length;
         melody = lineRange(s.line, 0.05, 0.95);
+        setBeats(s.beats);
         nextVoiced = new Int32Array(s.line.length);
         for (let k = s.line.length - 1, nk = -1; k >= 0; k--) { if (!isNaN(s.line[k])) nk = k; nextVoiced[k] = nk; }
         follow = true;
@@ -2595,7 +2610,9 @@
           }
           k += n[1];
         });
-        return { line: line, mine: mine, now: 7.2 };
+        // A beat line on every note start (0.6 s a beat, 100 BPM)
+        const beats = Float64Array.from({ length: 20 }, function (_, i) { return 0.5 + 0.6 * i; });
+        return { line: line, mine: mine, beats: beats, now: 7.2 };
       })();
       // ---------- What part of the song the roll shows ----------
       // It follows the song (now at 45% of the width) until you scroll or drag it; then it stays where you
@@ -2679,17 +2696,30 @@
           c.fillStyle = pc === 0 ? "#d4d4d4" : "#f0f0f0";
           c.fillRect(KW, y + rowH - 1, w - KW, 1);
         }
-        // Time: a line every 1, 2, 5… seconds with the time, so the roll is seen moving where nobody sings
-        const step = [1, 2, 5, 10, 15, 30, 60].find(function (s) { return s * pxs >= 56; }) || 60;
-        c.font = "10px " + getComputedStyle(document.body).fontFamily;
-        c.textBaseline = "bottom";
-        for (let tt = Math.ceil(t0 / step) * step; tt <= t0 + span; tt += step) {
-          if (tt < 0) continue;
-          const x = xOf(tt);
-          c.fillStyle = "#ececec";
-          c.fillRect(Math.round(x), 0, 1, h);
-          c.fillStyle = "#a3a3a3";
-          c.fillText(fmtTime(tt), x + 3, h - 2);
+        // Beats: a thin line on every quarter note (beats.js), so the notes can be read against the beat and the roll
+        // is seen moving where nobody sings. Lines closer than 8 px (zoomed out) are thinned to every 2nd, 4th… beat.
+        const bt = ghost ? GHOST.beats : beats;
+        if (bt) {
+          const per = (bt[bt.length - 1] - bt[0]) / (bt.length - 1);
+          let every = 1;
+          while (per * every * pxs < 8 && every < 64) every *= 2;
+          let i = 0, j = bt.length;
+          while (i < j) { const m = (i + j) >> 1; if (bt[m] < t0) i = m + 1; else j = m; }
+          c.fillStyle = "#e5e5e5";
+          for (i -= i % every; i < bt.length && bt[i] <= t0 + span; i += every) c.fillRect(Math.round(xOf(bt[i])), 0, 1, h);
+        } else {
+          // No steady beat (free tempo, no rhythm part): a line every 1, 2, 5… seconds with the time instead
+          const step = [1, 2, 5, 10, 15, 30, 60].find(function (s) { return s * pxs >= 56; }) || 60;
+          c.font = "10px " + getComputedStyle(document.body).fontFamily;
+          c.textBaseline = "bottom";
+          for (let tt = Math.ceil(t0 / step) * step; tt <= t0 + span; tt += step) {
+            if (tt < 0) continue;
+            const x = xOf(tt);
+            c.fillStyle = "#ececec";
+            c.fillRect(Math.round(x), 0, 1, h);
+            c.fillStyle = "#a3a3a3";
+            c.fillText(fmtTime(tt), x + 3, h - 2);
+          }
         }
         // Keyboard with note names
         c.fillStyle = "#fff"; c.fillRect(0, 0, KW, h);

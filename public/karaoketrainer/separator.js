@@ -1,6 +1,7 @@
 // Separation worker (module worker, started by index.html).
 // Downloads the Spleeter 2stems model once (kept in Cache Storage, so later runs need no download), splits a
-// song into vocals and accompaniment with ONNX Runtime Web, then finds the melody line of the vocals.
+// song into vocals and accompaniment with ONNX Runtime Web, then finds the melody line of the vocals and the beats
+// of the accompaniment (beats.js).
 //
 // Model: Spleeter 2stems (Deezer; code and trained models under the MIT License), converted to ONNX by the
 // sherpa-onnx project (k2-fsa, Apache-2.0): vocals.onnx and accompaniment.onnx. The files are served by
@@ -11,15 +12,18 @@
 // Messages from the page:
 //   { type: "run", left: Float32Array, right: Float32Array, gpu, safe, threads? }  (44.1 kHz)
 //   { type: "line", left, right }  (melody line only: the demo song, whose parts need no separation)
+//   { type: "beats", left, right }  (beats only, from the accompaniment: the demo song, and songs saved before beats)
 // Messages to the page:
 //   { type: "progress", stage: "download" | "lib" | "init" | "separate" | "pitch", loaded?, total?, done?, chunks?, elapsed? }
 //   { type: "backend", name: "webgpu" | "wasm", threads, safe }
-//   { type: "done", stems: [[Int16Array L, R] vocals, [L, R] accompaniment], line: Float32Array }
+//   { type: "done", stems: [[Int16Array L, R] vocals, [L, R] accompaniment], line: Float32Array, beats: Float64Array | null }
 //   { type: "line", line }
+//   { type: "beats", beats: Float64Array | null }  (seconds, 0 … the end of the song; null: no steady beat)
 //   { type: "error", code: "offline" | "download" | "memory" | "run", stage, message }
 
 import { createSpleeter, SPLEETER } from "./dsp.js";
 import { extractLine } from "./pitch.js";
+import { detectBeats, beatGrid } from "./beats.js";
 
 // Keep these in sync with MODEL_DIR / MODEL_CACHE in index.html, CDN / KEEP in sw.js and scripts/fetch-model.mjs
 const ORT_BASE = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/";
@@ -201,6 +205,18 @@ function lineOf(left, right) {
   });
 }
 
+// Beats of the 16-bit accompaniment over the whole song (continued through the intro and the ending, beatGrid());
+// a failure only means no beat lines
+async function beatsOf(left, right) {
+  try {
+    const r = await detectBeats(left, right === left ? null : right, SPLEETER.rate, async () => true, 1 / 32768);
+    return r ? beatGrid(r.beats, left.length / SPLEETER.rate) : null;
+  } catch (err) {
+    console.warn("Beat detection failed", err);
+    return null;
+  }
+}
+
 self.onmessage = async (e) => {
   const msg = e.data;
   if (!msg) return;
@@ -211,6 +227,11 @@ self.onmessage = async (e) => {
     } catch (err) {
       post({ type: "error", code: "run", stage: "pitch", message: String((err && err.message) || err) });
     }
+    return;
+  }
+  if (msg.type === "beats") {
+    const beats = await beatsOf(msg.left, msg.right);
+    post({ type: "beats", beats });
     return;
   }
   if (msg.type !== "run") return;
@@ -231,8 +252,9 @@ self.onmessage = async (e) => {
     for (const name of STEMS) { try { await sessions[name].release(); } catch (err) {} }
     stage = "pitch";
     const line = lineOf(stems[0][0], stems[0][1]);
+    const beats = await beatsOf(stems[1][0], stems[1][1]);
     const transfer = stems.flatMap((s) => [s[0].buffer, s[1].buffer]).filter((b) => b instanceof ArrayBuffer);
-    post({ type: "done", stems, line }, transfer.concat([line.buffer]));
+    post({ type: "done", stems, line, beats }, transfer.concat([line.buffer]));
   } catch (err) {
     const text = String((err && err.message) || err);
     post({ type: "error", code: err.code || (/memory|alloc/i.test(text) ? "memory" : "run"), stage, message: text });
