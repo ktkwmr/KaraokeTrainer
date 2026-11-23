@@ -77,7 +77,9 @@ if (SHOTS) await page.screenshot({ path: join(SHOTS, "3-results.png"), fullPage:
 // Compare: plays with your recording
 await page.click("#cmpPlay");
 await page.waitForTimeout(800);
-if ((await page.getAttribute("#cmpBoth", "aria-pressed")) === "true") ok("compare: both"); else fail("compare mode not set");
+const mix = await page.evaluate(() => ({ mine: !document.querySelector("#mineVol").hidden, vocalMuted: document.querySelector("#vocalMute").getAttribute("aria-pressed") }));
+if (mix.mine && mix.vocalMuted === "true") ok("review: my voice slider shown, original vocal muted"); else fail("review mix: " + JSON.stringify(mix));
+await page.click("#vocalMute"); // the original vocal on: it goes into the MP3 too
 await page.click("#playBtn");
 
 // Save with the song (MP3): the personal-use dialog, then a file with an ID3 tag and MP3 frames
@@ -95,9 +97,18 @@ const tagged = mp3.subarray(0, 3).toString() === "ID3";
 const tagSize = (mp3[6] << 21) | (mp3[7] << 14) | (mp3[8] << 7) | mp3[9];
 const frame = mp3[10 + tagSize] === 0xff && (mp3[11 + tagSize] & 0xe0) === 0xe0;
 const comment = mp3.subarray(0, 10 + tagSize).toString("utf16le").includes("personal use");
+if (/original vocal/.test(what)) ok("MP3 mix follows the mutes: " + what); else fail("MP3 mix without the original vocal: " + what);
 if (tagged && frame && comment && mp3.length > 20000) ok(`MP3 saved: ${download.suggestedFilename()} (${(mp3.length / 1024).toFixed(0)} KB, ${what})`);
 else fail(`MP3: tag ${tagged}, frame ${frame}, comment ${comment}, ${mp3.length} bytes`);
 await page.click("#playBtn"); // play again
+
+// Closing the results hides "My voice" and brings back the saved vocal mute (off)
+await page.click("#resClose");
+const closed = await page.evaluate(() => ({ mine: document.querySelector("#mineVol").hidden, vocalMuted: document.querySelector("#vocalMute").getAttribute("aria-pressed") }));
+if (closed.mine && closed.vocalMuted === "false") ok("after the results: my voice hidden, vocal mute back"); else fail("after the results: " + JSON.stringify(closed));
+await page.click("#singBtn"); await page.waitForTimeout(3000); await page.click("#singBtn");
+await page.waitForSelector("#results:not([hidden])");
+if ((await page.getAttribute("#vocalMute", "aria-pressed")) === "true") ok("next take: original vocal muted again"); else fail("next take: vocal not muted");
 
 // Key change +2
 await page.click("#keyUp");
