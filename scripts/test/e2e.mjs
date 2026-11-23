@@ -35,6 +35,13 @@ await context.route(ORT_URL + "**", (route) => {
 await context.route(LAME_URL, (route) => route.fulfill({ status: 200, body: readFileSync(LAME_FILE), headers: { "content-type": "text/javascript", "access-control-allow-origin": "*", "cross-origin-resource-policy": "cross-origin" } }));
 await context.route("https://static.cloudflareinsights.com/**", (route) => route.fulfill({ status: 200, body: "", headers: { "content-type": "text/javascript", "access-control-allow-origin": "*" } }));
 
+// Keep the microphone stream where the test can reach it (to stop it as iPhone does in the background)
+await context.addInitScript(() => {
+  const md = navigator.mediaDevices;
+  if (!md) return;
+  const gum = md.getUserMedia.bind(md);
+  md.getUserMedia = (c) => gum(c).then((s) => { window.__mic = s; return s; });
+});
 const errors = [];
 const page = await context.newPage();
 page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
@@ -144,6 +151,23 @@ if (still.open && still.mine && !still.close) ok("results stay open with my voic
 await page.click("#singBtn"); await page.waitForTimeout(3000); await page.click("#singBtn");
 await page.waitForSelector("#results:not([hidden])");
 if ((await page.getAttribute("#vocalMute", "aria-pressed")) === "true") ok("next take: original vocal muted again"); else fail("next take: vocal not muted");
+
+// The microphone stops by itself while singing (iPhone / iPad in another app): singing ends, the take is kept
+await page.click("#singBtn"); await page.waitForTimeout(3000);
+await page.evaluate(() => window.__mic.getAudioTracks()[0].dispatchEvent(new Event("mute")));
+await page.waitForSelector("#results:not([hidden])");
+const lost = await page.evaluate(() => ({ singing: document.querySelector("#singBtn").getAttribute("aria-pressed"), err: document.querySelector("#err").textContent, playing: document.querySelector("#pauseIcon").hasAttribute("hidden") ? "no" : "yes" }));
+if (lost.singing === "false" && lost.playing === "no" && /microphone stopped/.test(lost.err)) ok("microphone lost while singing: take ended and kept, message shown");
+else fail("microphone lost: " + JSON.stringify(lost));
+// Hiding the page alone (another app or tab on a computer / Android) does not end it
+await page.click("#singBtn"); await page.waitForTimeout(1500);
+await page.evaluate(() => { Object.defineProperty(document, "visibilityState", { value: "hidden", configurable: true }); document.dispatchEvent(new Event("visibilitychange")); });
+await page.waitForTimeout(1500);
+const hid = await page.getAttribute("#singBtn", "aria-pressed");
+await page.evaluate(() => { delete document.visibilityState; document.dispatchEvent(new Event("visibilitychange")); });
+await page.click("#singBtn");
+await page.waitForSelector("#results:not([hidden])");
+if (hid === "true") ok("page hidden while singing: still singing"); else fail("page hidden ended singing");
 
 // Key change +2
 await page.click("#keyUp");
