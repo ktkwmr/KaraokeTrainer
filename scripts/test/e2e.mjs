@@ -160,17 +160,30 @@ await page.dblclick("#accVol");
   if (v === "100%") ok("double click on the accompaniment slider: back to 100%"); else fail("double click on a slider: " + v);
 }
 
-// Tempo 90% (same key): the song moves at 0.9× in its own time; this take was sung at 100%, so my voice is not
-// played and the MP3 asks for 100% back
+// Tempo 90% (same key): the song moves at 0.9× in its own time; this take was sung at 100%, so my voice is
+// stretched to 90% too (a note while it is prepared), and the MP3 is saved at 90%
+const mp3Size = async () => {
+  await page.click("#mp3Btn");
+  await page.waitForSelector("#useDlg[open]");
+  const [d] = await Promise.all([page.waitForEvent("download", { timeout: 60000 }), page.click("#useOk")]);
+  return readFileSync(await d.path()).length;
+};
+// (the take was sung in the original key: back to it, or the MP3 is refused)
+await page.click("#keyDown");
+await page.click("#keyDown");
+await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
+const len100 = await mp3Size();
 await page.click("#tempoDown");
 await page.click("#tempoDown");
 await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
 {
-  const st = await page.evaluate(() => ({ val: document.querySelector("#tempoVal").textContent, note: document.querySelector("#cmpTempo").hidden ? "" : document.querySelector("#cmpTempo").textContent }));
-  if (st.val === "90%" && /100%/.test(st.note)) ok("tempo " + st.val + ", review note: " + st.note); else fail("tempo: " + JSON.stringify(st));
-  await page.click("#mp3Btn");
-  const dlg = await page.evaluate(() => document.querySelector("#useDlg").open);
-  if (!dlg) ok("MP3 at another tempo than the take: not saved"); else { fail("MP3 dialog at another tempo"); await page.click("#useCancel"); }
+  await page.waitForFunction(() => document.querySelector("#cmpTempo").hidden, null, { timeout: 60000 });
+  const st = await page.evaluate(() => document.querySelector("#tempoVal").textContent);
+  if (st === "90%") ok("tempo " + st + ", my voice stretched to it"); else fail("tempo: " + st);
+  // The same take at 90% is about 1 / 0.9 as long as at 100%
+  const len90 = await mp3Size();
+  const ratio = len90 / len100;
+  if (ratio > 1.06 && ratio < 1.16) ok(`MP3 at 90%: ${ratio.toFixed(3)}× the length at 100%`); else fail(`MP3 at 90%: ${len90} bytes, at 100% ${len100}`);
   const t0 = await page.evaluate(() => document.querySelector("#timeNow").textContent);
   const p0 = await page.evaluate(() => Number(document.querySelector("#seek").value));
   if (!(await page.evaluate(() => document.querySelector("#playBtn").title === "Pause"))) await page.click("#playBtn");
@@ -194,6 +207,10 @@ await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null
   await page.click("#tempoUp");
   await page.click("#tempoUp");
   await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
+  // Back at 100%: the take sung at 90% is stretched to it
+  await page.waitForFunction(() => document.querySelector("#cmpTempo").hidden, null, { timeout: 60000 });
+  const len90take = await mp3Size();
+  if (len90take > 10000) ok("take sung at 90%, saved at 100%: " + (len90take / 1024).toFixed(0) + " KB"); else fail("MP3 of the 90% take at 100%: " + len90take);
 }
 
 // The last take is kept by itself (no button); reload offline and open from this device

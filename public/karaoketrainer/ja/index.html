@@ -780,8 +780,8 @@
           "tempo.busy": "Changing the tempo… {pct}%",
           "tempo.fail": "The tempo could not be changed: {msg}",
           "tempo.wait": "The new tempo is still being prepared: sing in a moment.",
-          "cmp.tempo": "You sang this take at a tempo of {v}. Set the tempo back to {v} to hear your voice.",
-          "res.mp3.tempo": "Set the tempo back to {v} (the tempo you sang at) to save it with the song.",
+          "cmp.tempo": "Changing the tempo of your voice… {pct}%",
+          "res.wait": "Your voice is still being prepared for this tempo: try again in a moment.",
           "keys": "<kbd>Space</kbd> play / pause · <kbd>Home</kbd> stop · <kbd>R</kbd> sing on / off · <kbd>←</kbd> <kbd>→</kbd> 5 seconds back / forward",
           "foot": "Your song and your voice are processed on this device and never uploaded. No account needed.",
           "net.title.cellular": "You are on mobile data",
@@ -1028,8 +1028,8 @@
           "tempo.busy": "テンポを変えています… {pct}%",
           "tempo.fail": "テンポを変えられませんでした：{msg}",
           "tempo.wait": "新しいテンポを準備しています。少し待ってから歌ってください。",
-          "cmp.tempo": "この録音はテンポ {v} で歌ったものです。自分の声を聴くには、テンポを {v} に戻してください。",
-          "res.mp3.tempo": "曲と一緒に保存するには、テンポを {v}（歌ったときのテンポ）に戻してください。",
+          "cmp.tempo": "自分の声のテンポを変えています… {pct}%",
+          "res.wait": "自分の声をこのテンポに合わせています。少し待ってからもう一度押してください。",
           "keys": "<kbd>Space</kbd> 再生／一時停止・<kbd>Home</kbd> 停止・<kbd>R</kbd> 歌うのオン／オフ・<kbd>←</kbd> <kbd>→</kbd> 5秒戻る／進む",
           "foot": "曲とあなたの声はこの端末の中で処理し、アップロードしません。登録不要。",
           "net.title.cellular": "モバイルデータ通信中です",
@@ -1922,6 +1922,8 @@
         tempo = 100;
         curRate = 1;
         take = null;
+        cancelVoice();
+        voice = null;
         $("results").hidden = true;
         setReviewing(false);
         length = s.stems[0][0].length;
@@ -1985,7 +1987,8 @@
       function loadTracks(keep) {
         if (!node || !cur) return;
         const tracks = [cur[0], cur[1]];
-        if (take && take.audio) tracks.push([take.audio]);
+        const v = voiceAudio();
+        if (v) tracks.push([v]);
         node.port.postMessage({ type: "load", tracks: tracks, length: length, rate: curRate, keep: keep });
         sendGains();
         sendOffsets();
@@ -1998,7 +2001,7 @@
       function vocalMuted() { return reviewing ? reviewVocalMute : store.vocalMute; }
       function gains() {
         const v = vocalMuted() ? 0 : store.vocal / 100, a = store.accMute ? 0 : store.acc / 100;
-        const mine = reviewing && take && take.audio && !store.mineMute && take.tempo === curTempo() ? (take.gain * store.mine) / 100 : 0;
+        const mine = reviewing && voiceAudio() && !store.mineMute ? (take.gain * store.mine) / 100 : 0;
         return [v, a, mine];
       }
       function sendGains() {
@@ -2011,12 +2014,62 @@
         sendGains();
         renderCmpTempo();
       }
-      // Your recording plays only at the tempo it was sung at (the tracks playing now: curRate)
+      // The tempo of the tracks playing now (curRate), in percent
       function curTempo() { return Math.round(curRate * 100); }
       function renderCmpTempo() {
-        const off = reviewing && !!(take && take.audio) && take.tempo !== curTempo();
-        $("cmpTempo").hidden = !off;
-        if (off) $("cmpTempo").textContent = t("cmp.tempo", { v: take.tempo + "%" });
+        const busy = reviewing && !!(take && take.audio) && !voiceAudio();
+        $("cmpTempo").hidden = !busy;
+        if (busy) $("cmpTempo").textContent = t("cmp.tempo", { pct: Math.floor(voiceDone * 100) });
+      }
+
+      // ---------- Your recording at the tempo now playing ----------
+      // take.audio is at the tempo you sang at. At another tempo, a copy stretched by keyshift.js (only the part
+      // you sang, the key unchanged) is played and saved instead: voice = { take, tempo, audio }, at the scale of
+      // the tracks at that tempo (sample i = song sample i · tempo / 100). Until it is ready your voice is silent.
+      let voice = null, voiceJob = null, voiceJobOf = null, voiceDone = 0;
+      function cancelVoice() { if (voiceJob) voiceJob.terminate(); voiceJob = null; voiceJobOf = null; }
+      function voiceAudio() {
+        if (!take || !take.audio) return null;
+        if (take.tempo === curTempo()) return take.audio;
+        return voice && voice.take === take && voice.tempo === curTempo() ? voice.audio : null;
+      }
+      function stretchVoice(target) {
+        const tk = take;
+        if (!tk || !tk.audio || singing) return;
+        if (tk.tempo === target || (voice && voice.take === tk && voice.tempo === target)) { renderCmpTempo(); return; }
+        if (voiceJob && voiceJobOf === tk.tempo + "/" + target) return;
+        cancelVoice();
+        let a = -1, z = -1;
+        for (let k = 0; k < tk.rawCovered.length; k++) if (tk.rawCovered[k]) { if (a < 0) a = k; z = k; }
+        if (a < 0) return;
+        const r = tk.tempo / 100, k = tk.tempo / target;
+        const s0 = Math.max(0, Math.floor(((a / FPS) * SR) / r) - SR), s1 = Math.min(tk.audio.length, Math.ceil((((z + 1) / FPS) * SR) / r) + SR);
+        const part = tk.audio.slice(s0, s1);
+        let w;
+        try { w = new Worker("keyshift.js", { type: "module" }); } catch (e) { return; }
+        voiceJob = w;
+        voiceJobOf = tk.tempo + "/" + target;
+        voiceDone = 0;
+        renderCmpTempo();
+        w.onmessage = function (e) {
+          const m = e.data;
+          if (m.type === "progress") {
+            voiceDone = m.done;
+            renderCmpTempo();
+          } else if (m.type === "done") {
+            const out = sharedInt16(Math.ceil(tk.audio.length * k) + 1);
+            const o = Math.round(s0 * k);
+            out.set(m.left.subarray(0, Math.max(0, Math.min(m.left.length, out.length - o))), o);
+            voice = { take: tk, tempo: target, audio: out };
+            cancelVoice();
+            if (take === tk && curTempo() === target) loadTracks(true);
+            renderCmpTempo();
+          } else if (m.type === "error") {
+            cancelVoice();
+            showError(t("tempo.fail", { msg: m.message }));
+          }
+        };
+        w.postMessage({ left: part, right: part, semis: 0, tempo: target / tk.tempo, size: 2048 });
       }
       function onPlayerMessage(e) {
         const m = e.data;
@@ -2171,6 +2224,7 @@
         cancelKey();
         const next = semis, rate = tf(), target = next + "/" + tempo;
         keyTarget = target;
+        stretchVoice(tempo);
         if (next === 0 && tempo === 100) { cur = song.stems; curRate = 1; loadTracks(true); sendGains(); renderCmpTempo(); return; }
         const progress = [0, 0];
         const out = [];
@@ -2474,6 +2528,8 @@
         if (!(await startMic("sing"))) return;
         singing = true;
         renderTempo();
+        cancelVoice();
+        voice = null;
         take = newTake();
         $("results").hidden = true;
         setReviewing(false);
@@ -2519,6 +2575,7 @@
         }
         reviewVocalMute = true;
         applyShift();
+        stretchVoice(tempo);
         loadTracks(true);
         // Kept by itself as the song's last take (replacing the one before)
         tk.saving = keepTake(tk, sg);
@@ -2528,6 +2585,7 @@
         take = { line: saved.line, covered: saved.covered, rawLine: saved.line, rawCovered: saved.covered, audio: saved.audio ? toShared(saved.audio) : null, start: saved.start, semis: saved.semis, tempo: saved.tempo || 100, singOct: saved.singOct != null ? saved.singOct : null, diffs: [], gain: saved.gain || 1, lat: saved.lat != null ? saved.lat : latencyMs(), shift: 0 };
         reviewVocalMute = true;
         applyShift();
+        stretchVoice(tempo);
         loadTracks(true);
         showResults();
       }
@@ -2555,9 +2613,11 @@
         renderCmpTempo();
       }
       function shiftSamples() { return take ? Math.round((take.shift / 1000) * SR) : 0; }
-      // j: a sample of your recording's scale (real time at the tempo you sang at)
-      function mineAt(j) { const i = j - shiftSamples(); return i >= 0 && i < take.audio.length ? take.audio[i] : 0; }
-      function sendOffsets() { if (node) node.port.postMessage({ type: "offsets", offsets: [0, 0, shiftSamples()] }); }
+      // j: a sample of the tracks playing now
+      // The same in samples of the tracks playing now (your recording at this tempo: voiceAudio())
+      function voiceShift() { return take ? Math.round((shiftSamples() * take.tempo) / curTempo()) : 0; }
+      function mineAt(j) { const v = voiceAudio(), i = j - voiceShift(); return v && i >= 0 && i < v.length ? v[i] : 0; }
+      function sendOffsets() { if (node) node.port.postMessage({ type: "offsets", offsets: [0, 0, voiceShift()] }); }
 
       // ---------- Results ----------
       function analyzeTake() {
@@ -2708,6 +2768,8 @@
         if (take !== tk) return;
         if (playing) pause();
         take = null;
+        cancelVoice();
+        voice = null;
         $("results").hidden = true;
         setReviewing(false);
         loadTracks(true);
@@ -2735,11 +2797,13 @@
       });
       $("wavBtn").addEventListener("click", function () {
         if (!take || !take.audio) return;
+        // Your voice as you hear it: at the tempo now playing
+        if (tempo !== curTempo() || !voiceAudio()) { toast(t("res.wait")); return; }
         let a = -1, z = -1;
         for (let k = 0; k < take.covered.length; k++) if (take.covered[k]) { if (a < 0) a = k; z = k; }
         if (a < 0) return;
-        const rate = take.tempo / 100;
-        const s0 = Math.floor(((a / FPS) * SR) / rate), s1 = Math.min(take.audio.length, Math.ceil((((z + 1) / FPS) * SR) / rate));
+        const rate = curRate;
+        const s0 = Math.floor(((a / FPS) * SR) / rate), s1 = Math.min(voiceAudio().length, Math.ceil((((z + 1) / FPS) * SR) / rate));
         const n = s1 - s0;
         const buf = new ArrayBuffer(44 + n * 2), dv = new DataView(buf);
         const str = function (o, s) { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); };
@@ -2762,8 +2826,8 @@
         let a = -1, z = -1;
         for (let k = 0; k < take.covered.length; k++) if (take.covered[k]) { if (a < 0) a = k; z = k; }
         if (a < 0) return null;
-        // In samples of the tracks (the tempo you sang at): real time
-        const rate = take.tempo / 100;
+        // In samples of the tracks playing now (and of your voice at this tempo)
+        const rate = curRate;
         return { s0: Math.max(0, Math.floor(((a / FPS - 0.5) * SR) / rate)), s1: Math.min(cur[0][0].length, Math.ceil((((z + 1) / FPS) * SR) / rate)) };
       }
       function encodeMp3(left, right) {
@@ -2817,7 +2881,7 @@
       $("mp3Btn").addEventListener("click", async function () {
         if (!take || !take.audio || !song || mp3Busy) return;
         if (semis !== take.semis) { toast(t("res.mp3.key", { v: (take.semis > 0 ? "+" : "") + take.semis })); return; }
-        if (tempo !== take.tempo || curTempo() !== take.tempo) { toast(t("res.mp3.tempo", { v: take.tempo + "%" })); return; }
+        if (tempo !== curTempo() || !voiceAudio()) { toast(t("res.wait")); return; }
         const span = takeSpan();
         if (!span) return;
         const [gv, ga, gm] = gains();
