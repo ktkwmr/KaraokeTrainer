@@ -82,9 +82,11 @@ await page.click("#phonesOk");
 await page.waitForFunction(() => document.querySelector("#singBtn").getAttribute("aria-pressed") === "true");
 await page.waitForTimeout(9000);
 if (SHOTS) await page.screenshot({ path: join(SHOTS, "2-singing.png") });
-const oct = await page.textContent("#octSel option[value=auto]");
 await page.click("#singBtn");
 await page.waitForSelector("#results:not([hidden])");
+// Your notes are found from the recording after you stop
+await page.waitForFunction(() => document.querySelector("#resMatch").textContent !== "…", null, { timeout: 30000 });
+const oct = await page.textContent("#octSel option[value=auto]");
 const res = await page.evaluate(() => ({ match: document.querySelector("#resMatch").textContent, sung: document.querySelector("#resSung").textContent, bias: document.querySelector("#resBias").textContent, note: document.querySelector("#resNote").textContent, worst: document.querySelector("#worst").innerText }));
 console.log("     results:", JSON.stringify(res), "octave:", oct);
 if (/lower/.test(oct)) ok("octave detected as lower"); else fail("octave not detected as lower: " + oct);
@@ -92,6 +94,17 @@ if (parseInt(res.sung) >= 50) ok("sung share " + res.sung); else fail("sung shar
 if (parseInt(res.match) >= 50) ok("on pitch " + res.match); else fail("on pitch low: " + res.match);
 if (/−/.test(res.bias)) ok("flat bias seen: " + res.bias); else fail("expected a flat bias: " + res.bias);
 if (SHOTS) await page.screenshot({ path: join(SHOTS, "3-results.png"), fullPage: true });
+
+// Delay correction on the results (the same as in the settings): a large change moves the take off the melody;
+// back to the value it was sung with restores the score
+const setDelay = (v) => page.evaluate((v) => { const r = document.querySelector("#takeLatency"); r.value = v; r.dispatchEvent(new Event("input")); }, v);
+const delay0 = Number(await page.inputValue("#takeLatency"));
+await setDelay(500);
+const moved = await page.evaluate(() => ({ val: document.querySelector("#takeLatencyVal").textContent, settings: document.querySelector("#latency").value, match: document.querySelector("#resMatch").textContent }));
+await setDelay(delay0);
+const back = await page.evaluate(() => document.querySelector("#resMatch").textContent);
+if (moved.val === "500 ms" && moved.settings === "500" && parseInt(moved.match) < parseInt(res.match) && back === res.match) ok(`delay correction on the results: ${delay0} → 500 ms: ${moved.match}, back: ${back}`);
+else fail("delay correction on the results: " + JSON.stringify({ delay0, moved, back, before: res.match }));
 
 // Compare: plays with your recording
 await page.click("#cmpPlay");

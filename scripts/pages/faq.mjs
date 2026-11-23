@@ -36,7 +36,7 @@ const EN = [
   },
   {
     q: "I sing an octave lower than the singer. Is that wrong?",
-    a: "No. Singing an octave lower or higher counts as on pitch. The app finds your octave in the first seconds you sing and draws your line next to the melody. You can also choose the octave in the menu next to “Sing”.",
+    a: "No. Singing an octave lower or higher counts as on pitch. The app finds your octave from your recording and shows your notes next to the melody. You can also choose the octave in the menu next to “Sing”.",
   },
   {
     q: "What do the colours mean?",
@@ -47,8 +47,8 @@ const EN = [
     a: "With a speaker, the microphone hears the song too, including the original singer, and their voice gets mixed into your line. Wired headphones work best. If you must use a speaker, turn the vocal down to 0% and try Settings → “Echo cancellation”.",
   },
   {
-    q: "My line is drawn later than the melody.",
-    a: "Every device takes a little time to play sound and to hear the microphone; Bluetooth headphones take more. Use Settings → “Measure the delay” (say “ta” with each beep), or move the slider until your line sits on the melody when you sing in time.",
+    q: "My bars are later than the melody.",
+    a: "Every device takes a little time to play sound and to hear the microphone; Bluetooth headphones take more. Use Settings → “Measure the delay” (say “ta” with each beep), or move the slider until your bars sit on the melody when you sing in time. The same slider is also on the results after you sing: your bars, the score, and what you hear move with it.",
   },
   {
     q: "The grey line is missing or wrong in some places.",
@@ -116,7 +116,7 @@ const JA = [
   },
   {
     q: "歌手より1オクターブ低く歌っています。間違いになりますか？",
-    a: "なりません。1オクターブ下や上で歌っても正解として判定します。歌いはじめの数秒であなたのオクターブを判定し、メロディの隣に線を描きます。「歌う」の横のメニューで選ぶこともできます。",
+    a: "なりません。1オクターブ下や上で歌っても正解として判定します。録音からあなたのオクターブを判定し、メロディの隣にあなたのバーを表示します。「歌う」の横のメニューで選ぶこともできます。",
   },
   {
     q: "線の色の意味は？",
@@ -127,8 +127,8 @@ const JA = [
     a: "スピーカーで流すと、マイクが曲の音（原曲の歌手の声も）を拾い、あなたの線に混ざってしまいます。有線のヘッドホンがおすすめです。どうしてもスピーカーを使うときは、ボーカルを0%にして、設定の「エコーキャンセル」を試してください。",
   },
   {
-    q: "自分の線がメロディより遅れて描かれます。",
-    a: "どの端末でも、音を出すのとマイクで聞くのに少し時間がかかり、Bluetooth のヘッドホンではさらに遅れます。設定の「遅延を測る」（「ピッ」に合わせて「タッ」と声を出す）を使うか、合わせて歌ったときに線がメロディに重なるまでスライダーを動かしてください。",
+    q: "自分のバーがメロディより遅れて表示されます。",
+    a: "どの端末でも、音を出すのとマイクで聞くのに少し時間がかかり、Bluetooth のヘッドホンではさらに遅れます。設定の「遅延を測る」（「ピッ」に合わせて「タッ」と声を出す）を使うか、合わせて歌ったときにバーがメロディに重なるまでスライダーを動かしてください。同じスライダーは歌ったあとの答え合わせにもあり、動かすとバー・判定・聞こえる音も一緒に動きます。",
   },
   {
     q: "グレーの線がないところや、おかしいところがあります。",

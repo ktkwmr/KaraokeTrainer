@@ -11,7 +11,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
   <title>Sing Along and See Your Pitch – Free Karaoke Pitch Checker &amp; Key Finder – Karaoke Trainer</title>
-  <meta name="description" content="Free karaoke practice app in your browser: load your own song file, AI removes or turns down the vocals, and as you sing, your pitch is drawn over the original melody so you see where you went flat or sharp. Find the key that suits your vocal range and change the key. No upload, no sign-up." />
+  <meta name="description" content="Free karaoke practice app in your browser: load your own song file, AI removes or turns down the vocals, and after you sing, your pitch is shown over the original melody so you see where you went flat or sharp. Find the key that suits your vocal range and change the key. No upload, no sign-up." />
   <link rel="canonical" href="https://ktkwmr.com/karaoketrainer/" />
   <link rel="alternate" hreflang="en" href="https://ktkwmr.com/karaoketrainer/" />
   <link rel="alternate" hreflang="ja" href="https://ktkwmr.com/karaoketrainer/ja/" />
@@ -34,7 +34,7 @@
     "@type": "WebApplication",
     "name": "Karaoke Trainer",
     "url": "https://ktkwmr.com/karaoketrainer/",
-    "description": "A browser app for karaoke practice: it separates the vocals of your own song file with AI on your device, draws your pitch over the original melody as you sing, shows where you went off, and suggests a key for your vocal range.",
+    "description": "A browser app for karaoke practice: it separates the vocals of your own song file with AI on your device, shows your pitch over the original melody after you sing, shows where you went off, and suggests a key for your vocal range.",
     "applicationCategory": "MultimediaApplication",
     "inLanguage": "en",
     "operatingSystem": "Any",
@@ -184,9 +184,6 @@
     @media (max-width: 900px) { .roll { height: min(56vh, 420px); } }
     .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 6px 16px 0; font-size: 11px; color: var(--subtle); }
     .legend i { display: inline-block; width: 16px; height: 4px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
-    .live { position: absolute; top: 20px; right: 26px; display: flex; flex-direction: column; align-items: flex-end; pointer-events: none; }
-    .live b { font-family: var(--mono); font-size: 22px; line-height: 1.1; }
-    .live span { font-family: var(--mono); font-size: 11px; color: var(--muted); }
     .transport { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
     .play { appearance: none; width: 52px; height: 52px; flex: none; border: 0; border-radius: 50%; background: var(--ink); color: var(--paper); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; touch-action: manipulation; }
     .play:active:not(:disabled) { background: var(--press); }
@@ -350,12 +347,11 @@
       <section class="panel out" aria-label="Practice" data-i18n-attr="aria-label:practice">
         <div class="empty" id="empty">
           <b data-i18n="empty.title">Load a song and sing along</b>
-          <span data-i18n="empty">The grey bars are the original singer's melody, one bar per note. Press “Sing” and your pitch is drawn over them: green when you are on the note, yellow when close, red when off. Singing an octave lower or higher counts as on pitch.</span>
+          <span data-i18n="empty">The grey bars are the original singer's melody, one bar per note. Press “Sing”, and when you stop, your notes are shown over them as bars: green when you were on the note, yellow when close, red when off. Singing an octave lower or higher counts as on pitch.</span>
         </div>
         <div id="practice" class="ghost" inert>
           <div class="rollwrap">
             <canvas class="roll" id="roll" role="img" aria-label="The original melody (grey) and your pitch (coloured), scrolling with the song. Pinch to zoom; scroll or drag to look around" data-i18n-attr="aria-label:roll"></canvas>
-            <div class="live" aria-live="off"><b id="liveNote"></b><span id="liveCents"></span></div>
           </div>
           <div class="legend">
             <span><i style="background: var(--ref)"></i><span data-i18n="legend.ref">Original melody</span></span>
@@ -403,6 +399,14 @@
               </div>
               <p class="hint" data-i18n="cmp.hint">Set the volumes below. The original vocal starts muted; turn it on to hear it with your voice.</p>
             </div>
+            <div class="stack">
+              <label class="label" for="takeLatency" data-i18n="set.delay">Delay correction</label>
+              <div class="setrow">
+                <input type="range" id="takeLatency" min="0" max="500" step="5" value="100" aria-describedby="takeLatencyHint" />
+                <span class="val" id="takeLatencyVal">100 ms</span>
+              </div>
+              <p class="hint" id="takeLatencyHint" data-i18n="res.delay.hint">The same as in ⚙ → Settings. If your bars sit to the right of the grey bars (your voice sounds late), make it larger; if to the left, smaller. This take moves with it, and the next takes use it too.</p>
+            </div>
             <div class="setrow">
               <button class="chip" id="keepBtn" type="button" data-i18n="res.keep">Keep this recording</button>
               <button class="chip" id="mp3Btn" type="button" data-i18n="res.mp3">Save with the song (MP3)</button>
@@ -443,7 +447,7 @@
 
     <section class="intro" aria-labelledby="introTitle">
       <h1 id="introTitle" data-i18n="intro.title">Karaoke practice: sing along and see your pitch over the original melody</h1>
-      <div data-i18n-html="intro.body"><p>Karaoke Trainer is a free practice tool for people who love singing, no sheet music needed. Load a song file you have, and AI separates the singer's voice from the accompaniment and turns the singer's melody into <b>note bars</b>, as on a karaoke machine. Press “Sing” and your own pitch is drawn over it as you sing, so you can <b>see</b> where you went flat or sharp.</p><p>The <b>Vocal</b> slider goes from 0% (karaoke: the accompaniment only) to 100% (the original); in between, the singer becomes a quiet guide voice. You can change the key by up to 6 semitones up or down; the bars move with it. Singing an octave lower or higher than the original singer, as many men do with songs by women and the other way round, counts as on pitch.</p><p>When you stop, the app shows how much of the melody you sang on pitch, lists the parts that went off (tap one to sing it again), and lets you listen to your recording against the original singer's voice. If you measure your vocal range once, each song also shows the key that suits your voice. You can skip that: the practice works without it.</p><p>Everything runs <b>in your browser</b>: your song and your voice are not uploaded anywhere. The first song downloads the AI model (about 75 MB, once); songs you loaded are kept on this device and open at once next time, even offline. Use headphones while singing. Supported files: MP3, WAV, M4A (AAC), FLAC, OGG and most formats your browser can play, and video files such as MP4 (only the sound is used), up to 10 minutes. Free, no sign-up, no ads.</p><h2>Guides</h2><ul><li><a href="/karaoketrainer/guide/" target="_blank" rel="noopener">How to use Karaoke Trainer</a></li><li><a href="/karaoketrainer/faq/" target="_blank" rel="noopener">Frequently asked questions</a></li></ul></div>
+      <div data-i18n-html="intro.body"><p>Karaoke Trainer is a free practice tool for people who love singing, no sheet music needed. Load a song file you have, and AI separates the singer's voice from the accompaniment and turns the singer's melody into <b>note bars</b>, as on a karaoke machine. Press “Sing”, and when you stop, your own pitch is shown over it as bars too, so you can <b>see</b> where you went flat or sharp.</p><p>The <b>Vocal</b> slider goes from 0% (karaoke: the accompaniment only) to 100% (the original); in between, the singer becomes a quiet guide voice. You can change the key by up to 6 semitones up or down; the bars move with it. Singing an octave lower or higher than the original singer, as many men do with songs by women and the other way round, counts as on pitch.</p><p>When you stop, the app shows how much of the melody you sang on pitch, lists the parts that went off (tap one to sing it again), and lets you listen to your recording against the original singer's voice. If you measure your vocal range once, each song also shows the key that suits your voice. You can skip that: the practice works without it.</p><p>Everything runs <b>in your browser</b>: your song and your voice are not uploaded anywhere. The first song downloads the AI model (about 75 MB, once); songs you loaded are kept on this device and open at once next time, even offline. Use headphones while singing. Supported files: MP3, WAV, M4A (AAC), FLAC, OGG and most formats your browser can play, and video files such as MP4 (only the sound is used), up to 10 minutes. Free, no sign-up, no ads.</p><h2>Guides</h2><ul><li><a href="/karaoketrainer/guide/" target="_blank" rel="noopener">How to use Karaoke Trainer</a></li><li><a href="/karaoketrainer/faq/" target="_blank" rel="noopener">Frequently asked questions</a></li></ul></div>
     </section>
   </main>
 
@@ -498,7 +502,7 @@
         <button class="chip" id="calibBtn" type="button" data-i18n="calib.run">Measure the delay</button>
         <span class="hint" id="calibState" aria-live="polite"></span>
       </div>
-      <p class="hint" data-i18n="calib.hint">With your headphones on, press the button and say “ta” in time with each of the 8 beeps. If your line is drawn later (to the right) than the grey bars when you sing in time, make the value larger.</p>
+      <p class="hint" data-i18n="calib.hint">With your headphones on, press the button and say “ta” in time with each of the 8 beeps. If your bars are later (to the right) than the grey bars when you sing in time, make the value larger.</p>
       <h3 data-i18n="set.mic">Microphone</h3>
       <div class="stack">
         <label class="check"><input type="checkbox" id="micNs" /><span><span data-i18n="set.ns">Noise suppression</span><small data-i18n="set.ns.hint">Off is usually better for pitch: it can cut parts of the voice.</small></span></label>
@@ -532,7 +536,7 @@
   <dialog class="msg help" id="helpDlg" tabindex="-1" aria-labelledby="helpTitle">
     <h2 id="helpTitle" data-i18n="menu.help">How to use</h2>
     <div class="help-body">
-      <ol class="help-list" data-i18n-html="help.body"><li><b>Load a song</b> – Choose a song file you have (MP3, WAV, M4A, FLAC…, or a video such as MP4, of which only the sound is used; up to 10 minutes) or drop it on the box. The app separates the singer's voice from the accompaniment with AI and finds the melody. The first time it downloads the AI model (about 75 MB, once). Songs you loaded are kept on this device, so next time they open at once, even offline.</li><li><b>Listen</b> – Press ▶. The grey bars are the singer's melody, one bar per note: higher on the screen is a higher note. Use the “Vocal” slider: 0% is karaoke, 100% is the original, in between the singer becomes a quiet guide. The speaker buttons mute the vocal or the accompaniment. Pinch the line to zoom in or out in time; on a phone, drag it with one finger; on a computer, scroll with two fingers (or the wheel) to look ahead, back, up, or down. ▶ brings it back to where the song is playing.</li><li><b>Sing</b> – Put on headphones and press “Sing”. Your pitch is drawn as you sing: <b>green</b> = on pitch, <b>yellow</b> = close, <b>red</b> = off. Singing an octave lower or higher than the original counts as on pitch; the app finds your octave in the first few seconds (or choose it).</li><li><b>Look back</b> – When you stop (or the song ends), you see how much was on pitch, the parts that went off (tap one to play it again from just before it), and you can listen to your recording against the original singer: a “My voice” slider appears next to Vocal and Accompaniment, and the original vocal starts muted (turn it on to hear both). The recording is not kept unless you press “Keep this recording”. “Save with the song (MP3)” saves your voice with the accompaniment as one file, for your own practice only: do not post or share it.</li><li><b>Change the key</b> – − / + moves the song up or down by up to 6 semitones; the grey bars move with it.</li><li><b>Find your key (optional)</b> – Measure your vocal range once (⚙ → My vocal range) and each song shows a suggested key. You do not need it to practice.</li><li><b>If the line is late</b> – Bluetooth headphones and some devices add delay. Measure it in ⚙ → Settings → “Measure the delay”.</li><li><b>Use songs you may use</b> – Use song files you bought or recorded. The app does not take songs from YouTube or other sites.</li></ol>
+      <ol class="help-list" data-i18n-html="help.body"><li><b>Load a song</b> – Choose a song file you have (MP3, WAV, M4A, FLAC…, or a video such as MP4, of which only the sound is used; up to 10 minutes) or drop it on the box. The app separates the singer's voice from the accompaniment with AI and finds the melody. The first time it downloads the AI model (about 75 MB, once). Songs you loaded are kept on this device, so next time they open at once, even offline.</li><li><b>Listen</b> – Press ▶. The grey bars are the singer's melody, one bar per note: higher on the screen is a higher note. Use the “Vocal” slider: 0% is karaoke, 100% is the original, in between the singer becomes a quiet guide. The speaker buttons mute the vocal or the accompaniment. Pinch the line to zoom in or out in time; on a phone, drag it with one finger; on a computer, scroll with two fingers (or the wheel) to look ahead, back, up, or down. ▶ brings it back to where the song is playing.</li><li><b>Sing</b> – Put on headphones and press “Sing”. When you stop, your notes are found from the recording and shown as bars over the grey ones: <b>green</b> = on pitch, <b>yellow</b> = close, <b>red</b> = off. Singing an octave lower or higher than the original counts as on pitch; the app finds your octave (or choose it).</li><li><b>Look back</b> – When you stop (or the song ends), you see how much was on pitch, the parts that went off (tap one to play it again from just before it), and you can listen to your recording against the original singer: a “My voice” slider appears next to Vocal and Accompaniment, and the original vocal starts muted (turn it on to hear both). The recording is not kept unless you press “Keep this recording”. “Save with the song (MP3)” saves your voice with the accompaniment as one file, for your own practice only: do not post or share it.</li><li><b>Change the key</b> – − / + moves the song up or down by up to 6 semitones; the grey bars move with it.</li><li><b>Find your key (optional)</b> – Measure your vocal range once (⚙ → My vocal range) and each song shows a suggested key. You do not need it to practice.</li><li><b>If your bars are late</b> – Bluetooth headphones and some devices add delay. Move the “Delay correction” slider on the results (the same as in ⚙ → Settings), or measure the delay there with “Measure the delay”.</li><li><b>Use songs you may use</b> – Use song files you bought or recorded. The app does not take songs from YouTube or other sites.</li></ol>
       <p class="help-more"><a href="/karaoketrainer/guide/" target="_blank" rel="noopener" data-i18n="help.more" data-i18n-attr="href:guide.url">Read the full guide →</a></p>
     </div>
     <div class="dlg-actions">
@@ -674,7 +678,7 @@
           "range.deleted": "Your vocal range was deleted.",
           "range.badOrder": "The highest note came out lower than the lowest. Please measure again.",
           "empty.title": "Load a song and sing along",
-          "empty": "The grey bars are the original singer's melody, one bar per note. Press “Sing” and your pitch is drawn over them: green when you are on the note, yellow when close, red when off. Singing an octave lower or higher counts as on pitch.",
+          "empty": "The grey bars are the original singer's melody, one bar per note. Press “Sing”, and when you stop, your notes are shown over them as bars: green when you were on the note, yellow when close, red when off. Singing an octave lower or higher counts as on pitch.",
           "roll": "The original melody (grey) and your pitch (coloured), scrolling with the song. Pinch to zoom; scroll or drag to look around",
           "legend.ref": "Original melody",
           "legend.good": "Within ±{c} cents",
@@ -735,6 +739,8 @@
           "use.ok": "I understand, save",
           "cmp.play": "Play from the start of the take",
           "cmp.hint": "Set the volumes below. The original vocal starts muted; turn it on to hear it with your voice.",
+          "res.delay.hint": "The same as in ⚙ → Settings. If your bars sit to the right of the grey bars (your voice sounds late), make it larger; if to the left, smaller. This take moves with it, and the next takes use it too.",
+          "res.busy": "Finding your notes in the recording…",
           "vol.vocal": "Vocal",
           "mute.vocal": "Mute the vocal",
           "mute.acc": "Mute the accompaniment",
@@ -803,7 +809,7 @@
           "set.agc.hint": "Evens out the level; can make quiet notes noisy.",
           "set.lang": "Language: follows your browser (Japanese page: /karaoketrainer/ja/).",
           "calib.run": "Measure the delay",
-          "calib.hint": "With your headphones on, press the button and say “ta” in time with each of the 8 beeps. If your line is drawn later (to the right) than the grey bars when you sing in time, make the value larger.",
+          "calib.hint": "With your headphones on, press the button and say “ta” in time with each of the 8 beeps. If your bars are later (to the right) than the grey bars when you sing in time, make the value larger.",
           "calib.listen": "Say “ta” with each beep…",
           "calib.done": "Measured: {ms} ms",
           "calib.fail": "Could not measure. Say “ta” clearly with each beep, and try again.",
@@ -828,10 +834,10 @@
           "home.url": "https://ktkwmr.com/",
           "help.more": "Read the full guide →",
           "about.license": "© 2026 ktkwmr · Licensed under the <a href=\"https://github.com/ktkwmr/KaraokeTrainer/blob/main/LICENSE\" target=\"_blank\" rel=\"noopener\">MIT License</a> · <a href=\"/karaoketrainer/about/\" target=\"_blank\" rel=\"noopener\">About this site</a>",
-          "help.body": "<li><b>Load a song</b> – Choose a song file you have (MP3, WAV, M4A, FLAC…, or a video such as MP4, of which only the sound is used; up to 10 minutes) or drop it on the box. The app separates the singer's voice from the accompaniment with AI and finds the melody. The first time it downloads the AI model (about 75 MB, once). Songs you loaded are kept on this device, so next time they open at once, even offline.</li><li><b>Listen</b> – Press ▶. The grey bars are the singer's melody, one bar per note: higher on the screen is a higher note. Use the “Vocal” slider: 0% is karaoke, 100% is the original, in between the singer becomes a quiet guide. The speaker buttons mute the vocal or the accompaniment. Pinch the line to zoom in or out in time; on a phone, drag it with one finger; on a computer, scroll with two fingers (or the wheel) to look ahead, back, up, or down. ▶ brings it back to where the song is playing.</li><li><b>Sing</b> – Put on headphones and press “Sing”. Your pitch is drawn as you sing: <b>green</b> = on pitch, <b>yellow</b> = close, <b>red</b> = off. Singing an octave lower or higher than the original counts as on pitch; the app finds your octave in the first few seconds (or choose it).</li><li><b>Look back</b> – When you stop (or the song ends), you see how much was on pitch, the parts that went off (tap one to play it again from just before it), and you can listen to your recording against the original singer: a “My voice” slider appears next to Vocal and Accompaniment, and the original vocal starts muted (turn it on to hear both). The recording is not kept unless you press “Keep this recording”. “Save with the song (MP3)” saves your voice with the accompaniment as one file, for your own practice only: do not post or share it.</li><li><b>Change the key</b> – − / + moves the song up or down by up to 6 semitones; the grey bars move with it.</li><li><b>Find your key (optional)</b> – Measure your vocal range once (⚙ → My vocal range) and each song shows a suggested key. You do not need it to practice.</li><li><b>If the line is late</b> – Bluetooth headphones and some devices add delay. Measure it in ⚙ → Settings → “Measure the delay”.</li><li><b>Use songs you may use</b> – Use song files you bought or recorded. The app does not take songs from YouTube or other sites.</li>",
+          "help.body": "<li><b>Load a song</b> – Choose a song file you have (MP3, WAV, M4A, FLAC…, or a video such as MP4, of which only the sound is used; up to 10 minutes) or drop it on the box. The app separates the singer's voice from the accompaniment with AI and finds the melody. The first time it downloads the AI model (about 75 MB, once). Songs you loaded are kept on this device, so next time they open at once, even offline.</li><li><b>Listen</b> – Press ▶. The grey bars are the singer's melody, one bar per note: higher on the screen is a higher note. Use the “Vocal” slider: 0% is karaoke, 100% is the original, in between the singer becomes a quiet guide. The speaker buttons mute the vocal or the accompaniment. Pinch the line to zoom in or out in time; on a phone, drag it with one finger; on a computer, scroll with two fingers (or the wheel) to look ahead, back, up, or down. ▶ brings it back to where the song is playing.</li><li><b>Sing</b> – Put on headphones and press “Sing”. When you stop, your notes are found from the recording and shown as bars over the grey ones: <b>green</b> = on pitch, <b>yellow</b> = close, <b>red</b> = off. Singing an octave lower or higher than the original counts as on pitch; the app finds your octave (or choose it).</li><li><b>Look back</b> – When you stop (or the song ends), you see how much was on pitch, the parts that went off (tap one to play it again from just before it), and you can listen to your recording against the original singer: a “My voice” slider appears next to Vocal and Accompaniment, and the original vocal starts muted (turn it on to hear both). The recording is not kept unless you press “Keep this recording”. “Save with the song (MP3)” saves your voice with the accompaniment as one file, for your own practice only: do not post or share it.</li><li><b>Change the key</b> – − / + moves the song up or down by up to 6 semitones; the grey bars move with it.</li><li><b>Find your key (optional)</b> – Measure your vocal range once (⚙ → My vocal range) and each song shows a suggested key. You do not need it to practice.</li><li><b>If your bars are late</b> – Bluetooth headphones and some devices add delay. Move the “Delay correction” slider on the results (the same as in ⚙ → Settings), or measure the delay there with “Measure the delay”.</li><li><b>Use songs you may use</b> – Use song files you bought or recorded. The app does not take songs from YouTube or other sites.</li>",
           "privacy.body": "<li><b>Your song and your voice stay on your device</b> – The song file is separated and analyzed only in your browser. The microphone is used only while you sing or measure your range, and your voice is analyzed and recorded only in your browser. Nothing is sent to a server. This app has no accounts, cookies, or ads.</li><li><b>Downloads</b> – To separate a song, your browser downloads the AI model from this site and the ONNX Runtime library from jsDelivr (a CDN); when you save your singing with the song as MP3, also the lamejs MP3 encoder from jsDelivr. Like any download, they receive your IP address and browser information. Nothing about your song or voice is sent.</li><li><b>Data saved in your browser</b> – The AI model, the songs you loaded (the separated vocals and accompaniment and the melody line, so they open at once next time), recordings you chose to keep, your vocal range if you measured it, your settings, and the app itself (to work offline). Delete songs with ⚙ → “Delete saved songs”, the model with ⚙ → “Delete the AI model”, your range in “My vocal range”, or clear this site's data in your browser settings.</li><li><b>Server logs and page views</b> – This site is hosted on Cloudflare. Standard access logs (such as IP address, time, and the requested page) are kept for operation and security. Cloudflare Web Analytics counts page views without cookies (the page URL, referrer, browser information, and page load time).</li><li><b>Contact</b> – Questions and feedback: <a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">GitHub Issues</a>.</li><li><b>Full policy</b> – See the <a href=\"/karaoketrainer/privacy/\" target=\"_blank\" rel=\"noopener\">privacy policy</a> and <a href=\"/karaoketrainer/about/\" target=\"_blank\" rel=\"noopener\">about this site</a>.</li>",
           "intro.title": "Karaoke practice: sing along and see your pitch over the original melody",
-          "intro.body": "<p>Karaoke Trainer is a free practice tool for people who love singing, no sheet music needed. Load a song file you have, and AI separates the singer's voice from the accompaniment and turns the singer's melody into <b>note bars</b>, as on a karaoke machine. Press “Sing” and your own pitch is drawn over it as you sing, so you can <b>see</b> where you went flat or sharp.</p><p>The <b>Vocal</b> slider goes from 0% (karaoke: the accompaniment only) to 100% (the original); in between, the singer becomes a quiet guide voice. You can change the key by up to 6 semitones up or down; the bars move with it. Singing an octave lower or higher than the original singer, as many men do with songs by women and the other way round, counts as on pitch.</p><p>When you stop, the app shows how much of the melody you sang on pitch, lists the parts that went off (tap one to sing it again), and lets you listen to your recording against the original singer's voice. If you measure your vocal range once, each song also shows the key that suits your voice. You can skip that: the practice works without it.</p><p>Everything runs <b>in your browser</b>: your song and your voice are not uploaded anywhere. The first song downloads the AI model (about 75 MB, once); songs you loaded are kept on this device and open at once next time, even offline. Use headphones while singing. Supported files: MP3, WAV, M4A (AAC), FLAC, OGG and most formats your browser can play, and video files such as MP4 (only the sound is used), up to 10 minutes. Free, no sign-up, no ads.</p><h2>Guides</h2><ul><li><a href=\"/karaoketrainer/guide/\" target=\"_blank\" rel=\"noopener\">How to use Karaoke Trainer</a></li><li><a href=\"/karaoketrainer/faq/\" target=\"_blank\" rel=\"noopener\">Frequently asked questions</a></li></ul>",
+          "intro.body": "<p>Karaoke Trainer is a free practice tool for people who love singing, no sheet music needed. Load a song file you have, and AI separates the singer's voice from the accompaniment and turns the singer's melody into <b>note bars</b>, as on a karaoke machine. Press “Sing”, and when you stop, your own pitch is shown over it as bars too, so you can <b>see</b> where you went flat or sharp.</p><p>The <b>Vocal</b> slider goes from 0% (karaoke: the accompaniment only) to 100% (the original); in between, the singer becomes a quiet guide voice. You can change the key by up to 6 semitones up or down; the bars move with it. Singing an octave lower or higher than the original singer, as many men do with songs by women and the other way round, counts as on pitch.</p><p>When you stop, the app shows how much of the melody you sang on pitch, lists the parts that went off (tap one to sing it again), and lets you listen to your recording against the original singer's voice. If you measure your vocal range once, each song also shows the key that suits your voice. You can skip that: the practice works without it.</p><p>Everything runs <b>in your browser</b>: your song and your voice are not uploaded anywhere. The first song downloads the AI model (about 75 MB, once); songs you loaded are kept on this device and open at once next time, even offline. Use headphones while singing. Supported files: MP3, WAV, M4A (AAC), FLAC, OGG and most formats your browser can play, and video files such as MP4 (only the sound is used), up to 10 minutes. Free, no sign-up, no ads.</p><h2>Guides</h2><ul><li><a href=\"/karaoketrainer/guide/\" target=\"_blank\" rel=\"noopener\">How to use Karaoke Trainer</a></li><li><a href=\"/karaoketrainer/faq/\" target=\"_blank\" rel=\"noopener\">Frequently asked questions</a></li></ul>",
           "foot.meta": "<span>Karaoke Trainer · © 2026 ktkwmr</span><a href=\"/karaoketrainer/privacy/\" target=\"_blank\" rel=\"noopener\">Privacy policy</a><a href=\"/karaoketrainer/about/\" target=\"_blank\" rel=\"noopener\">About this site</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer\" target=\"_blank\" rel=\"noopener\">Source code on GitHub</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">Feedback</a><a href=\"https://ktkwmr.com/\" target=\"_blank\" rel=\"noopener\">More apps by ktkwmr</a>"
         },
         ja: {
@@ -909,7 +915,7 @@
           "range.deleted": "マイ音域を削除しました。",
           "range.badOrder": "一番高い声が一番低い声より低くなりました。もう一度測ってください。",
           "empty.title": "曲を読み込んで、一緒に歌いましょう",
-          "empty": "グレーのバーが原曲の歌手のメロディです（1つの音に1本）。「歌う」を押すと、あなたの音程が重ねて描かれます。合っていれば緑、惜しければ黄、外れると赤。1オクターブ下や上で歌っても正解になります。",
+          "empty": "グレーのバーが原曲の歌手のメロディです（1つの音に1本）。「歌う」を押して歌い、止めると、あなたの音程がバーで重ねて表示されます。合っていれば緑、惜しければ黄、外れると赤。1オクターブ下や上で歌っても正解になります。",
           "roll": "原曲のメロディ（グレー）とあなたの音程（色付き）。曲に合わせてスクロールします。ピンチで拡大・縮小、スクロールやドラッグで前後を見られます",
           "legend.ref": "原曲のメロディ",
           "legend.good": "±{c}セント以内",
@@ -970,6 +976,8 @@
           "use.ok": "わかったうえで保存",
           "cmp.play": "録音の最初から再生",
           "cmp.hint": "音量は下のスライダーで。原曲のボーカルは最初はミュートです。オンにすると自分の声と重ねて聴けます。",
+          "res.delay.hint": "⚙ →「設定」と同じものです。自分のバーがグレーのバーより右にある（声が遅れて聞こえる）ときは大きく、左にあるときは小さくします。この録音も一緒に動き、次に歌うときもこの値を使います。",
+          "res.busy": "録音から音程を調べています…",
           "vol.vocal": "ボーカル",
           "mute.vocal": "ボーカルをミュート",
           "mute.acc": "伴奏をミュート",
@@ -1038,7 +1046,7 @@
           "set.agc.hint": "音量をそろえますが、小さな音で雑音が増えることがあります。",
           "set.lang": "言語：ブラウザの言語に合わせます（日本語のページ：/karaoketrainer/ja/）。",
           "calib.run": "遅延を測る",
-          "calib.hint": "ヘッドホンをつけてボタンを押し、8回鳴る「ピッ」に合わせて「タッ」と声を出してください。合わせて歌ったのに自分の線がグレーのバーより遅れて（右に）描かれるときは、値を大きくします。",
+          "calib.hint": "ヘッドホンをつけてボタンを押し、8回鳴る「ピッ」に合わせて「タッ」と声を出してください。合わせて歌ったのに自分のバーがグレーのバーより遅れて（右に）表示されるときは、値を大きくします。",
           "calib.listen": "「ピッ」に合わせて「タッ」…",
           "calib.done": "測定結果：{ms} ms",
           "calib.fail": "測れませんでした。「ピッ」ごとに「タッ」とはっきり声を出して、もう一度お試しください。",
@@ -1063,10 +1071,10 @@
           "home.url": "https://ktkwmr.com/ja/",
           "help.more": "詳しいガイドを読む →",
           "about.license": "© 2026 ktkwmr・<a href=\"https://github.com/ktkwmr/KaraokeTrainer/blob/main/LICENSE\" target=\"_blank\" rel=\"noopener\">MITライセンス</a>・<a href=\"/karaoketrainer/ja/about/\" target=\"_blank\" rel=\"noopener\">運営者情報</a>",
-          "help.body": "<li><b>曲を読み込む</b> ― 手持ちの曲のファイル（MP3、WAV、M4A、FLAC など。MP4 などの動画も可で、音声だけを使う。10分まで）を選ぶか、枠にドロップします。AIが歌手の声と伴奏を分け、メロディを取り出します。初回はAIモデル（約75MB、1回だけ）をダウンロードします。読み込んだ曲はこの端末に保存されるので、次からはすぐに（オフラインでも）開けます。</li><li><b>聴く</b> ― ▶ を押します。グレーのバーが歌手のメロディで（1つの音に1本）、画面の上ほど高い音です。「ボーカル」のスライダーは 0% でカラオケ、100% で原曲どおり、間にすると歌手の声が小さなガイドになります。スピーカーのボタンでボーカルや伴奏をミュートできます。線はピンチで時間方向に拡大・縮小でき、スマホでは1本指のドラッグ、パソコンでは2本指のスクロール（またはホイール）で前後・上下を見られます。▶ を押すと再生位置に戻ります。</li><li><b>歌う</b> ― ヘッドホンをつけて「歌う」を押します。歌うとあなたの音程が線で描かれます。<b>緑</b>＝合っている、<b>黄</b>＝惜しい、<b>赤</b>＝外れ。原曲より1オクターブ下や上で歌っても正解です。最初の数秒であなたのオクターブを自動で判定します（選ぶこともできます）。</li><li><b>答え合わせ</b> ― 止めると（または曲が終わると）、音程が合っていた割合と、ズレが大きかったところが表示されます（タップでその少し前から再生）。自分の録音と原曲の歌手の声を聴き比べることもできます（「ボーカル」「伴奏」の下に「自分の声」のスライダーが出ます。原曲のボーカルは最初はミュートで、オンにすると重ねて聴けます）。録音は「この録音を残す」を押さない限り残りません。「曲と一緒に保存（MP3）」で、あなたの声と伴奏を1つのファイルにできます。自分の練習用だけに使い、投稿・共有はしないでください。</li><li><b>キーを変える</b> ― − / ＋ で曲を最大6半音まで上げ下げできます。グレーのバーも一緒に動きます。</li><li><b>自分に合うキー（任意）</b> ― 一度音域を測っておくと（⚙ →「マイ音域」）、曲ごとにおすすめのキーが表示されます。練習には必要ありません。</li><li><b>線が遅れるとき</b> ― Bluetoothのヘッドホンや一部の端末では遅れが出ます。⚙ →「設定」→「遅延を測る」で補正できます。</li><li><b>使ってよい曲で</b> ― 購入した曲や自分で録音した曲のファイルを使ってください。YouTube などのサイトから曲を取り込む機能はありません。</li>",
+          "help.body": "<li><b>曲を読み込む</b> ― 手持ちの曲のファイル（MP3、WAV、M4A、FLAC など。MP4 などの動画も可で、音声だけを使う。10分まで）を選ぶか、枠にドロップします。AIが歌手の声と伴奏を分け、メロディを取り出します。初回はAIモデル（約75MB、1回だけ）をダウンロードします。読み込んだ曲はこの端末に保存されるので、次からはすぐに（オフラインでも）開けます。</li><li><b>聴く</b> ― ▶ を押します。グレーのバーが歌手のメロディで（1つの音に1本）、画面の上ほど高い音です。「ボーカル」のスライダーは 0% でカラオケ、100% で原曲どおり、間にすると歌手の声が小さなガイドになります。スピーカーのボタンでボーカルや伴奏をミュートできます。線はピンチで時間方向に拡大・縮小でき、スマホでは1本指のドラッグ、パソコンでは2本指のスクロール（またはホイール）で前後・上下を見られます。▶ を押すと再生位置に戻ります。</li><li><b>歌う</b> ― ヘッドホンをつけて「歌う」を押します。止めると、録音からあなたの音程を調べ、グレーのバーに重ねてバーで表示します。<b>緑</b>＝合っている、<b>黄</b>＝惜しい、<b>赤</b>＝外れ。原曲より1オクターブ下や上で歌っても正解です。あなたのオクターブは自動で判定します（選ぶこともできます）。</li><li><b>答え合わせ</b> ― 止めると（または曲が終わると）、音程が合っていた割合と、ズレが大きかったところが表示されます（タップでその少し前から再生）。自分の録音と原曲の歌手の声を聴き比べることもできます（「ボーカル」「伴奏」の下に「自分の声」のスライダーが出ます。原曲のボーカルは最初はミュートで、オンにすると重ねて聴けます）。録音は「この録音を残す」を押さない限り残りません。「曲と一緒に保存（MP3）」で、あなたの声と伴奏を1つのファイルにできます。自分の練習用だけに使い、投稿・共有はしないでください。</li><li><b>キーを変える</b> ― − / ＋ で曲を最大6半音まで上げ下げできます。グレーのバーも一緒に動きます。</li><li><b>自分に合うキー（任意）</b> ― 一度音域を測っておくと（⚙ →「マイ音域」）、曲ごとにおすすめのキーが表示されます。練習には必要ありません。</li><li><b>バーがずれるとき</b> ― Bluetoothのヘッドホンや一部の端末では遅れが出ます。答え合わせの「遅延の補正」（⚙ →「設定」と同じもの）で合わせるか、⚙ →「設定」→「遅延を測る」で測ってください。</li><li><b>使ってよい曲で</b> ― 購入した曲や自分で録音した曲のファイルを使ってください。YouTube などのサイトから曲を取り込む機能はありません。</li>",
           "privacy.body": "<li><b>曲と声は端末の中だけ</b> ― 曲のファイルの分離と解析は、ブラウザの中だけで行います。マイクは歌っているときと音域を測るときだけ使い、声の解析と録音もブラウザの中だけで行います。サーバーには何も送りません。アカウント・Cookie・広告はありません。</li><li><b>ダウンロード</b> ― 曲を分離するために、ブラウザがこのサイトからAIモデルを、jsDelivr（CDN）から ONNX Runtime のライブラリをダウンロードします。歌を曲と一緒に MP3 で保存するときは、MP3 を作る lamejs も jsDelivr からダウンロードします。通常のダウンロードと同じく、IPアドレスとブラウザの情報が相手に届きます。曲や声の情報は送りません。</li><li><b>ブラウザに保存するもの</b> ― AIモデル、読み込んだ曲（次回すぐ開けるよう、分離したボーカルと伴奏、メロディの線）、残すことにした録音、測った場合はマイ音域、設定、オフラインで使うためのアプリ本体。曲は ⚙ →「保存した曲を削除」、モデルは ⚙ →「AIモデルを削除」、音域は「マイ音域」で削除できます。ブラウザの設定でこのサイトのデータを消すこともできます。</li><li><b>サーバーのログとアクセス数</b> ― このサイトは Cloudflare で公開しています。運用と安全のため、通常のアクセスログ（IPアドレス、日時、ページなど）が残ります。Cloudflare Web Analytics で、Cookie を使わずにページの表示回数を数えています（ページのURL、参照元、ブラウザの情報、読み込み時間）。</li><li><b>お問い合わせ</b> ― ご質問・ご意見は <a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">GitHub Issues</a> へ。</li><li><b>詳しくは</b> ― <a href=\"/karaoketrainer/ja/privacy/\" target=\"_blank\" rel=\"noopener\">プライバシーポリシー</a>と<a href=\"/karaoketrainer/ja/about/\" target=\"_blank\" rel=\"noopener\">運営者情報</a>をご覧ください。</li>",
           "intro.title": "カラオケ練習：原曲のメロディと自分の音程を重ねて見られる無料ツール",
-          "intro.body": "<p>Karaoke Trainer（カラオケトレーナー）は、楽譜が読めなくても使える歌の練習ツールです。手持ちの曲のファイルを読み込むと、AIが歌手の声と伴奏を分け、歌手のメロディをカラオケのような<b>音のバー</b>にします。「歌う」を押して歌うと、あなたの音程がその上に重ねて描かれるので、どこで高すぎたか・低すぎたかが<b>目で見て</b>わかります。</p><p><b>ボーカル</b>のスライダーは、0%（カラオケ：伴奏だけ）から100%（原曲どおり）まで。間にすると、歌手の声が小さなガイドボーカルになります。最大6半音までキーを変えることもでき、バーも一緒に動きます。男性が女性の曲を（またはその逆を）1オクターブ下や上で歌うのはよくあることなので、オクターブ違いは正解として判定します。</p><p>止めると、メロディのうち音程が合っていた割合と、ズレが大きかったところの一覧（タップでそこから歌い直せます）が表示され、自分の録音と原曲の歌手の声を聴き比べられます。一度自分の音域を測っておくと、曲ごとに自分の声に合うキーも表示されます。測らなくても練習には使えます。</p><p>すべて<b>ブラウザの中</b>で動き、曲もあなたの声もアップロードしません。最初の曲でAIモデル（約75MB、1回だけ）をダウンロードします。読み込んだ曲はこの端末に保存され、次からはすぐに（オフラインでも）開けます。歌うときはヘッドホンを使ってください。対応形式：MP3、WAV、M4A（AAC）、FLAC、OGG など、ブラウザで再生できるほとんどの形式と、MP4 などの動画（音声だけを使う）。10分まで。無料・登録不要・広告なし。</p><h2>ガイド</h2><ul><li><a href=\"/karaoketrainer/ja/guide/\" target=\"_blank\" rel=\"noopener\">Karaoke Trainer の使い方</a></li><li><a href=\"/karaoketrainer/ja/faq/\" target=\"_blank\" rel=\"noopener\">よくある質問</a></li></ul>",
+          "intro.body": "<p>Karaoke Trainer（カラオケトレーナー）は、楽譜が読めなくても使える歌の練習ツールです。手持ちの曲のファイルを読み込むと、AIが歌手の声と伴奏を分け、歌手のメロディをカラオケのような<b>音のバー</b>にします。「歌う」を押して歌い、止めると、あなたの音程もバーで重ねて表示されるので、どこで高すぎたか・低すぎたかが<b>目で見て</b>わかります。</p><p><b>ボーカル</b>のスライダーは、0%（カラオケ：伴奏だけ）から100%（原曲どおり）まで。間にすると、歌手の声が小さなガイドボーカルになります。最大6半音までキーを変えることもでき、バーも一緒に動きます。男性が女性の曲を（またはその逆を）1オクターブ下や上で歌うのはよくあることなので、オクターブ違いは正解として判定します。</p><p>止めると、メロディのうち音程が合っていた割合と、ズレが大きかったところの一覧（タップでそこから歌い直せます）が表示され、自分の録音と原曲の歌手の声を聴き比べられます。一度自分の音域を測っておくと、曲ごとに自分の声に合うキーも表示されます。測らなくても練習には使えます。</p><p>すべて<b>ブラウザの中</b>で動き、曲もあなたの声もアップロードしません。最初の曲でAIモデル（約75MB、1回だけ）をダウンロードします。読み込んだ曲はこの端末に保存され、次からはすぐに（オフラインでも）開けます。歌うときはヘッドホンを使ってください。対応形式：MP3、WAV、M4A（AAC）、FLAC、OGG など、ブラウザで再生できるほとんどの形式と、MP4 などの動画（音声だけを使う）。10分まで。無料・登録不要・広告なし。</p><h2>ガイド</h2><ul><li><a href=\"/karaoketrainer/ja/guide/\" target=\"_blank\" rel=\"noopener\">Karaoke Trainer の使い方</a></li><li><a href=\"/karaoketrainer/ja/faq/\" target=\"_blank\" rel=\"noopener\">よくある質問</a></li></ul>",
           "foot.meta": "<span>Karaoke Trainer・© 2026 ktkwmr</span><a href=\"/karaoketrainer/ja/privacy/\" target=\"_blank\" rel=\"noopener\">プライバシーポリシー</a><a href=\"/karaoketrainer/ja/about/\" target=\"_blank\" rel=\"noopener\">運営者情報</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer\" target=\"_blank\" rel=\"noopener\">ソースコード（GitHub）</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">フィードバック</a><a href=\"https://ktkwmr.com/ja/\" target=\"_blank\" rel=\"noopener\">ktkwmr のほかのアプリ</a>"
         }
       };
@@ -1916,6 +1924,7 @@
         if (take && take.audio) tracks.push([take.audio]);
         node.port.postMessage({ type: "load", tracks: tracks, keep: keep });
         sendGains();
+        sendOffsets();
       }
       // Vocal / accompaniment / your recording. While the results are open (reviewing), your recording is heard
       // ("My voice" slider) and the original vocal has its own mute, which starts on after each take; the
@@ -2161,7 +2170,6 @@
         micStream = null; micSrc = null;
         if (node) node.port.postMessage({ type: "mic", on: false });
         audioSession("playback");
-        $("liveNote").textContent = ""; $("liveCents").textContent = "";
       }
 
       // Pitch of the microphone: two windows of 2048 samples per 1024-sample block (about every 12 ms)
@@ -2185,6 +2193,9 @@
         work.set(m.data, 2048);
         tail.set(work.subarray(1024));
         if (calib) calibBlock(m);
+        // While singing, the microphone is only recorded: your pitch is found from the recording when you stop
+        if (singing && m.playing && take) recordBlock(m, step);
+        if (!rangeState) return;
         for (let w = 0; w < 2; w++) {
           const end = 2560 + 512 * w;
           win.set(work.subarray(end - 2048, end));
@@ -2192,18 +2203,19 @@
           history.push(midi);
           if (history.length > 3) history.shift();
           if (!isNaN(midi) && history.length === 3 && history.every(function (x) { return !isNaN(x); })) midi = median(history);
-          // Song position at the window's centre (its centre is 512 · (w − 1) samples from the block's start)
-          const center = m.pos + (end - 1024 - 2048) * step;
-          onPitch(midi, center, m.playing);
+          rangeSample(midi);
         }
-        if (singing && m.playing && take) recordBlock(m, step);
       }
 
       // ---------- Singing: a take is from "Sing" until you stop ----------
       let singing = false;
-      let take = null; // { line, covered, audio, start, semis, singOct, diffs, gain }
+      // rawLine / rawCovered: your note bars and the frames you sang, as recorded (the delay correction of the
+      // time, lat ms, subtracted); line / covered: the same moved by the change of the delay correction since
+      // (shift ms, later +), so moving the delay correction on the results moves this take too
+      let take = null; // { line, covered, rawLine, rawCovered, audio, start, semis, singOct, gain, lat, shift, kept, busy }
       let singOctManual = null; // null = auto
-      function latencySec() { return (store.latency != null ? store.latency : autoLatency()) / 1000; }
+      function latencyMs() { return store.latency != null ? store.latency : autoLatency(); }
+      function latencySec() { return latencyMs() / 1000; }
       function autoLatency() { return Math.round((outLatency() + 0.03) * 1000); }
       function judge() { return STRICT[store.strict]; }
       function refAt(k) { const v = song && song.line[k]; return v === undefined || isNaN(v) ? NaN : v + semis; }
@@ -2226,45 +2238,8 @@
 
       function newTake() {
         const frames = Math.ceil((length / SR) * FPS) + 1;
-        return { line: new Float32Array(frames).fill(NaN), covered: new Uint8Array(frames), audio: null, start: pos, semis: semis, singOct: null, diffs: [], gain: 1, lastK: -1, lastV: NaN };
-      }
-      function onPitch(midi, center, isPlaying) {
-        // Live note (also while paused, and when measuring the range)
-        if (rangeState) rangeSample(midi);
-        if (!singing) return;
-        if (isNaN(midi)) { $("liveNote").textContent = ""; $("liveCents").textContent = ""; }
-        if (!isPlaying || !take) {
-          if (!isNaN(midi)) { $("liveNote").textContent = noteName(midi); $("liveCents").textContent = ""; }
-          return;
-        }
-        const tt = center / SR - latencySec();
-        const k = Math.round(tt * FPS);
-        if (k < 0 || k >= take.line.length) return;
-        if (!isNaN(midi)) {
-          // Fill the frames since the last detection (detections come about every 12 ms, frames every 10 ms)
-          if (take.lastK >= 0 && k > take.lastK && k - take.lastK <= 3 && !isNaN(take.lastV)) {
-            for (let j = take.lastK + 1; j < k; j++) take.line[j] = midi;
-          }
-          take.line[k] = midi;
-          const ref = refAt(k);
-          if (!isNaN(ref)) {
-            // Your octave: from the first seconds you sing with the melody (the median of the differences)
-            if (take.diffs.length < 300) {
-              take.diffs.push(midi - ref);
-              if (take.diffs.length >= 30) take.singOct = Math.max(-2, Math.min(2, Math.round(median(take.diffs) / 12)));
-              renderOct();
-            }
-            const near = refNear(song.line, k, midi - 12 * singOct(), semis);
-            const c = Math.round(fold(midi - 12 * singOct() - (near + semis)) * 100);
-            $("liveNote").textContent = noteName(midi);
-            $("liveCents").textContent = (c > 0 ? "+" : c < 0 ? "−" : "±") + Math.abs(c) + "¢";
-          } else {
-            $("liveNote").textContent = noteName(midi);
-            $("liveCents").textContent = "";
-          }
-        }
-        take.lastK = k;
-        take.lastV = midi;
+        const line = new Float32Array(frames).fill(NaN), covered = new Uint8Array(frames);
+        return { line: line, covered: covered, rawLine: line, rawCovered: covered, audio: null, start: pos, semis: semis, singOct: null, gain: 1, lat: latencyMs(), shift: 0 };
       }
       function recordBlock(m, step) {
         const lat = latencySec();
@@ -2278,7 +2253,7 @@
           a[j] = v >= 1 ? 32767 : v <= -1 ? -32768 : Math.round(v * 32767);
         }
         const k0 = Math.max(0, Math.round((base / SR) * FPS)), k1 = Math.min(take.covered.length - 1, Math.round(((base + m.data.length * step) / SR) * FPS));
-        for (let k = k0; k <= k1; k++) take.covered[k] = 1;
+        for (let k = k0; k <= k1; k++) take.rawCovered[k] = 1;
       }
 
       async function startSinging() {
@@ -2325,24 +2300,81 @@
         draw();
       });
 
-      function finishTake(show) {
+      async function finishTake(show) {
+        const tk = take;
         // Your recording's level, so it plays about as loud as the singer
-        if (take.audio) {
+        if (tk.audio) {
           let peak = 0;
-          for (let i = 0; i < take.audio.length; i += 4) { const v = Math.abs(take.audio[i]); if (v > peak) peak = v; }
-          take.gain = peak > 0 ? Math.min(8, (0.7 * 32768) / peak) : 1;
+          for (let i = 0; i < tk.audio.length; i += 4) { const v = Math.abs(tk.audio[i]); if (v > peak) peak = v; }
+          tk.gain = peak > 0 ? Math.min(8, (0.7 * 32768) / peak) : 1;
         }
-        take.kept = false;
+        tk.kept = false;
         reviewVocalMute = true;
         loadTracks(true);
-        if (show) showResults();
+        if (show) { tk.busy = true; showResults(); }
+        await findTakeLine(tk);
+        if (take !== tk) return;
+        tk.busy = false;
+        applyShift();
+        if (show || !$("results").hidden) showResults();
       }
-      function restoreTake(saved) {
-        take = { line: saved.line, covered: saved.covered, audio: saved.audio ? toShared(saved.audio) : null, start: saved.start, semis: saved.semis, singOct: saved.singOct, diffs: [], gain: saved.gain || 1, kept: true };
+      async function restoreTake(saved) {
+        const covered = saved.covered;
+        const tk = { line: saved.line, covered: covered, rawLine: saved.line, rawCovered: covered, audio: saved.audio ? toShared(saved.audio) : null, start: saved.start, semis: saved.semis, singOct: null, gain: saved.gain || 1, lat: saved.lat != null ? saved.lat : latencyMs(), shift: 0, kept: true };
+        take = tk;
         reviewVocalMute = true;
         loadTracks(true);
+        // Kept before your pitch was made into note bars (no v): found again from the recording
+        if (saved.v !== TAKE_V && tk.audio) { tk.busy = true; showResults(); await findTakeLine(tk); if (take !== tk) return; tk.busy = false; }
+        applyShift();
         showResults();
       }
+      // Your pitch from the recording, as note bars like the original melody (pitch.js: findPitch, toBars),
+      // over the part you sang (half a second either side, so a note at the edge is found whole)
+      const TAKE_V = 2;
+      async function findTakeLine(tk) {
+        const n = tk.rawCovered.length;
+        const line = new Float32Array(n).fill(NaN);
+        let a = -1, z = -1;
+        for (let k = 0; k < n; k++) if (tk.rawCovered[k]) { if (a < 0) a = k; z = k; }
+        if (a >= 0 && tk.audio) {
+          try {
+            const mod = await import(new URL("pitch.js", document.baseURI).href);
+            await new Promise(function (r) { setTimeout(r, 30); }); // let "Finding your notes…" show first
+            const per = SR / FPS; // 441 samples a frame
+            const k0 = Math.max(0, a - 50), k1 = Math.min(n, z + 51);
+            const seg = tk.audio.subarray(k0 * per, Math.min(tk.audio.length, k1 * per));
+            const bars = mod.toBars(mod.findPitch(seg, seg));
+            for (let k = 0; k < bars.length && k0 + k < n; k++) if (tk.rawCovered[k0 + k]) line[k0 + k] = bars[k];
+          } catch (e) {
+            console.warn("Your pitch", e);
+          }
+        }
+        tk.rawLine = line;
+      }
+      // Your line and frames at the song's time (moved by the change of the delay correction), your octave, and
+      // the recording's position
+      function applyShift() {
+        const tk = take;
+        tk.shift = tk.lat - latencyMs();
+        const f = Math.round((tk.shift / 1000) * FPS);
+        const n = tk.rawLine.length;
+        tk.line = new Float32Array(n).fill(NaN);
+        tk.covered = new Uint8Array(n);
+        for (let k = Math.max(0, f); k < Math.min(n, n + f); k++) { tk.line[k] = tk.rawLine[k - f]; tk.covered[k] = tk.rawCovered[k - f]; }
+        // Your octave: the median of the differences from the melody where both sing
+        const d = [];
+        for (let k = 0; k < n; k++) {
+          const u = tk.line[k], r = song && song.line[k];
+          if (!isNaN(u) && r !== undefined && !isNaN(r)) d.push(u - (r + tk.semis));
+        }
+        tk.singOct = d.length >= 30 ? Math.max(-2, Math.min(2, Math.round(median(d) / 12))) : null;
+        renderOct();
+        sendOffsets();
+      }
+      function shiftSamples() { return take ? Math.round((take.shift / 1000) * SR) : 0; }
+      function mineAt(j) { const i = j - shiftSamples(); return i >= 0 && i < take.audio.length ? take.audio[i] : 0; }
+      function sendOffsets() { if (node) node.port.postMessage({ type: "offsets", offsets: [0, 0, shiftSamples()] }); }
 
       // ---------- Results ----------
       function analyzeTake() {
@@ -2408,9 +2440,18 @@
       }
       function showResults() {
         if (!take || !song) return;
-        const r = analyzeTake();
         $("results").hidden = false;
         setReviewing(true);
+        renderLatency();
+        if (take.busy) {
+          ["resMatch", "resSung", "resBias"].forEach(function (id) { $(id).textContent = "…"; });
+          $("resNote").textContent = t("res.busy");
+          $("worst").textContent = "";
+          ["keepBtn", "wavBtn", "mp3Btn"].forEach(function (id) { $(id).disabled = true; });
+          draw();
+          return;
+        }
+        const r = analyzeTake();
         $("resMatch").textContent = r.U ? Math.round((r.green / r.U) * 100) + "%" : "–";
         $("resSung").textContent = r.R ? Math.round((r.U / r.R) * 100) + "%" : "–";
         const b = Math.round(r.bias);
@@ -2448,12 +2489,12 @@
         play();
       });
       $("keepBtn").addEventListener("click", async function () {
-        if (!take || !take.audio || !song || song.demo) return;
+        if (!take || !take.audio || take.busy || !song || song.demo) return;
         try {
           const rec = await dbGet("songs", song.hash);
           const info = await dbGet("index", song.hash);
           if (!rec || !info) throw new Error("song not saved");
-          rec.take = { line: take.line, covered: take.covered, audio: plain(take.audio), start: take.start, semis: take.semis, singOct: take.singOct, gain: take.gain };
+          rec.take = { v: TAKE_V, line: take.rawLine, covered: take.rawCovered, lat: take.lat, audio: plain(take.audio), start: take.start, semis: take.semis, gain: take.gain };
           info.take = true;
           info.bytes = pcmBytes(rec.stems.map(function (s) { return [s[0], s[1] || s[0]]; })) + take.audio.length * 2;
           await dbPut([["songs", rec], ["index", info]]);
@@ -2479,7 +2520,7 @@
         dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true); dv.setUint32(24, SR, true);
         dv.setUint32(28, SR * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true); str(36, "data"); dv.setUint32(40, n * 2, true);
         const g = take.gain;
-        for (let i = 0; i < n; i++) dv.setInt16(44 + i * 2, Math.max(-32768, Math.min(32767, Math.round(take.audio[s0 + i] * g))), true);
+        for (let i = 0; i < n; i++) dv.setInt16(44 + i * 2, Math.max(-32768, Math.min(32767, Math.round(mineAt(s0 + i) * g))), true);
         const name = baseName() + "-my-voice.wav";
         saveBlob(name, new Blob([buf], { type: "audio/wav" }));
       });
@@ -2559,12 +2600,12 @@
         try {
           const n = span.s1 - span.s0;
           const a = ga, g = gm;
-          const acc = cur[1], voc = cur[0], mine = take.audio;
+          const acc = cur[1], voc = cur[0];
           const L = new Float32Array(n), R = new Float32Array(n);
           let peak = 1;
           for (let i = 0; i < n; i++) {
             const j = span.s0 + i;
-            const me = mine[j] * g;
+            const me = mineAt(j) * g;
             let l = acc[0][j] * a + me, r = acc[1][j] * a + me;
             if (withOrig) { l += voc[0][j] * gv; r += voc[1][j] * gv; }
             L[i] = l; R[i] = r;
@@ -2625,7 +2666,7 @@
           for (let j = 0; j < n[1] - 6; j++) {
             if (!n[0]) continue;
             line[k + j] = n[0];
-            mine[k + j + 4] = n[0] + (i % 4 === 2 ? 0.9 : i % 3 === 1 ? 0.45 : 0.1) * Math.sin(j / 9) + (j < 10 ? (j - 10) / 12 : 0);
+            mine[k + j + 4] = n[0] + (i % 4 === 2 ? 0.9 : i % 3 === 1 ? 0.45 : 0.1);
           }
           k += n[1];
         });
@@ -2806,27 +2847,45 @@
           }
           k = e;
         }
-        // Your line, coloured by how far it is from the note
+        // Your notes (found from the recording when you stop): bars like the melody's, thinner, on top. A bar
+        // sits as far above or below the grey bar as you were (an octave away from your chosen octave is shown
+        // next to the note), coloured by how far that is.
         if (mine) {
-          c.lineCap = "round"; c.lineJoin = "round";
-          c.lineWidth = 3;
-          let prev = null;
-          for (let k = k0; k <= k1; k++) {
+          const uh = Math.max(4, Math.round(barH * 0.5));
+          const at = function (k) {
             const u = mine[k];
-            if (isNaN(u)) { prev = null; continue; }
+            if (isNaN(u)) return null;
             const shown = u - 12 * oct;
-            const x = xOf(k / FPS);
-            // Shown near the bar when you sing an octave away from your chosen octave
             const r = ghost ? line[k] : refNear(line, k, shown, tsh);
-            const ref = isNaN(r) ? NaN : r + tsh;
+            if (isNaN(r)) return { y: yOf(shown + sh - tsh), col: "#a3a3a3" };
+            const d = fold(shown - (r + tsh));
             // Drawn against the bars as shown now (a kept take may have been sung in another key)
-            const y = yOf(isNaN(ref) ? shown + sh - tsh : Math.round(r) + sh + fold(shown - ref));
-            const col = isNaN(ref) ? "#737373" : colorOf(fold(shown - ref) * 100);
-            if (prev) {
-              c.strokeStyle = col;
-              c.beginPath(); c.moveTo(prev[0], prev[1]); c.lineTo(x, y); c.stroke();
+            return { y: yOf(Math.round(r) + sh + d), col: colorOf(d * 100) };
+          };
+          for (let k = k0; k <= k1; ) {
+            const p = at(k);
+            if (!p) { k++; continue; }
+            // one bar while it stays at the same height; its colour can change along it (the grey bar it is
+            // judged against changes)
+            const runs = [[k, p.col]];
+            let e = k + 1;
+            for (; e < mine.length && e <= k1 + 1; e++) {
+              const q = at(e);
+              if (!q || Math.abs(q.y - p.y) > 0.5) break;
+              if (q.col !== runs[runs.length - 1][1]) runs.push([e, q.col]);
             }
-            prev = [x, y];
+            const x0 = xOf(k / FPS) + 1, x1 = xOf(e / FPS) - 1, y0 = p.y - uh / 2;
+            c.save();
+            c.beginPath();
+            if (c.roundRect) c.roundRect(x0, y0, Math.max(2, x1 - x0), uh, uh / 2); else c.rect(x0, y0, Math.max(2, x1 - x0), uh);
+            c.clip();
+            runs.forEach(function (run, i) {
+              const xa = xOf(run[0] / FPS), xb = i + 1 < runs.length ? xOf(runs[i + 1][0] / FPS) : x1 + 1;
+              c.fillStyle = run[1];
+              c.fillRect(xa, y0, xb - xa + 0.5, uh);
+            });
+            c.restore();
+            k = e;
           }
         }
         // Before the singing starts (intro, interludes): how long until it does
@@ -3088,6 +3147,8 @@
         const v = store.latency != null ? store.latency : autoLatency();
         $("latency").value = v;
         $("latencyVal").textContent = v + " ms";
+        $("takeLatency").value = v;
+        $("takeLatencyVal").textContent = v + " ms";
         $("latencyNote").textContent = t(store.latency == null ? "set.delay.auto" : store.latencySrc === "measured" ? "set.delay.measured" : "set.delay.manual");
       }
       function renderSettings() {
@@ -3099,7 +3160,17 @@
         renderLatency();
       }
       $("strictSel").addEventListener("change", function () { store.strict = this.value; saveState(); renderSettings(); if (take && !$("results").hidden) showResults(); draw(); });
-      $("latency").addEventListener("input", function () { store.latency = Number(this.value); store.latencySrc = "manual"; saveState(); renderLatency(); });
+      // The delay correction in the settings and on the results are the same; a change moves the take shown
+      function setLatency(ms, src) {
+        store.latency = ms; store.latencySrc = src; saveState();
+        renderLatency();
+        if (take && !take.busy && !singing) {
+          applyShift();
+          if (!$("results").hidden) showResults(); else draw();
+        }
+      }
+      $("latency").addEventListener("input", function () { setLatency(Number(this.value), "manual"); });
+      $("takeLatency").addEventListener("input", function () { setLatency(Number(this.value), "manual"); });
       [["micNs", "ns"], ["micEc", "ec"], ["micAgc", "agc"]].forEach(function (p) {
         $(p[0]).addEventListener("change", function () { store[p[1]] = this.checked; saveState(); });
       });
@@ -3130,8 +3201,7 @@
           });
           if (gaps.length < 4) { $("calibState").textContent = t("calib.fail"); return; }
           const ms = Math.max(0, Math.min(500, Math.round((median(gaps) / rate) * 1000)));
-          store.latency = ms; store.latencySrc = "measured"; saveState();
-          renderLatency();
+          setLatency(ms, "measured");
           $("calibState").textContent = t("calib.done", { ms: ms });
         }, (0.8 + 8 * 0.75 + 1) * 1000);
       });

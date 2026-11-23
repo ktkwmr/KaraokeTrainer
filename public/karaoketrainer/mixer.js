@@ -10,6 +10,8 @@
 //   { type: "load", tracks, keep? }   (keep: same song, keep the position and play state)
 //   { type: "play" } / { type: "pause" } / { type: "seek", pos }  (pos in 44.1 kHz samples)
 //   { type: "gains", gains: [n] }
+//   { type: "offsets", offsets: [n] }  (samples a track is played later (+) or earlier (−); your recording's
+//      position, nudged on the results)
 //   { type: "mic", on }     (send microphone blocks to the page)
 //   { type: "clicks", count, interval, start }  (calibration clicks, seconds; start: delay before the first)
 // Messages to the page:
@@ -34,6 +36,7 @@ class Player extends AudioWorkletProcessor {
     this.step = SRC_RATE / sampleRate;
     this.target = new Float32Array(MAX).fill(1);
     this.cur = new Float32Array(MAX).fill(1);
+    this.off = new Int32Array(MAX);
     this.frames = 0;
     this.reportAt = 0;
     this.mic = false;
@@ -74,6 +77,8 @@ class Player extends AudioWorkletProcessor {
       this.report();
     } else if (msg.type === "gains") {
       for (let s = 0; s < MAX; s++) this.target[s] = msg.gains[s] == null ? 0 : msg.gains[s];
+    } else if (msg.type === "offsets") {
+      for (let s = 0; s < MAX; s++) this.off[s] = Math.round(msg.offsets[s] || 0);
     } else if (msg.type === "mic") {
       this.mic = !!msg.on;
       this.micFill = 0;
@@ -119,8 +124,10 @@ class Player extends AudioWorkletProcessor {
           const g = this.cur[s] / 32768;
           if (g === 0) continue;
           const L = this.tracks[s][0], R = this.tracks[s][1] || L;
-          l += (L[p] + (L[p + 1] - L[p]) * f) * g;
-          r += (R[p] + (R[p + 1] - R[p]) * f) * g;
+          const q = p - this.off[s];
+          if (q < 0 || q >= L.length - 1) continue;
+          l += (L[q] + (L[q + 1] - L[q]) * f) * g;
+          r += (R[q] + (R[q + 1] - R[q]) * f) * g;
         }
         this.pos += this.step;
         if (this.pos >= last) { this.pos = last; ended = true; }
