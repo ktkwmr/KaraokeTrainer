@@ -409,7 +409,6 @@
               <button class="chip" id="keepBtn" type="button" data-i18n="res.keep">この録音を残す</button>
               <button class="chip" id="mp3Btn" type="button" data-i18n="res.mp3">曲と一緒に保存（MP3）</button>
               <button class="chip" id="wavBtn" type="button" data-i18n="res.wav">自分の声だけ保存（WAV）</button>
-              <button class="chip" id="resClose" type="button" data-i18n="res.close">閉じる</button>
             </div>
             <p class="hint" id="mp3Note" data-i18n="res.mp3.note">「曲と一緒に保存」は、聞こえている音量のまま、あなたの声と伴奏を（原曲のボーカルをオンにしているときはそれも）1つの MP3 にします。曲が入っているので、自分の練習用だけに使い、投稿・共有はしないでください。</p>
           </div>
@@ -736,7 +735,6 @@
           "use.title": "For your personal use only",
           "use.body": "This MP3 contains the song's accompaniment with your voice. The rights to the song belong to its rights holders, so use the file only to listen back to your own practice. Do not upload it to video or social media sites, send it to others, or distribute it. The file is saved only on this device.",
           "use.ok": "I understand, save",
-          "res.close": "Close",
           "cmp.play": "Play from the start of the take",
           "cmp.hint": "Set the volumes below. The original vocal starts muted; turn it on to hear it with your voice.",
           "vol.vocal": "Vocal",
@@ -972,7 +970,6 @@
           "use.title": "個人の練習用にだけ使ってください",
           "use.body": "この MP3 には、曲の伴奏とあなたの声が入っています。曲の権利は権利者にあるので、ファイルは自分の練習を聴き返すためだけに使ってください。動画サイトや SNS への投稿、ほかの人に送ること、配布はしないでください。ファイルはこの端末にだけ保存されます。",
           "use.ok": "わかったうえで保存",
-          "res.close": "閉じる",
           "cmp.play": "録音の最初から再生",
           "cmp.hint": "音量は下のスライダーで。原曲のボーカルは最初はミュートです。オンにすると自分の声と重ねて聴けます。",
           "vol.vocal": "ボーカル",
@@ -2452,7 +2449,6 @@
         seekTo(take.start / SR);
         play();
       });
-      $("resClose").addEventListener("click", function () { $("results").hidden = true; setReviewing(false); draw(); });
       $("keepBtn").addEventListener("click", async function () {
         if (!take || !take.audio || !song || song.demo) return;
         try {
