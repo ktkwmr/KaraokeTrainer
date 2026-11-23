@@ -88,7 +88,7 @@ export default {
   <li><b>Average</b> – whether you tend to be higher (+) or lower (−) than the melody, in cents.</li>
   <li><b>Where it went off</b> – the phrases that were furthest off, with how far and in which direction. <b>Tap one</b> and the song plays from a second before that phrase, so you can sing it again right away.</li>
   <li><b>Listen and compare</b> – while the results are open, a “My voice” slider appears under “Vocal” and “Accompaniment”, so you can set each volume and mute each one. The original vocal starts muted after you sing; turn it on to hear it with your voice. “Play from the start of the take” plays from where you started singing.</li>
-  <li><b>Recording position</b> – if your recording came out a little late or early (your bars sit to the right or left of the grey bars, and your voice sounds behind or ahead of the accompaniment), move it with the slider or − / + (10 ms a step, up to ±1 s). The bars, the numbers, what you hear, and the saved files follow it.</li>
+  <li><b>Delay correction</b> – the same slider as in Settings. If your bars sit to the right of the grey bars (your voice sounds behind the accompaniment), make it larger; if to the left, smaller. Your bars, the numbers, what you hear, and the saved files move with it, and your next takes use the new value too.</li>
   <li><b>Keep this recording</b> keeps it on this device with the song. Otherwise the recording is gone when you sing again.</li>
   <li><b>Save with the song (MP3)</b> saves your voice with the accompaniment as one MP3 file (192 kbps): at the volumes you hear, with the original vocal too when it is on. It covers the part you sang. <b>Save my voice only (WAV)</b> saves just your voice.</li>
 </ul>
@@ -122,7 +122,7 @@ export default {
     </tbody>
   </table>
 </div>
-<p><b>Delay correction:</b> every device takes a moment to play the sound and to hear the microphone (Bluetooth headphones much more). The app subtracts this delay. If your bars are later than the melody even when you sing in time, move one take with “Recording position” on the results, or, to fix it for every take, press <b>“Measure the delay”</b> and say “ta” with each of the 8 beeps, or move the slider by hand.</p>
+<p><b>Delay correction:</b> every device takes a moment to play the sound and to hear the microphone (Bluetooth headphones much more). The app subtracts this delay. If your bars are later than the melody even when you sing in time, move the slider on the results until they sit on the grey bars, or press <b>“Measure the delay”</b> and say “ta” with each of the 8 beeps, or move the slider by hand.</p>
 <p><b>Microphone:</b> noise suppression, echo cancellation, and automatic gain are off by default, because they can cut or change parts of the voice and make the pitch harder to follow. Turn on echo cancellation only if you must use a speaker.</p>
 
 <h2 id="phone">On a phone or tablet</h2>
@@ -211,7 +211,7 @@ export default {
   <li><b>平均</b> ― メロディより高め（＋）か低め（−）かの傾向（セント）。</li>
   <li><b>ズレが大きかったところ</b> ― 一番ズレたフレーズと、どれだけ・どちらにズレたか。<b>タップすると</b>、そのフレーズの1秒前から曲が流れるので、すぐに歌い直せます。</li>
   <li><b>聴き比べ</b> ― 答え合わせを開いている間は「ボーカル」「伴奏」の下に「自分の声」のスライダーが出て、それぞれの音量とミュートを別々に変えられます。歌い終わった直後は原曲のボーカルがミュートです。オンにすると自分の声と重ねて聴けます。「録音の最初から再生」で、歌いはじめた位置から再生します。</li>
-  <li><b>録音の位置</b> ― 録音が少し遅れたり早まったりしたとき（あなたのバーがグレーのバーより右や左にあり、声が伴奏より遅れて・先に聞こえる）は、スライダーか − / ＋ で前後に動かせます（1回10ミリ秒、最大±1秒）。バー・数字・聞こえる音・保存するファイルも一緒に動きます。</li>
+  <li><b>遅延の補正</b> ― 設定と同じスライダーです。あなたのバーがグレーのバーより右にある（声が伴奏より遅れて聞こえる）ときは大きく、左にあるときは小さくします。バー・数字・聞こえる音・保存するファイルが一緒に動き、次に歌うときもこの値を使います。</li>
   <li><b>この録音を残す</b>で、曲と一緒にこの端末に保存します。しなければ、もう一度歌うと録音は消えます。</li>
   <li><b>曲と一緒に保存（MP3）</b>で、あなたの声と伴奏を 1 つの MP3 ファイル（192 kbps）にします。聞こえている音量のままで、原曲のボーカルをオンにしているときはそれも入ります。保存するのは歌った範囲です。<b>自分の声だけ保存（WAV）</b>は、あなたの声だけを保存します。</li>
 </ul>
@@ -245,7 +245,7 @@ export default {
     </tbody>
   </table>
 </div>
-<p><b>遅延の補正：</b>どの端末でも、音を出すのとマイクで聞くのに少し時間がかかります（Bluetooth のヘッドホンではずっと長くなります）。アプリはこの遅れを差し引いて録音します。合わせて歌ったのにバーがメロディより遅れて表示されるときは、その録音だけなら答え合わせの「録音の位置」で動かし、毎回直すなら<b>「遅延を測る」</b>を押して8回の「ピッ」に合わせて「タッ」と声を出すか、スライダーで調整してください。</p>
+<p><b>遅延の補正：</b>どの端末でも、音を出すのとマイクで聞くのに少し時間がかかります（Bluetooth のヘッドホンではずっと長くなります）。アプリはこの遅れを差し引いて録音します。合わせて歌ったのにバーがメロディより遅れて表示されるときは、答え合わせのスライダーでバーが重なるまで動かすか、<b>「遅延を測る」</b>を押して8回の「ピッ」に合わせて「タッ」と声を出すか、スライダーで調整してください。</p>
 <p><b>マイク：</b>ノイズ抑制・エコーキャンセル・自動音量調整は、最初はオフです。声の一部を消したり変えたりして、音程を追いにくくすることがあるためです。どうしてもスピーカーを使うときだけ、エコーキャンセルをオンにしてください。</p>
 
 <h2 id="phone">スマホ・タブレットで使う</h2>

@@ -48,7 +48,7 @@ const EN = [
   },
   {
     q: "My bars are later than the melody.",
-    a: "Every device takes a little time to play sound and to hear the microphone; Bluetooth headphones take more. Use Settings → “Measure the delay” (say “ta” with each beep), or move the slider until your bars sit on the melody when you sing in time. For one take, move it with “Recording position” on the results (in 10 ms steps); the bars, the score, and what you hear follow.",
+    a: "Every device takes a little time to play sound and to hear the microphone; Bluetooth headphones take more. Use Settings → “Measure the delay” (say “ta” with each beep), or move the slider until your bars sit on the melody when you sing in time. The same slider is also on the results after you sing: your bars, the score, and what you hear move with it.",
   },
   {
     q: "The grey line is missing or wrong in some places.",
@@ -128,7 +128,7 @@ const JA = [
   },
   {
     q: "自分のバーがメロディより遅れて表示されます。",
-    a: "どの端末でも、音を出すのとマイクで聞くのに少し時間がかかり、Bluetooth のヘッドホンではさらに遅れます。設定の「遅延を測る」（「ピッ」に合わせて「タッ」と声を出す）を使うか、合わせて歌ったときにバーがメロディに重なるまでスライダーを動かしてください。その録音だけなら、答え合わせの「録音の位置」で前後に動かせます（10ミリ秒ずつ）。バー・判定・聞こえる音も一緒に動きます。",
+    a: "どの端末でも、音を出すのとマイクで聞くのに少し時間がかかり、Bluetooth のヘッドホンではさらに遅れます。設定の「遅延を測る」（「ピッ」に合わせて「タッ」と声を出す）を使うか、合わせて歌ったときにバーがメロディに重なるまでスライダーを動かしてください。同じスライダーは歌ったあとの答え合わせにもあり、動かすとバー・判定・聞こえる音も一緒に動きます。",
   },
   {
     q: "グレーの線がないところや、おかしいところがあります。",
