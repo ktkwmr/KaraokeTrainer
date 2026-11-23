@@ -41,7 +41,7 @@ export default {
 <ul>
   <li><b>The AI model:</b> the model files (about ${MODEL_MB} MB) downloaded the first time you load a song, so they are not downloaded again.</li>
   <li><b>Songs you loaded:</b> the separated vocals and accompaniment, the melody line, the file name, and the length of the last songs you loaded (up to ${KEEP_SONGS}), so they open at once next time, even offline. Your original file is not copied.</li>
-  <li><b>Your last take of each song:</b> kept with the song each time you stop singing, replacing the one before. “Delete my voice” on the results deletes it.</li>
+  <li><b>Your last take of each song:</b> kept with the song each time you stop singing, replacing the one before. “Delete the recording” (next to “Sing”) deletes it.</li>
   <li><b>Your vocal range:</b> only if you measure it (the lowest and highest notes).</li>
   <li><b>Settings:</b> the vocal and accompaniment levels, how strict the judging is, the delay correction, the microphone options, and whether to show the headphones notice. While a song is being separated, a short note of the progress is kept, so that if the page closes unexpectedly the app can tell you where it stopped.</li>
   <li><b>App files:</b> the pages and files of this site and the ONNX Runtime library, so the app works offline.</li>
@@ -108,7 +108,7 @@ export default {
 <ul>
   <li><b>AI モデル：</b>次から再びダウンロードしなくて済むよう、初めて曲を読み込んだときにダウンロードしたモデルのファイル（約 ${MODEL_MB} MB）を保存します。</li>
   <li><b>読み込んだ曲：</b>次からすぐに（オフラインでも）開けるよう、最近読み込んだ曲（${KEEP_SONGS} 曲まで）の分離したボーカルと伴奏、メロディの線、ファイル名、長さを保存します。元のファイルはコピーしません。</li>
-  <li><b>各曲の直前の録音：</b>歌い終わるたびに曲と一緒に保存し、前の録音と置き換えます。答え合わせの「自分の声を削除」で消せます。</li>
+  <li><b>各曲の直前の録音：</b>歌い終わるたびに曲と一緒に保存し、前の録音と置き換えます。「歌う」の横の「録音を削除」で消せます。</li>
   <li><b>マイ音域：</b>測った場合だけ（一番低い音と一番高い音）。</li>
   <li><b>設定：</b>ボーカルと伴奏の音量、判定の厳しさ、遅延の補正、マイクの設定、ヘッドホンの案内を表示するかどうか。分離の途中は、予期せずページが閉じたときにどこで止まったかを伝えられるよう、進み具合を短く記録します。</li>
   <li><b>アプリのファイル：</b>オフラインでも使えるよう、本サイトのページやファイルと ONNX Runtime のライブラリを保存します。</li>

@@ -87,10 +87,18 @@ await page.click("#singBtn");
 await page.waitForSelector("#results:not([hidden])");
 // Your notes are found from the recording after you stop
 await page.waitForFunction(() => document.querySelector("#resMatch").textContent !== "…", null, { timeout: 30000 });
-const oct = await page.textContent("#octSel option[value=auto]");
+// Your octave is found by itself (no menu): read from the take kept on this device
+const oct = await page.evaluate(() => new Promise((res) => {
+  const tryRead = () => {
+    const r = indexedDB.open("karaoketrainer");
+    r.onsuccess = () => { const g = r.result.transaction("takes").objectStore("takes").getAll(); g.onsuccess = () => { r.result.close(); if (g.result.length) res(g.result[0].take.singOct); else setTimeout(tryRead, 200); }; };
+  };
+  tryRead();
+}));
 const res = await page.evaluate(() => ({ match: document.querySelector("#resMatch").textContent, bias: document.querySelector("#resBias").textContent, note: document.querySelector("#resNote").textContent, worst: document.querySelector("#worst").innerText }));
 console.log("     results:", JSON.stringify(res), "octave:", oct);
-if (/lower/.test(oct)) ok("octave detected as lower"); else fail("octave not detected as lower: " + oct);
+const noOctMenu = await page.evaluate(() => !document.querySelector("#octSel, #prevBtn"));
+if (oct === -1 && noOctMenu) ok("octave detected as lower (no octave menu, no \"See the last take\")"); else fail("octave: " + JSON.stringify({ oct, noOctMenu }));
 if (parseInt(res.match) >= 50) ok("on pitch " + res.match); else fail("on pitch low: " + res.match);
 if (/−/.test(res.bias)) ok("flat bias seen: " + res.bias); else fail("expected a flat bias: " + res.bias);
 if (SHOTS) await page.screenshot({ path: join(SHOTS, "3-results.png"), fullPage: true });
@@ -111,11 +119,11 @@ const pxBack = await rollPx();
 if (moved.val === "500 ms" && !moved.inSettings && moved.calibHere && pxMoved !== px0 && pxBack === px0 && back === res.match) ok(`delay correction on the results: ${delay0} → 500 ms: line moved (${moved.match}), back: ${back}`);
 else fail("delay correction on the results: " + JSON.stringify({ delay0, moved, back, before: res.match, lineMoved: pxMoved !== px0, lineBack: pxBack === px0 }));
 
-// Compare: plays with your recording
-await page.click("#cmpPlay");
+// Review: plays with your recording (no compare / WAV buttons); "Delete the recording" sits in the sing row
+await page.click("#playBtn");
 await page.waitForTimeout(800);
-const mix = await page.evaluate(() => ({ mine: !document.querySelector("#mineVol").hidden, vocalMuted: document.querySelector("#vocalMute").getAttribute("aria-pressed") }));
-if (mix.mine && mix.vocalMuted === "true") ok("review: my voice slider shown, original vocal muted"); else fail("review mix: " + JSON.stringify(mix));
+const mix = await page.evaluate(() => ({ mine: !document.querySelector("#mineVol").hidden, vocalMuted: document.querySelector("#vocalMute").getAttribute("aria-pressed"), gone: !document.querySelector("#cmpPlay, #wavBtn"), del: !document.querySelector("#delTakeBtn").hidden && !!document.querySelector("#delTakeBtn").closest(".row #singBtn ~ #delTakeBtn, .row") && document.querySelector("#delTakeBtn").parentElement === document.querySelector("#singBtn").parentElement }));
+if (mix.mine && mix.vocalMuted === "true" && mix.gone && mix.del) ok("review: my voice slider shown, original vocal muted, no compare / WAV, delete next to Sing"); else fail("review mix: " + JSON.stringify(mix));
 await page.click("#vocalMute"); // the original vocal on: it goes into the MP3 too
 await page.click("#playBtn");
 
@@ -134,7 +142,7 @@ const tagged = mp3.subarray(0, 3).toString() === "ID3";
 const tagSize = (mp3[6] << 21) | (mp3[7] << 14) | (mp3[8] << 7) | mp3[9];
 const frame = mp3[10 + tagSize] === 0xff && (mp3[11 + tagSize] & 0xe0) === 0xe0;
 const comment = mp3.subarray(0, 10 + tagSize).toString("utf16le").includes("personal use");
-if (/original vocal/.test(what)) ok("MP3 mix follows the mutes: " + what); else fail("MP3 mix without the original vocal: " + what);
+if (/^0:20 · vocal \+ accompaniment \+ your voice/.test(what)) ok("MP3: the whole song (0:20), mix follows the mutes: " + what); else fail("MP3 mix: " + what);
 if (tagged && frame && comment && mp3.length > 20000) ok(`MP3 saved: ${download.suggestedFilename()} (${(mp3.length / 1024).toFixed(0)} KB, ${what})`);
 else fail(`MP3: tag ${tagged}, frame ${frame}, comment ${comment}, ${mp3.length} bytes`);
 await page.click("#playBtn"); // play again
@@ -151,6 +159,23 @@ await page.click("#keyUp");
 await page.click("#keyUp");
 await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
 ok("key " + (await page.textContent("#keyVal")));
+// In another key than the take: my voice is shifted to it too (a note while it is made), then saved with it;
+// muted, the mix is saved without it
+{
+  await page.waitForFunction(() => document.querySelector("#cmpTempo").hidden && document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
+  await page.click("#mp3Btn");
+  await page.waitForSelector("#useDlg[open]");
+  const w1 = await page.textContent("#useWhat");
+  const [d1] = await Promise.all([page.waitForEvent("download", { timeout: 60000 }), page.click("#useOk")]);
+  await page.click("#mineMute");
+  await page.click("#mp3Btn");
+  await page.waitForSelector("#useDlg[open]");
+  const w = await page.textContent("#useWhat");
+  const [d] = await Promise.all([page.waitForEvent("download", { timeout: 60000 }), page.click("#useOk")]);
+  await page.click("#mineMute");
+  if (/your voice/.test(w1) && /my-singing-personal-use\.mp3$/.test(d1.suggestedFilename()) && !/your voice/.test(w) && /mix-personal-use\.mp3$/.test(d.suggestedFilename())) ok(`key +2: my voice shifted and saved (${w1}); muted: ${d.suggestedFilename()} (${w})`);
+  else fail("MP3 in another key: " + JSON.stringify({ w1, n1: d1.suggestedFilename(), w, name: d.suggestedFilename() }));
+}
 
 // Double tap (double click) on a volume slider: back to 100%
 await page.evaluate(() => { const r = document.querySelector("#accVol"); r.value = 30; r.dispatchEvent(new Event("input")); });
@@ -173,9 +198,17 @@ await page.click("#keyDown");
 await page.click("#keyDown");
 await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
 const len100 = await mp3Size();
-await page.click("#tempoDown");
-await page.click("#tempoDown");
+// The tempo slider dragged from 100% to 90% in 1% steps: the stems (and my voice) are made once, after it stops
+let started = 0;
+page.on("worker", (w) => { if (/keyshift\.js/.test(w.url())) started++; });
+await page.evaluate(async () => {
+  const r = document.querySelector("#tempoRange");
+  for (let v = 99; v >= 90; v--) { r.value = v; r.dispatchEvent(new Event("input")); await new Promise((f) => setTimeout(f, 40)); }
+});
+const busyNow = await page.evaluate(() => !document.querySelector("#keyBusy").hidden && document.querySelector("#keyBusy").closest(".tempo") !== null);
 await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
+if (busyNow && started === 3) ok("tempo slider 100 → 90% in 1% steps: made once (" + started + " workers: 2 stems + my voice), message in the tempo row");
+else fail("tempo slider: " + JSON.stringify({ busyNow, started }));
 {
   await page.waitForFunction(() => document.querySelector("#cmpTempo").hidden, null, { timeout: 60000 });
   const st = await page.evaluate(() => document.querySelector("#tempoVal").textContent);
@@ -184,6 +217,7 @@ await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null
   const len90 = await mp3Size();
   const ratio = len90 / len100;
   if (ratio > 1.06 && ratio < 1.16) ok(`MP3 at 90%: ${ratio.toFixed(3)}× the length at 100%`); else fail(`MP3 at 90%: ${len90} bytes, at 100% ${len100}`);
+  await page.evaluate(() => { const r = document.querySelector("#seek"); r.value = 0; r.dispatchEvent(new Event("change")); });
   const t0 = await page.evaluate(() => document.querySelector("#timeNow").textContent);
   const p0 = await page.evaluate(() => Number(document.querySelector("#seek").value));
   if (!(await page.evaluate(() => document.querySelector("#playBtn").title === "Pause"))) await page.click("#playBtn");
@@ -199,14 +233,22 @@ await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null
   await page.click("#singBtn");
   await page.waitForSelector("#results:not([hidden])");
   const after = await page.evaluate(() => ({ note: !document.querySelector("#cmpTempo").hidden, match: document.querySelector("#resMatch").textContent, up: document.querySelector("#tempoUp").disabled }));
-  if (dis && !after.note && !after.up && after.match !== "–") ok(`take at 90%: tempo locked while singing, my voice plays, ${after.match} on pitch`); else fail("take at 90%: " + JSON.stringify({ dis, after }));
+  // (the fake voice plays at its own speed, not with the song at 90%, so the score itself means nothing here)
+  if (dis && !after.note && !after.up) ok(`take at 90%: tempo locked while singing, my voice plays (${after.match})`); else fail("take at 90%: " + JSON.stringify({ dis, after }));
   await page.waitForFunction(() => new Promise((res) => {
     const r = indexedDB.open("karaoketrainer");
     r.onsuccess = () => { const g = r.result.transaction("takes").objectStore("takes").getAll(); g.onsuccess = () => { r.result.close(); res(g.result.some((x) => x.take.tempo === 90)); }; };
   }), null, { timeout: 10000 }).then(() => ok("take kept with tempo 90"), () => fail("take not kept with its tempo"));
+  // − / + move 5% at a time; the double tap on the slider goes back to 100%
   await page.click("#tempoUp");
+  const v95 = await page.textContent("#tempoVal");
   await page.click("#tempoUp");
   await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
+  await page.click("#tempoDown");
+  await page.dblclick("#tempoRange");
+  await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
+  const v100 = await page.evaluate(() => document.querySelector("#tempoVal").textContent + " " + document.querySelector("#tempoRange").value);
+  if (v95 === "95%" && v100 === "100% 100") ok("tempo + is 5%; double click on the tempo slider: back to 100%"); else fail("tempo buttons / double click: " + JSON.stringify({ v95, v100 }));
   // Back at 100%: the take sung at 90% is stretched to it
   await page.waitForFunction(() => document.querySelector("#cmpTempo").hidden, null, { timeout: 60000 });
   const len90take = await mp3Size();
@@ -227,7 +269,7 @@ const takesIn = () => page.evaluate(() => new Promise((res, rej) => {
 await page.waitForFunction(() => /last take kept/.test(document.querySelector("#recent").innerText), null, { timeout: 10000 });
 {
   const k = await takesIn();
-  const keep = await page.evaluate(() => ({ btn: !!document.querySelector("#keepBtn"), del: !document.querySelector("#delTakeBtn").disabled, note: !document.querySelector("#keptNote").hidden }));
+  const keep = await page.evaluate(() => ({ btn: !!document.querySelector("#keepBtn"), del: !document.querySelector("#delTakeBtn").hidden, note: !document.querySelector("#keptNote").hidden }));
   if (k.length === 1 && k[0].audio > 0 && k[0].v === 3 && !keep.btn && keep.del && keep.note) ok("last take kept by itself in \"takes\" (no Keep button)");
   else fail("last take not kept: " + JSON.stringify({ k, keep }));
 }
@@ -272,11 +314,10 @@ await page.reload();
 await page.waitForSelector("#recent .open");
 await page.click("#recent .open");
 await page.waitForSelector("#practice:not(.ghost)");
-// The last take is not shown by itself: "See the last take" opens it
-await page.waitForSelector("#prevBtn:not([hidden])");
-await page.waitForTimeout(300);
-if (await page.isHidden("#results")) ok("opened offline from this device; the last take waits behind \"See the last take\"");
-else fail("the last take opened by itself");
+// The last take opens with the song
+await page.waitForSelector("#results:not([hidden])");
+await page.waitForFunction(() => document.querySelector("#resMatch").textContent !== "…", null, { timeout: 30000 });
+ok("opened offline from this device with its last take: " + (await page.textContent("#resMatch")));
 await page.waitForTimeout(500);
 const after = await lineOf();
 if (after.every((x) => x.v === 3 && x.voiced > 100)) ok("old melody line found again offline: " + JSON.stringify(after));
@@ -286,11 +327,6 @@ else fail("old melody line not found again: " + JSON.stringify(after));
   if (k.length === 1 && after.every((x) => !x.take)) ok("version 1 take moved from the song to \"takes\"");
   else fail("version 1 take not moved: " + JSON.stringify({ k, after }));
 }
-await page.click("#prevBtn");
-await page.waitForSelector("#results:not([hidden])");
-await page.waitForFunction(() => document.querySelector("#resMatch").textContent !== "…", null, { timeout: 30000 });
-if (await page.isHidden("#prevBtn")) ok("\"See the last take\" opened it: " + (await page.textContent("#resMatch")));
-else fail("\"See the last take\" still shown with the results open");
 // A song saved before the beats: they are found in the background after it opened, and saved
 await page.waitForTimeout(1500);
 {
@@ -302,16 +338,17 @@ await page.click("#playBtn");
 await page.waitForTimeout(2500);
 const tNow = await page.textContent("#timeNow");
 if (tNow !== "0:00") ok("plays offline (" + tNow + ")"); else fail("did not play offline");
-// Delete my voice: asks first, then the take is gone from the screen and this device; the song stays
+// Delete the recording: asks first, then the take is gone from the screen and this device; the song stays
 await page.click("#delTakeBtn");
 await page.waitForSelector("#confirmDlg[open]");
 await page.click("#confirmOk");
 await page.waitForSelector("#results", { state: "hidden" });
 {
   const k = await takesIn();
-  const st = await page.evaluate(() => ({ prev: !document.querySelector("#prevBtn").hidden, mine: !document.querySelector("#mineVol").hidden, recent: document.querySelector("#recent").innerText }));
-  if (!k.length && !st.prev && !st.mine && !/last take kept/.test(st.recent) && /\S/.test(st.recent)) ok("Delete my voice: take deleted, the song stays");
-  else fail("Delete my voice: " + JSON.stringify({ k, st }));
+  const st = await page.evaluate(() => ({ prev: false, mine: !document.querySelector("#mineVol").hidden, recent: document.querySelector("#recent").innerText }));
+  const delGone = await page.evaluate(() => document.querySelector("#delTakeBtn").hidden);
+  if (!k.length && !st.prev && !st.mine && delGone && !/last take kept/.test(st.recent) && /\S/.test(st.recent)) ok("Delete the recording: take deleted, the song stays");
+  else fail("Delete the recording: " + JSON.stringify({ k, st, delGone }));
 }
 await context.setOffline(false);
 

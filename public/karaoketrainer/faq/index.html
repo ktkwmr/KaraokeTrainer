@@ -100,7 +100,7 @@
         "name": "I sing an octave lower than the singer. Is that wrong?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "No. Singing an octave lower or higher counts as on pitch. The app finds your octave in the first seconds you sing and draws your line next to the melody. You can also choose the octave in the menu next to “Sing”."
+          "text": "No. Singing an octave lower or higher counts as on pitch. The app finds your octave in the first seconds you sing and draws your line next to the melody."
         }
       },
       {
@@ -148,7 +148,7 @@
         "name": "Is my recording saved?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Your last take of each song is kept on this device with the song, so you can see it again with “See the last take” when you open the song. Singing again replaces it, and “Delete my voice” deletes it. “Save my voice only (WAV)” and “Save with the song (MP3)” save files on your device. Nothing is uploaded."
+          "text": "Your last take of each song is kept on this device with the song, and opens with the song next time. Singing again replaces it, and “Delete the recording” (next to “Sing”) deletes it. “Save (MP3)” saves a file on your device. Nothing is uploaded."
         }
       },
       {
@@ -156,7 +156,7 @@
         "name": "Can I save my singing with the song?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. After singing, “Save with the song (MP3)” saves your voice with the accompaniment as one MP3 file. It contains the song, so it is for your own practice only: do not upload it to video or social media sites, share it, or distribute it. The rights to the song belong to its rights holders."
+          "text": "Yes. After singing, “Save (MP3)” saves the whole song as you hear it (the vocal, the accompaniment and your voice, at their volumes, in the key and tempo you hear) as one MP3 file. Mute “My voice” to save just the song in the key and tempo you chose. It contains the song, so it is for your own practice only: do not upload it to video or social media sites, share it, or distribute it. The rights to the song belong to its rights holders."
         }
       },
       {
@@ -188,7 +188,7 @@
         "name": "How do I delete my data?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "⚙ → “Delete saved songs” deletes the songs and their last takes (one song's take only: “Delete my voice” on its results); ⚙ → “Delete the AI model” deletes the model; “My vocal range” → “Delete” deletes your range. Clearing this site's data in the browser settings deletes everything."
+          "text": "⚙ → “Delete saved songs” deletes the songs and their last takes (one song's take only: “Delete the recording” next to “Sing”); ⚙ → “Delete the AI model” deletes the model; “My vocal range” → “Delete” deletes your range. Clearing this site's data in the browser settings deletes everything."
         }
       }
     ]
@@ -343,7 +343,7 @@
   <dt>Does it work offline?</dt>
   <dd>Yes, once the app and the AI model are on your device. The last 8 songs you loaded are kept, so you can open and practice them offline. Loading a new song offline also works if the model was downloaded before.</dd>
   <dt>I sing an octave lower than the singer. Is that wrong?</dt>
-  <dd>No. Singing an octave lower or higher counts as on pitch. The app finds your octave in the first seconds you sing and draws your line next to the melody. You can also choose the octave in the menu next to “Sing”.</dd>
+  <dd>No. Singing an octave lower or higher counts as on pitch. The app finds your octave in the first seconds you sing and draws your line next to the melody.</dd>
   <dt>What do the colours mean?</dt>
   <dd>Green: within ±70 cents of the note bar (the melody put on the nearest semitone, as on a karaoke machine), or of the next one if you are up to 0.1 s early or late; yellow: within ±140 cents; red: further off (100 cents = one semitone). Settings → “How strict” changes these ranges. The line is coloured moment by moment; the bar of a note turns green when the middle (median) of your pitch over the note is in the green range, so vibrato does not make a note wrong.</dd>
   <dt>Why do I need headphones?</dt>
@@ -355,9 +355,9 @@
   <dt>Is the percentage a score?</dt>
   <dd>It is a rough guide, not a score: the share of the melody whose notes you sang on pitch (their bar turned green; a long note counts more than a short one), counted only where the original singer sings and you sang. The list of parts that went off, and listening to your recording, tell you more.</dd>
   <dt>Is my recording saved?</dt>
-  <dd>Your last take of each song is kept on this device with the song, so you can see it again with “See the last take” when you open the song. Singing again replaces it, and “Delete my voice” deletes it. “Save my voice only (WAV)” and “Save with the song (MP3)” save files on your device. Nothing is uploaded.</dd>
+  <dd>Your last take of each song is kept on this device with the song, and opens with the song next time. Singing again replaces it, and “Delete the recording” (next to “Sing”) deletes it. “Save (MP3)” saves a file on your device. Nothing is uploaded.</dd>
   <dt>Can I save my singing with the song?</dt>
-  <dd>Yes. After singing, “Save with the song (MP3)” saves your voice with the accompaniment as one MP3 file. It contains the song, so it is for your own practice only: do not upload it to video or social media sites, share it, or distribute it. The rights to the song belong to its rights holders.</dd>
+  <dd>Yes. After singing, “Save (MP3)” saves the whole song as you hear it (the vocal, the accompaniment and your voice, at their volumes, in the key and tempo you hear) as one MP3 file. Mute “My voice” to save just the song in the key and tempo you chose. It contains the song, so it is for your own practice only: do not upload it to video or social media sites, share it, or distribute it. The rights to the song belong to its rights holders.</dd>
   <dt>How is the suggested key chosen?</dt>
   <dd>From the melody, the app takes its low and high notes (leaving out the lowest and highest 5% of the time, so a single stray note does not count), and finds the key change from −6 to +6 semitones, possibly an octave lower or higher, that fits them best inside the range you measured.</dd>
   <dt>Does it work on a phone?</dt>
@@ -365,7 +365,7 @@
   <dt>Which AI model does it use?</dt>
   <dd>Spleeter (2 stems: vocals and accompaniment) by Deezer, released under the MIT License, in the ONNX format converted by the sherpa-onnx project. It is lighter than newer models, so it also runs on phones, but the separation is not perfect.</dd>
   <dt>How do I delete my data?</dt>
-  <dd>⚙ → “Delete saved songs” deletes the songs and their last takes (one song's take only: “Delete my voice” on its results); ⚙ → “Delete the AI model” deletes the model; “My vocal range” → “Delete” deletes your range. Clearing this site's data in the browser settings deletes everything.</dd>
+  <dd>⚙ → “Delete saved songs” deletes the songs and their last takes (one song's take only: “Delete the recording” next to “Sing”); ⚙ → “Delete the AI model” deletes the model; “My vocal range” → “Delete” deletes your range. Clearing this site's data in the browser settings deletes everything.</dd>
 </dl>
     </article>
     <aside class="cta">
