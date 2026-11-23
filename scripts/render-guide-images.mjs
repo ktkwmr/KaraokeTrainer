@@ -75,18 +75,15 @@ try {
     await page.waitForSelector("#practice:not(.ghost)", { timeout: 60000 });
     await page.click("#singBtn");
     await page.click("#phonesOk");
-    await page.waitForTimeout(14500);
-    await page.click("#singBtn");
-    await page.waitForSelector("#results:not([hidden])");
-    // Your notes are found from the recording after you stop
-    await page.waitForFunction(() => document.querySelector("#resMatch").textContent !== "…", null, { timeout: 30000 });
     // The flat phrase (about 6–8 s into the song) is on screen at about 9.5 s
-    await page.evaluate(() => { const s = document.querySelector("#seek"); s.value = 9.5; s.dispatchEvent(new Event("change")); });
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(9500);
     const panel = page.locator(".panel.out");
     const box = await panel.boundingBox();
     const row = await page.locator("#singBtn").boundingBox();
     await page.screenshot({ path: join(OUT, `${lang}-sing.png`), clip: { x: box.x, y: box.y, width: box.width, height: row.y + row.height + 14 - box.y } });
+    await page.waitForTimeout(5000);
+    await page.click("#singBtn");
+    await page.waitForSelector("#results:not([hidden])");
     await page.locator("#results").screenshot({ path: join(OUT, `${lang}-results.png`) });
     console.log(lang, await page.textContent("#resMatch"), await page.textContent("#resBias"), JSON.stringify(await page.innerText("#worst")));
     await context.close();

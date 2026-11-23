@@ -16,7 +16,7 @@ export default {
     description:
       "Step-by-step guide to Karaoke Trainer: load a song file, turn the vocals down, sing and see your pitch over the original melody, read the results, sing the parts that went off again, change the key, and find a key for your vocal range.",
     body: () => `
-<p class="lead">Karaoke Trainer shows the original singer's melody as note bars, as on a karaoke machine, and, when you stop singing, shows your pitch over them as bars too, so you can see where you went flat or sharp. This guide walks through each part of the screen.</p>
+<p class="lead">Karaoke Trainer shows the original singer's melody as note bars, as on a karaoke machine, and draws your pitch over them while you sing, so you can see where you went flat or sharp. This guide walks through each part of the screen.</p>
 
 <nav class="toc" aria-label="Contents"><b>Contents</b><ol>
   <li><a href="#quick">Start in three steps</a></li>
@@ -26,7 +26,7 @@ export default {
   <li><a href="#results">Looking back: how you sang</a></li>
   <li><a href="#practice">Vocal volume and key</a></li>
   <li><a href="#range">Finding your key (optional)</a></li>
-  <li><a href="#settings">Settings: how strict, delay, microphone</a></li>
+  <li><a href="#settings">Settings: how strict, microphone</a></li>
   <li><a href="#phone">On a phone or tablet</a></li>
   <li><a href="#data">What is kept on your device</a></li>
 </ol></nav>
@@ -34,8 +34,8 @@ export default {
 <h2 id="quick">Start in three steps</h2>
 <ol>
   <li><b>Load a song.</b> Tap “Choose a song file” and pick a song you have (MP3, WAV, M4A, FLAC…, or a video such as MP4). Wait until the bar is full.</li>
-  <li><b>Put on headphones and press “Sing”.</b> The song starts. Sing along.</li>
-  <li><b>Press “Stop singing”.</b> Your notes appear over the grey melody bars. See how much was on pitch, and tap a part that went off to sing it again.</li>
+  <li><b>Put on headphones and press “Sing”.</b> The song starts and your pitch is drawn over the grey melody bars.</li>
+  <li><b>Press “Stop singing”.</b> See how much was on pitch, and tap a part that went off to sing it again.</li>
 </ol>
 <p>No song at hand? Press <b>“Try the demo song”</b>: a short song made for this app, which needs no download.</p>
 
@@ -52,14 +52,15 @@ export default {
 
 <h2 id="roll">Reading the melody line</h2>
 <figure class="shot">
-  ${img("en", "sing", "The practice screen after singing: a piano keyboard on the left with note names, the grey note bars of the demo song, and the singer's notes as thinner bars over them: green where they are on pitch, with the grey bar filled in green, and yellow below the bars where they are lower than the note. A black vertical line marks now.")}
-  <figcaption>The demo song after singing. Tap the image to enlarge it.</figcaption>
+  ${img("en", "sing", "The practice screen while singing: a piano keyboard on the left with note names, the grey note bars of the demo song, and the singer's line drawn over them: green where it is on pitch, with the bar filled in green, and yellow where it is lower than the note. A black vertical line marks now, and the note being sung shows at the top right.")}
+  <figcaption>The demo song while singing. Tap the image to enlarge it.</figcaption>
 </figure>
 <ul>
   <li><b>Across</b> is time. The black vertical line is <b>now</b>; the song scrolls to the left, so you see the next notes coming.</li>
   <li><b>Up and down</b> is pitch, like a piano keyboard turned on its side (the note names are on the left; C4 is middle C).</li>
   <li><b>The grey bars</b> are the original singer's melody, one bar per note, each on the row of its note. Where you sing on pitch, the bar fills with green.</li>
-  <li><b>Your bars</b> (thinner, shown after you stop singing) are your notes, found from your recording and rounded like the melody's, so you see the rough difference. Each sits as far above or below the grey bar as you were and is coloured by how close you were: <b>green</b> within ±${G} cents, <b>yellow</b> within ±${Y} cents, <b>red</b> further off. 100 cents is one semitone.</li>
+  <li><b>Your line</b> is coloured by how close you are to the note: <b>green</b> within ±${G} cents, <b>yellow</b> within ±${Y} cents, <b>red</b> further off. 100 cents is one semitone.</li>
+  <li>The note you are singing now, and how far it is from the melody, show at the top right.</li>
 </ul>
 <ul>
   <li><b>Zoom</b> – pinch the line (on a phone, or on a laptop's trackpad) to see more or fewer seconds at once; with a mouse, Ctrl + wheel. Only the time is zoomed.</li>
@@ -70,12 +71,12 @@ export default {
 
 <h2 id="sing">Singing</h2>
 <ol>
-  <li><b>Put on headphones.</b> With a speaker, the microphone hears the song too, and the original singer's voice gets mixed into your line. Wired headphones are best; Bluetooth headphones add a delay (see <a href="#settings">Settings</a>).</li>
+  <li><b>Put on headphones.</b> With a speaker, the microphone hears the song too, and the original singer's voice gets mixed into your line. Wired headphones are best; Bluetooth headphones add a delay (see “Delay correction” in <a href="#results">Looking back</a>).</li>
   <li><b>Press “Sing”.</b> The first time, the browser asks to use the microphone: allow it. The song starts from where it is.</li>
-  <li><b>Sing along.</b> The microphone only records while you sing; nothing is drawn yet.</li>
-  <li><b>Press “Stop singing”</b> (or pause, or let the song end). Your notes are found from the recording (it takes a moment) and shown as bars with the results.</li>
+  <li><b>Sing along.</b> Your line appears as you sing.</li>
+  <li><b>Press “Stop singing”</b> (or pause, or let the song end) to see how you sang.</li>
 </ol>
-<p><b>Octaves:</b> many people sing a song an octave lower or higher than the original singer (a man singing a song by a woman, for example). That counts as on pitch. The app finds your octave from your recording and shows your bars next to the melody; the menu next to “Sing” shows what it found (“Octave: auto (lower)”), and you can choose the octave yourself.</p>
+<p><b>Octaves:</b> many people sing a song an octave lower or higher than the original singer (a man singing a song by a woman, for example). That counts as on pitch. The app finds your octave in the first seconds you sing and draws your line next to the melody; the menu next to “Sing” shows what it found (“Octave: auto (lower)”), and you can choose the octave yourself.</p>
 
 <h2 id="results">Looking back: how you sang</h2>
 <figure class="shot">
@@ -87,12 +88,12 @@ export default {
   <li><b>Average</b> – whether you tend to be higher (+) or lower (−) than the melody, in cents.</li>
   <li><b>Where it went off</b> – the phrases that were furthest off, with how far and in which direction. <b>Tap one</b> and the song plays from a second before that phrase, so you can sing it again right away.</li>
   <li><b>Listen and compare</b> – while the results are open, a “My voice” slider appears under “Vocal” and “Accompaniment”, so you can set each volume and mute each one. The original vocal starts muted after you sing; turn it on to hear it with your voice. “Play from the start of the take” plays from where you started singing.</li>
-  <li><b>Delay correction</b> – the same slider as in Settings. If your bars sit to the right of the grey bars (your voice sounds behind the accompaniment), make it larger; if to the left, smaller. Your bars, the numbers, what you hear, and the saved files move with it, and your next takes use the new value too.</li>
+  <li><b>Delay correction</b> – every device takes a moment to play the sound and to hear the microphone (Bluetooth headphones much more), and the app subtracts this delay. If your line sits to the right of the grey bars even though you sang in time (your voice sounds behind the accompaniment), make the value larger; if to the left, smaller. Your line, the numbers, what you hear, and the saved files move with it, and your next takes use the new value too. To measure it instead, press <b>“Measure the delay”</b> with your headphones on and say “ta” with each of the 8 beeps.</li>
   <li><b>Your last take is kept</b> on this device with the song, by itself: next time you open the song, press <b>“See the last take”</b> (next to “Sing”) to see the results and listen again. Only the last take of each song is kept: singing again replaces it. <b>Delete my voice</b> deletes it (the song stays).</li>
   <li><b>Save with the song (MP3)</b> saves your voice with the accompaniment as one MP3 file (192 kbps): at the volumes you hear, with the original vocal too when it is on. It covers the part you sang. <b>Save my voice only (WAV)</b> saves just your voice.</li>
 </ul>
 <div class="note"><p><b>The MP3 is for your personal use only.</b> It contains the song, and the rights to the song belong to its rights holders. Use it to listen back to your own practice, and do not upload it to video or social media sites, send it to others, or distribute it. The app asks you to confirm this each time, and writes it into the file's tag (comment).</p></div>
-<p>The numbers are a guide for practice, not a score. The bars and the list tell you more: where you go flat at the end of a long note, which jump you overshoot, which phrase starts late.</p>
+<p>The numbers are a guide for practice, not a score. The line and the list tell you more: where you go flat at the end of a long note, which jump you overshoot, which phrase starts late.</p>
 
 <h2 id="practice">Vocal volume and key</h2>
 <ul>
@@ -111,7 +112,7 @@ export default {
 </ol>
 <p>The range is shown on a keyboard and saved on this device. From then on, each song shows a suggestion next to the key, such as “Suggested for you: −3”. Tap it to use that key. The app compares the melody's range (its low and high notes, leaving out the lowest and highest 5% of the time so a stray note does not count) with your range, and picks the change that fits best; sometimes the best fit is the original key sung an octave lower or higher.</p>
 
-<h2 id="settings">Settings: how strict, delay, microphone</h2>
+<h2 id="settings">Settings: how strict, microphone</h2>
 <p>⚙ → <b>Settings</b>.</p>
 <div class="table-wrap">
   <table>
@@ -121,7 +122,6 @@ export default {
     </tbody>
   </table>
 </div>
-<p><b>Delay correction:</b> every device takes a moment to play the sound and to hear the microphone (Bluetooth headphones much more). The app subtracts this delay. If your bars are later than the melody even when you sing in time, move the slider on the results until they sit on the grey bars, or press <b>“Measure the delay”</b> and say “ta” with each of the 8 beeps, or move the slider by hand.</p>
 <p><b>Microphone:</b> noise suppression, echo cancellation, and automatic gain are off by default, because they can cut or change parts of the voice and make the pitch harder to follow. Turn on echo cancellation only if you must use a speaker.</p>
 
 <h2 id="phone">On a phone or tablet</h2>
@@ -148,7 +148,7 @@ export default {
   <li><a href="#results">答え合わせ</a></li>
   <li><a href="#practice">ボーカルの音量とキー</a></li>
   <li><a href="#range">自分に合うキーを探す（任意）</a></li>
-  <li><a href="#settings">設定：判定の厳しさ・遅延・マイク</a></li>
+  <li><a href="#settings">設定：判定の厳しさ・マイク</a></li>
   <li><a href="#phone">スマホ・タブレットで使う</a></li>
   <li><a href="#data">端末に保存されるもの</a></li>
 </ol></nav>
@@ -174,14 +174,15 @@ export default {
 
 <h2 id="roll">メロディの線の見方</h2>
 <figure class="shot">
-  ${img("ja", "sing", "歌ったあとの練習画面。左に音名つきの鍵盤、デモ曲のグレーのメロディのバー、その上に歌った音が細いバーで、合っているところは緑（グレーのバーも緑に塗られる）、バーの音より低いところは黄で、バーの下に表示されている。黒い縦線が現在の位置。")}
-  <figcaption>デモ曲を歌ったあと。画像をタップすると拡大します。</figcaption>
+  ${img("ja", "sing", "歌っているときの練習画面。左に音名つきの鍵盤、デモ曲のグレーのメロディのバー、その上に歌った線が、合っているところは緑（バーも緑に塗られる）、バーの音より低いところは黄で描かれている。黒い縦線が現在の位置で、右上に歌っている音が出ている。")}
+  <figcaption>デモ曲を歌っているところ。画像をタップすると拡大します。</figcaption>
 </figure>
 <ul>
   <li><b>横</b>は時間です。黒い縦線が<b>いま</b>で、曲は左へ流れていくので、次の音が右から近づいてきます。</li>
   <li><b>縦</b>は音の高さで、ピアノの鍵盤を横に倒した形です（左に音名。C4 が真ん中のド）。</li>
   <li><b>グレーのバー</b>が原曲の歌手のメロディです。1つの音に1本で、その音の段に置かれます。音程が合っていると、バーが緑に塗られます。</li>
-  <li><b>あなたのバー</b>（細いバー。歌うのをやめると出ます）は、録音から調べたあなたの音を、メロディと同じように丸めたものです。大まかなズレがわかるよう、ズレた分だけグレーのバーの上か下に置かれ、近さで色が変わります。<b>緑</b>は±${G}セント以内、<b>黄</b>は±${Y}セント以内、<b>赤</b>はそれより外れ。100セントが半音です。</li>
+  <li><b>あなたの線</b>は、バーの音との近さで色が変わります。<b>緑</b>は±${G}セント以内、<b>黄</b>は±${Y}セント以内、<b>赤</b>はそれより外れ。100セントが半音です。</li>
+  <li>いま歌っている音と、メロディとのズレが右上に出ます。</li>
 </ul>
 <ul>
   <li><b>拡大・縮小</b> ― 線をピンチすると（スマホや、ノートパソコンのトラックパッドで）、一度に見える秒数が変わります。マウスでは Ctrl＋ホイール。時間の方向だけが伸び縮みします。</li>
@@ -192,12 +193,12 @@ export default {
 
 <h2 id="sing">歌う</h2>
 <ol>
-  <li><b>ヘッドホンをつけます。</b>スピーカーだとマイクが曲の音も拾い、原曲の歌手の声があなたの線に混ざります。有線のヘッドホンがおすすめです。Bluetooth のヘッドホンでは遅れが出ます（<a href="#settings">設定</a>で補正できます）。</li>
+  <li><b>ヘッドホンをつけます。</b>スピーカーだとマイクが曲の音も拾い、原曲の歌手の声があなたの線に混ざります。有線のヘッドホンがおすすめです。Bluetooth のヘッドホンでは遅れが出ます（<a href="#results">答え合わせ</a>の「遅延の補正」で合わせられます）。</li>
   <li><b>「歌う」を押します。</b>初回はブラウザがマイクの使用を確認するので、許可してください。曲がいまの位置から始まります。</li>
-  <li><b>一緒に歌います。</b>歌っている間はマイクで録音するだけで、まだ何も描かれません。</li>
-  <li><b>「歌うのをやめる」を押す</b>（一時停止する、曲が終わる、でも同じ）と、録音からあなたの音程を調べて（少し時間がかかります）、答え合わせとあなたのバーが出ます。</li>
+  <li><b>一緒に歌います。</b>歌うとあなたの線が描かれます。</li>
+  <li><b>「歌うのをやめる」を押す</b>（一時停止する、曲が終わる、でも同じ）と答え合わせが出ます。</li>
 </ol>
-<p><b>オクターブについて：</b>原曲の歌手より1オクターブ低く（または高く）歌うことはよくあります（男性が女性の曲を歌う場合など）。これは正解として判定します。録音からあなたのオクターブを判定し、メロディの隣にあなたのバーを表示します。「歌う」の横のメニューに判定結果（「オクターブ：自動（1つ下）」など）が出て、自分で選ぶこともできます。</p>
+<p><b>オクターブについて：</b>原曲の歌手より1オクターブ低く（または高く）歌うことはよくあります（男性が女性の曲を歌う場合など）。これは正解として判定します。歌いはじめの数秒であなたのオクターブを判定し、メロディの隣に線を描きます。「歌う」の横のメニューに判定結果（「オクターブ：自動（1つ下）」など）が出て、自分で選ぶこともできます。</p>
 
 <h2 id="results">答え合わせ</h2>
 <figure class="shot">
@@ -209,12 +210,12 @@ export default {
   <li><b>平均</b> ― メロディより高め（＋）か低め（−）かの傾向（セント）。</li>
   <li><b>ズレが大きかったところ</b> ― 一番ズレたフレーズと、どれだけ・どちらにズレたか。<b>タップすると</b>、そのフレーズの1秒前から曲が流れるので、すぐに歌い直せます。</li>
   <li><b>聴き比べ</b> ― 答え合わせを開いている間は「ボーカル」「伴奏」の下に「自分の声」のスライダーが出て、それぞれの音量とミュートを別々に変えられます。歌い終わった直後は原曲のボーカルがミュートです。オンにすると自分の声と重ねて聴けます。「録音の最初から再生」で、歌いはじめた位置から再生します。</li>
-  <li><b>遅延の補正</b> ― 設定と同じスライダーです。あなたのバーがグレーのバーより右にある（声が伴奏より遅れて聞こえる）ときは大きく、左にあるときは小さくします。バー・数字・聞こえる音・保存するファイルが一緒に動き、次に歌うときもこの値を使います。</li>
+  <li><b>遅延の補正</b> ― どの端末でも、音を出すのとマイクで聞くのに少し時間がかかり（Bluetooth のヘッドホンではずっと長くなります）、アプリはこの遅れを差し引いて線を描きます。合わせて歌ったのに線がグレーのバーより右にある（声が伴奏より遅れて聞こえる）ときは値を大きく、左にあるときは小さくします。線・数字・聞こえる音・保存するファイルが一緒に動き、次に歌うときもこの値を使います。<b>「遅延を測る」</b>を押し、ヘッドホンをつけて8回の「ピッ」に合わせて「タッ」と声を出せば、測って合わせることもできます。</li>
   <li><b>直前の録音は自動で残ります</b>（曲と一緒にこの端末に保存）。次にその曲を開いたら、「歌う」の横の<b>「前の録音を見る」</b>で、答え合わせを見たり聴き直したりできます。残るのは各曲の直前の1回分だけで、もう一度歌うと置き換わります。<b>自分の声を削除</b>で消せます（曲は残ります）。</li>
   <li><b>曲と一緒に保存（MP3）</b>で、あなたの声と伴奏を 1 つの MP3 ファイル（192 kbps）にします。聞こえている音量のままで、原曲のボーカルをオンにしているときはそれも入ります。保存するのは歌った範囲です。<b>自分の声だけ保存（WAV）</b>は、あなたの声だけを保存します。</li>
 </ul>
 <div class="note"><p><b>MP3 は個人の練習用にだけ使ってください。</b>曲が入っていて、曲の権利は権利者にあります。自分の練習を聴き返すためだけに使い、動画サイトや SNS への投稿、ほかの人に送ること、配布はしないでください。保存のたびに確認が出て、ファイルのタグ（コメント）にも書き込まれます。</p></div>
-<p>数字は練習の目安で、点数ではありません。バーと一覧のほうが多くを教えてくれます。伸ばした音の終わりで下がる、跳ぶ音で行き過ぎる、歌い出しが遅れる、といったクセが見えてきます。</p>
+<p>数字は練習の目安で、点数ではありません。線と一覧のほうが多くを教えてくれます。伸ばした音の終わりで下がる、跳ぶ音で行き過ぎる、歌い出しが遅れる、といったクセが見えてきます。</p>
 
 <h2 id="practice">ボーカルの音量とキー</h2>
 <ul>
@@ -233,7 +234,7 @@ export default {
 </ol>
 <p>音域は鍵盤の上に表示され、この端末に保存されます。以後、曲ごとにキーの横に「あなたへのおすすめ：−3」のような表示が出て、タップするとそのキーになります。メロディの音域（一瞬だけの外れた音を数えないよう、一番低い5%と一番高い5%の時間を除いた低い音と高い音）とあなたの音域を比べ、一番よく収まる移調量を選びます。原曲キーのまま1オクターブ下（上）で歌うのが一番合う、という結果になることもあります。</p>
 
-<h2 id="settings">設定：判定の厳しさ・遅延・マイク</h2>
+<h2 id="settings">設定：判定の厳しさ・マイク</h2>
 <p>⚙ →<b>「設定」</b>です。</p>
 <div class="table-wrap">
   <table>
@@ -243,7 +244,6 @@ export default {
     </tbody>
   </table>
 </div>
-<p><b>遅延の補正：</b>どの端末でも、音を出すのとマイクで聞くのに少し時間がかかります（Bluetooth のヘッドホンではずっと長くなります）。アプリはこの遅れを差し引いて録音します。合わせて歌ったのにバーがメロディより遅れて表示されるときは、答え合わせのスライダーでバーが重なるまで動かすか、<b>「遅延を測る」</b>を押して8回の「ピッ」に合わせて「タッ」と声を出すか、スライダーで調整してください。</p>
 <p><b>マイク：</b>ノイズ抑制・エコーキャンセル・自動音量調整は、最初はオフです。声の一部を消したり変えたりして、音程を追いにくくすることがあるためです。どうしてもスピーカーを使うときだけ、エコーキャンセルをオンにしてください。</p>
 
 <h2 id="phone">スマホ・タブレットで使う</h2>
