@@ -134,10 +134,9 @@ if (tagged && frame && comment && mp3.length > 20000) ok(`MP3 saved: ${download.
 else fail(`MP3: tag ${tagged}, frame ${frame}, comment ${comment}, ${mp3.length} bytes`);
 await page.click("#playBtn"); // play again
 
-// Closing the results hides "My voice" and brings back the saved vocal mute (off)
-await page.click("#resClose");
-const closed = await page.evaluate(() => ({ mine: document.querySelector("#mineVol").hidden, vocalMuted: document.querySelector("#vocalMute").getAttribute("aria-pressed") }));
-if (closed.mine && closed.vocalMuted === "false") ok("after the results: my voice hidden, vocal mute back"); else fail("after the results: " + JSON.stringify(closed));
+// The results stay open (no Close button, so the recording can't be lost by accident) until the next take
+const still = await page.evaluate(() => ({ open: !document.querySelector("#results").hidden, mine: !document.querySelector("#mineVol").hidden, close: !!document.querySelector("#resClose") }));
+if (still.open && still.mine && !still.close) ok("results stay open with my voice, no Close button"); else fail("results: " + JSON.stringify(still));
 await page.click("#singBtn"); await page.waitForTimeout(3000); await page.click("#singBtn");
 await page.waitForSelector("#results:not([hidden])");
 if ((await page.getAttribute("#vocalMute", "aria-pressed")) === "true") ok("next take: original vocal muted again"); else fail("next take: vocal not muted");

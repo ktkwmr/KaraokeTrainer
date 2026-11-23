@@ -411,7 +411,6 @@
               <button class="chip" id="keepBtn" type="button" data-i18n="res.keep">Keep this recording</button>
               <button class="chip" id="mp3Btn" type="button" data-i18n="res.mp3">Save with the song (MP3)</button>
               <button class="chip" id="wavBtn" type="button" data-i18n="res.wav">Save my voice only (WAV)</button>
-              <button class="chip" id="resClose" type="button" data-i18n="res.close">Close</button>
             </div>
             <p class="hint" id="mp3Note" data-i18n="res.mp3.note">“Save with the song” saves your voice with the accompaniment (and the original vocal too when it is on), at the volumes you hear. It contains the song, so it is for your own practice only: do not post or share it.</p>
           </div>
@@ -738,7 +737,6 @@
           "use.title": "For your personal use only",
           "use.body": "This MP3 contains the song's accompaniment with your voice. The rights to the song belong to its rights holders, so use the file only to listen back to your own practice. Do not upload it to video or social media sites, send it to others, or distribute it. The file is saved only on this device.",
           "use.ok": "I understand, save",
-          "res.close": "Close",
           "cmp.play": "Play from the start of the take",
           "cmp.hint": "Set the volumes below. The original vocal starts muted; turn it on to hear it with your voice.",
           "res.delay.hint": "The same as in ⚙ → Settings. If your bars sit to the right of the grey bars (your voice sounds late), make it larger; if to the left, smaller. This take moves with it, and the next takes use it too.",
@@ -976,7 +974,6 @@
           "use.title": "個人の練習用にだけ使ってください",
           "use.body": "この MP3 には、曲の伴奏とあなたの声が入っています。曲の権利は権利者にあるので、ファイルは自分の練習を聴き返すためだけに使ってください。動画サイトや SNS への投稿、ほかの人に送ること、配布はしないでください。ファイルはこの端末にだけ保存されます。",
           "use.ok": "わかったうえで保存",
-          "res.close": "閉じる",
           "cmp.play": "録音の最初から再生",
           "cmp.hint": "音量は下のスライダーで。原曲のボーカルは最初はミュートです。オンにすると自分の声と重ねて聴けます。",
           "res.delay.hint": "⚙ →「設定」と同じものです。自分のバーがグレーのバーより右にある（声が遅れて聞こえる）ときは大きく、左にあるときは小さくします。この録音も一緒に動き、次に歌うときもこの値を使います。",
@@ -2491,7 +2488,6 @@
         seekTo(take.start / SR);
         play();
       });
-      $("resClose").addEventListener("click", function () { $("results").hidden = true; setReviewing(false); draw(); });
       $("keepBtn").addEventListener("click", async function () {
         if (!take || !take.audio || take.busy || !song || song.demo) return;
         try {

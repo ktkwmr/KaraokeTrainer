@@ -32,7 +32,7 @@
 - 判定: 相手はバーの音（`refNear()`：その時のバーか、前後 `TIME_TOL`（0.1 秒）以内のバーのうち近いほう）。ズレはオクターブを畳んで −600〜+600 セント（`fold()`）。オクターブ違いは正解。自分のオクターブは止めたあと、原曲と両方が歌っているフレーム（30 以上）の差の中央値（手動でも選べる）。緑・黄の幅は `STRICT`（やさしい 100/200、ふつう 70/140、きびしい 40/80）。緑のところはバーを緑に塗る。答え合わせは、原曲が歌っていて利用者も歌ったフレームだけで数える。ズレた区間は休み（0.4 秒以上）で区切り、休みのない 2 秒以上の区間は音の始まりで区切り、緑が `OFF_SHARE`（70%）未満の区間を出す。
 - 曲は IndexedDB（`karaoketrainer`、`index` と `songs`、キーはファイルの SHA-256 の先頭 128 ビット）に最近の `KEEP_SONGS`（8）曲まで。録音は「この録音を残す」を押したときだけ保存。SharedArrayBuffer は IndexedDB に入らないので普通の配列にコピーして保存する。
 - 設定は `localStorage` の `karaoketrainer-state`（`v: 1`。ボーカル・伴奏の音量とミュートも）、マイ音域は `karaoketrainer-range`。音域は任意で、登録しなくても全機能が使える（おすすめキーの欄は控えめな案内だけ）。
-- 答え合わせを開いている間（`reviewing`）は、ミキサーに「自分の声」（`store.mine`、0〜200%、`take.gain` に掛ける）が出て、録音を鳴らす。原曲のボーカルのミュートはこの間だけ別（`reviewVocalMute`、歌い終わるたびにオン。保存しない）。音量は普段のスライダーと共通。
+- 答え合わせには「閉じる」を付けない（閉じると録音を聴き直す方法が無くなるため。次に歌うか曲を替えるまで出したまま）。答え合わせを開いている間（`reviewing`）は、ミキサーに「自分の声」（`store.mine`、0〜200%、`take.gain` に掛ける）が出て、録音を鳴らす。原曲のボーカルのミュートはこの間だけ別（`reviewVocalMute`、歌い終わるたびにオン。保存しない）。音量は普段のスライダーと共通。
 - キー変更は `keyshift.js`（Band Stem Mixer（ktkwmr/BandStemMixer、MIT、同じ作者）からのコピー。`makeFft` は `dsp.js` から）。片方で直した不具合はもう片方にも移す案を出す。
 - ページはクロスオリジン分離（`public/_headers` の COOP same-origin、COEP **credentialless**。ベースライン §6-6）。外部から読むファイルは CORS で。外部ホストを足したら `_headers` の CSP と、プライバシーの説明（`scripts/pages/privacy.mjs`、アプリ内の `privacy.body`、README）を同じ PR で直す。マイクは `Permissions-Policy: microphone=(self)`。
 - 大きなダウンロードの前の確認は `connectionRisk()`・`askNetwork()`（ベースライン §9-13）。分離の設定は `MODES`・`LADDER`（Band Stem Mixer と同じ考え方）。
