@@ -2,7 +2,8 @@
 //   - ONNX Runtime Web comes from the npm package (ORT_DIR), routed in place of jsDelivr
 //   - the model is the small fake (scripts/test/make-fake-model.py → scripts/fetch-model.mjs --from)
 //   - the microphone is Chromium's fake device playing voice.wav (the melody an octave lower, 30 cents flat)
-// Steps: load song.wav → separation (and beats) → sing → results → key change → reload and open from this device
+// Steps: load song.wav → separation (and beats) → sing → results → key change → volume double click → tempo
+// (a take at 90%) → reload and open from this device
 // offline → the Japanese page.
 //
 // Usage: node scripts/test/e2e.mjs <base url, e.g. http://localhost:8788> <audio dir> <onnxruntime-web dist dir> [shots dir]
@@ -150,6 +151,50 @@ await page.click("#keyUp");
 await page.click("#keyUp");
 await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
 ok("key " + (await page.textContent("#keyVal")));
+
+// Double tap (double click) on a volume slider: back to 100%
+await page.evaluate(() => { const r = document.querySelector("#accVol"); r.value = 30; r.dispatchEvent(new Event("input")); });
+await page.dblclick("#accVol");
+{
+  const v = await page.textContent("#accVal");
+  if (v === "100%") ok("double click on the accompaniment slider: back to 100%"); else fail("double click on a slider: " + v);
+}
+
+// Tempo 90% (same key): the song moves at 0.9× in its own time; this take was sung at 100%, so my voice is not
+// played and the MP3 asks for 100% back
+await page.click("#tempoDown");
+await page.click("#tempoDown");
+await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
+{
+  const st = await page.evaluate(() => ({ val: document.querySelector("#tempoVal").textContent, note: document.querySelector("#cmpTempo").hidden ? "" : document.querySelector("#cmpTempo").textContent }));
+  if (st.val === "90%" && /100%/.test(st.note)) ok("tempo " + st.val + ", review note: " + st.note); else fail("tempo: " + JSON.stringify(st));
+  await page.click("#mp3Btn");
+  const dlg = await page.evaluate(() => document.querySelector("#useDlg").open);
+  if (!dlg) ok("MP3 at another tempo than the take: not saved"); else { fail("MP3 dialog at another tempo"); await page.click("#useCancel"); }
+  const t0 = await page.evaluate(() => document.querySelector("#timeNow").textContent);
+  const p0 = await page.evaluate(() => Number(document.querySelector("#seek").value));
+  if (!(await page.evaluate(() => document.querySelector("#playBtn").title === "Pause"))) await page.click("#playBtn");
+  const w0 = Date.now();
+  await page.waitForTimeout(3000);
+  const p1 = await page.evaluate(() => Number(document.querySelector("#seek").value));
+  const speed = (p1 - p0) / ((Date.now() - w0) / 1000);
+  if (speed > 0.8 && speed < 0.97) ok(`playback at ${speed.toFixed(2)}× of the song (${t0} →)`); else fail("tempo playback speed " + speed);
+  // A take at 90%: kept with its tempo, its recording at that scale
+  await page.click("#singBtn");
+  await page.waitForTimeout(3000);
+  const dis = await page.evaluate(() => document.querySelector("#tempoUp").disabled && document.querySelector("#tempoDown").disabled);
+  await page.click("#singBtn");
+  await page.waitForSelector("#results:not([hidden])");
+  const after = await page.evaluate(() => ({ note: !document.querySelector("#cmpTempo").hidden, match: document.querySelector("#resMatch").textContent, up: document.querySelector("#tempoUp").disabled }));
+  if (dis && !after.note && !after.up && after.match !== "–") ok(`take at 90%: tempo locked while singing, my voice plays, ${after.match} on pitch`); else fail("take at 90%: " + JSON.stringify({ dis, after }));
+  await page.waitForFunction(() => new Promise((res) => {
+    const r = indexedDB.open("karaoketrainer");
+    r.onsuccess = () => { const g = r.result.transaction("takes").objectStore("takes").getAll(); g.onsuccess = () => { r.result.close(); res(g.result.some((x) => x.take.tempo === 90)); }; };
+  }), null, { timeout: 10000 }).then(() => ok("take kept with tempo 90"), () => fail("take not kept with its tempo"));
+  await page.click("#tempoUp");
+  await page.click("#tempoUp");
+  await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
+}
 
 // The last take is kept by itself (no button); reload offline and open from this device
 const takesIn = () => page.evaluate(() => new Promise((res, rej) => {
