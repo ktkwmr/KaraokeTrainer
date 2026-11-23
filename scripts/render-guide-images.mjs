@@ -85,7 +85,7 @@ try {
     await page.click("#singBtn");
     await page.waitForSelector("#results:not([hidden])");
     await page.locator("#results").screenshot({ path: join(OUT, `${lang}-results.png`) });
-    console.log(lang, await page.textContent("#resMatch"), await page.textContent("#resSung"), await page.textContent("#resBias"), JSON.stringify(await page.innerText("#worst")));
+    console.log(lang, await page.textContent("#resMatch"), await page.textContent("#resBias"), JSON.stringify(await page.innerText("#worst")));
     await context.close();
   }
 } finally {

@@ -56,7 +56,7 @@ await page.waitForFunction(() => !document.querySelector("#recentSect").hidden, 
 ok("saved to the recent list: " + (await page.textContent("#recent")).trim());
 // Beats of the accompaniment (beats.js): the test song's hi-hat and bass are at 120 BPM (a beat every 0.5 s)
 const beatsOf = () => page.evaluate(() => new Promise((res, rej) => {
-  const r = indexedDB.open("karaoketrainer", 1);
+  const r = indexedDB.open("karaoketrainer");
   r.onsuccess = () => {
     const g = r.result.transaction("songs").objectStore("songs").getAll();
     g.onsuccess = () => res(g.result.map((x) => {
@@ -87,10 +87,9 @@ await page.waitForSelector("#results:not([hidden])");
 // Your notes are found from the recording after you stop
 await page.waitForFunction(() => document.querySelector("#resMatch").textContent !== "…", null, { timeout: 30000 });
 const oct = await page.textContent("#octSel option[value=auto]");
-const res = await page.evaluate(() => ({ match: document.querySelector("#resMatch").textContent, sung: document.querySelector("#resSung").textContent, bias: document.querySelector("#resBias").textContent, note: document.querySelector("#resNote").textContent, worst: document.querySelector("#worst").innerText }));
+const res = await page.evaluate(() => ({ match: document.querySelector("#resMatch").textContent, bias: document.querySelector("#resBias").textContent, note: document.querySelector("#resNote").textContent, worst: document.querySelector("#worst").innerText }));
 console.log("     results:", JSON.stringify(res), "octave:", oct);
 if (/lower/.test(oct)) ok("octave detected as lower"); else fail("octave not detected as lower: " + oct);
-if (parseInt(res.sung) >= 50) ok("sung share " + res.sung); else fail("sung share low: " + res.sung);
 if (parseInt(res.match) >= 50) ok("on pitch " + res.match); else fail("on pitch low: " + res.match);
 if (/−/.test(res.bias)) ok("flat bias seen: " + res.bias); else fail("expected a flat bias: " + res.bias);
 if (SHOTS) await page.screenshot({ path: join(SHOTS, "3-results.png"), fullPage: true });
@@ -147,28 +146,58 @@ await page.click("#keyUp");
 await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
 ok("key " + (await page.textContent("#keyVal")));
 
-// Keep the recording, then reload offline and open from this device
-await page.click("#keepBtn");
-await page.waitForFunction(() => document.querySelector("#keepBtn").disabled);
+// The last take is kept by itself (no button); reload offline and open from this device
+const takesIn = () => page.evaluate(() => new Promise((res, rej) => {
+  const r = indexedDB.open("karaoketrainer");
+  r.onsuccess = () => {
+    const d = r.result;
+    const g = d.transaction("takes").objectStore("takes").getAll();
+    g.onsuccess = () => { const out = g.result.map((x) => ({ audio: x.take.audio.length, v: x.take.v })); d.close(); res(out); };
+    g.onerror = () => rej(g.error);
+  };
+  r.onerror = () => rej(r.error);
+}));
+await page.waitForFunction(() => /last take kept/.test(document.querySelector("#recent").innerText), null, { timeout: 10000 });
+{
+  const k = await takesIn();
+  const keep = await page.evaluate(() => ({ btn: !!document.querySelector("#keepBtn"), del: !document.querySelector("#delTakeBtn").disabled, note: !document.querySelector("#keptNote").hidden }));
+  if (k.length === 1 && k[0].audio > 0 && k[0].v === 3 && !keep.btn && keep.del && keep.note) ok("last take kept by itself in \"takes\" (no Keep button)");
+  else fail("last take not kept: " + JSON.stringify({ k, keep }));
+}
 await page.waitForTimeout(1500); // the Service Worker caches the app files
 await page.reload();
 await page.waitForSelector("#recent .open");
+// A take kept by version 1 (inside the song record, version 1 database layout): moved to "takes" when the song opens
+await page.evaluate(() => new Promise((res) => {
+  const r = indexedDB.open("karaoketrainer");
+  r.onsuccess = () => {
+    const d = r.result;
+    const tx = d.transaction(["songs", "takes"], "readwrite");
+    tx.objectStore("takes").getAll().onsuccess = (e) => {
+      for (const x of e.target.result) {
+        tx.objectStore("songs").get(x.hash).onsuccess = (g) => { const rec = g.target.result; rec.take = x.take; tx.objectStore("songs").put(rec); };
+        tx.objectStore("takes").delete(x.hash);
+      }
+    };
+    tx.oncomplete = () => { d.close(); res(); };
+  };
+}));
 // A song saved before the melody line changed (no lineV) and before the beats (no beatsV): its line is found again when
 // it is opened, its beats right after
 const lineOf = () => page.evaluate(() => new Promise((res, rej) => {
-  const r = indexedDB.open("karaoketrainer", 1);
+  const r = indexedDB.open("karaoketrainer");
   r.onsuccess = () => {
     const st = r.result.transaction("songs", "readwrite").objectStore("songs");
     const g = st.getAll();
-    g.onsuccess = () => res(g.result.map((x) => ({ v: x.lineV, voiced: x.line.filter((y) => !isNaN(y)).length })));
+    g.onsuccess = () => { r.result.close(); res(g.result.map((x) => ({ v: x.lineV, voiced: x.line.filter((y) => !isNaN(y)).length, take: !!x.take }))); };
     g.onerror = () => rej(g.error);
   };
 }));
 await page.evaluate(() => new Promise((res) => {
-  const r = indexedDB.open("karaoketrainer", 1);
+  const r = indexedDB.open("karaoketrainer");
   r.onsuccess = () => {
     const st = r.result.transaction("songs", "readwrite").objectStore("songs");
-    st.getAll().onsuccess = (e) => { for (const x of e.target.result) { delete x.lineV; delete x.beatsV; delete x.beats; x.line = new Float32Array(x.line.length).fill(NaN); st.put(x); } st.transaction.oncomplete = res; };
+    st.getAll().onsuccess = (e) => { for (const x of e.target.result) { delete x.lineV; delete x.beatsV; delete x.beats; x.line = new Float32Array(x.line.length).fill(NaN); st.put(x); } st.transaction.oncomplete = () => { r.result.close(); res(); }; };
   };
 }));
 await context.setOffline(true);
@@ -176,12 +205,25 @@ await page.reload();
 await page.waitForSelector("#recent .open");
 await page.click("#recent .open");
 await page.waitForSelector("#practice:not(.ghost)");
-await page.waitForSelector("#results:not([hidden])");
-ok("opened offline from this device, with the kept recording");
+// The last take is not shown by itself: "See the last take" opens it
+await page.waitForSelector("#prevBtn:not([hidden])");
+await page.waitForTimeout(300);
+if (await page.isHidden("#results")) ok("opened offline from this device; the last take waits behind \"See the last take\"");
+else fail("the last take opened by itself");
 await page.waitForTimeout(500);
 const after = await lineOf();
 if (after.every((x) => x.v === 3 && x.voiced > 100)) ok("old melody line found again offline: " + JSON.stringify(after));
 else fail("old melody line not found again: " + JSON.stringify(after));
+{
+  const k = await takesIn();
+  if (k.length === 1 && after.every((x) => !x.take)) ok("version 1 take moved from the song to \"takes\"");
+  else fail("version 1 take not moved: " + JSON.stringify({ k, after }));
+}
+await page.click("#prevBtn");
+await page.waitForSelector("#results:not([hidden])");
+await page.waitForFunction(() => document.querySelector("#resMatch").textContent !== "…", null, { timeout: 30000 });
+if (await page.isHidden("#prevBtn")) ok("\"See the last take\" opened it: " + (await page.textContent("#resMatch")));
+else fail("\"See the last take\" still shown with the results open");
 // A song saved before the beats: they are found in the background after it opened, and saved
 await page.waitForTimeout(1500);
 {
@@ -193,6 +235,17 @@ await page.click("#playBtn");
 await page.waitForTimeout(2500);
 const tNow = await page.textContent("#timeNow");
 if (tNow !== "0:00") ok("plays offline (" + tNow + ")"); else fail("did not play offline");
+// Delete my voice: asks first, then the take is gone from the screen and this device; the song stays
+await page.click("#delTakeBtn");
+await page.waitForSelector("#confirmDlg[open]");
+await page.click("#confirmOk");
+await page.waitForSelector("#results", { state: "hidden" });
+{
+  const k = await takesIn();
+  const st = await page.evaluate(() => ({ prev: !document.querySelector("#prevBtn").hidden, mine: !document.querySelector("#mineVol").hidden, recent: document.querySelector("#recent").innerText }));
+  if (!k.length && !st.prev && !st.mine && !/last take kept/.test(st.recent) && /\S/.test(st.recent)) ok("Delete my voice: take deleted, the song stays");
+  else fail("Delete my voice: " + JSON.stringify({ k, st }));
+}
 await context.setOffline(false);
 
 // Japanese page

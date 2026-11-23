@@ -60,7 +60,7 @@ const EN = [
   },
   {
     q: "Is my recording saved?",
-    a: "Only if you press “Keep this recording” (it is kept on this device with the song), “Save my voice only (WAV)”, or “Save with the song (MP3)” (files on your device). Otherwise it is gone when you sing again or close the page.",
+    a: "Your last take of each song is kept on this device with the song, so you can see it again with “See the last take” when you open the song. Singing again replaces it, and “Delete my voice” deletes it. “Save my voice only (WAV)” and “Save with the song (MP3)” save files on your device. Nothing is uploaded.",
   },
   {
     q: "Can I save my singing with the song?",
@@ -80,7 +80,7 @@ const EN = [
   },
   {
     q: "How do I delete my data?",
-    a: "⚙ → “Delete saved songs” deletes the songs and kept recordings; ⚙ → “Delete the AI model” deletes the model; “My vocal range” → “Delete” deletes your range. Clearing this site's data in the browser settings deletes everything.",
+    a: "⚙ → “Delete saved songs” deletes the songs and their last takes (one song's take only: “Delete my voice” on its results); ⚙ → “Delete the AI model” deletes the model; “My vocal range” → “Delete” deletes your range. Clearing this site's data in the browser settings deletes everything.",
   },
 ];
 
@@ -140,7 +140,7 @@ const JA = [
   },
   {
     q: "録音は保存されますか？",
-    a: "「この録音を残す」（曲と一緒にこの端末に保存）、「自分の声だけ保存（WAV）」、「曲と一緒に保存（MP3）」（端末にファイルを保存）を押したときだけです。それ以外は、もう一度歌うかページを閉じると消えます。",
+    a: "各曲の直前の1回分の録音が、曲と一緒にこの端末に自動で残り、曲を開いたときに「前の録音を見る」で見られます。もう一度歌うと置き換わり、「自分の声を削除」で消せます。「自分の声だけ保存（WAV）」と「曲と一緒に保存（MP3）」は端末にファイルを保存します。アップロードはしません。",
   },
   {
     q: "自分の歌を曲と一緒に保存できますか？",
@@ -160,7 +160,7 @@ const JA = [
   },
   {
     q: "データを削除するには？",
-    a: "⚙ →「保存した曲を削除」で曲と残した録音、⚙ →「AIモデルを削除」でモデル、「マイ音域」→「削除」で音域を削除できます。ブラウザの設定でこのサイトのデータを消すと、すべて削除されます。",
+    a: "⚙ →「保存した曲を削除」で曲とその録音（1曲の録音だけなら、答え合わせの「自分の声を削除」）、⚙ →「AIモデルを削除」でモデル、「マイ音域」→「削除」で音域を削除できます。ブラウザの設定でこのサイトのデータを消すと、すべて削除されます。",
   },
 ];
 
