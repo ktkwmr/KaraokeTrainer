@@ -36,7 +36,7 @@ const EN = [
   },
   {
     q: "I sing an octave lower than the singer. Is that wrong?",
-    a: "No. Singing an octave lower or higher counts as on pitch. The app finds your octave in the first seconds you sing and draws your line next to the melody. You can also choose the octave in the menu next to “Sing”.",
+    a: "No. Singing an octave lower or higher counts as on pitch. The app finds your octave in the first seconds you sing and draws your line next to the melody.",
   },
   {
     q: "What do the colours mean?",
@@ -60,11 +60,11 @@ const EN = [
   },
   {
     q: "Is my recording saved?",
-    a: "Your last take of each song is kept on this device with the song, so you can see it again with “See the last take” when you open the song. Singing again replaces it, and “Delete my voice” deletes it. “Save my voice only (WAV)” and “Save with the song (MP3)” save files on your device. Nothing is uploaded.",
+    a: "Your last take of each song is kept on this device with the song, and opens with the song next time. Singing again replaces it, and “Delete the recording” (next to “Sing”) deletes it. “Save (MP3)” saves a file on your device. Nothing is uploaded.",
   },
   {
     q: "Can I save my singing with the song?",
-    a: "Yes. After singing, “Save (MP3)” saves the mix you hear (the vocal, the accompaniment and your voice, at their volumes) as one MP3 file. It contains the song, so it is for your own practice only: do not upload it to video or social media sites, share it, or distribute it. The rights to the song belong to its rights holders.",
+    a: "Yes. After singing, “Save (MP3)” saves the whole song as you hear it (the vocal, the accompaniment and your voice, at their volumes, in the key and tempo you hear) as one MP3 file. Mute “My voice” to save just the song in the key and tempo you chose. It contains the song, so it is for your own practice only: do not upload it to video or social media sites, share it, or distribute it. The rights to the song belong to its rights holders.",
   },
   {
     q: "How is the suggested key chosen?",
@@ -116,7 +116,7 @@ const JA = [
   },
   {
     q: "歌手より1オクターブ低く歌っています。間違いになりますか？",
-    a: "なりません。1オクターブ下や上で歌っても正解として判定します。歌いはじめの数秒であなたのオクターブを判定し、メロディの隣に線を描きます。「歌う」の横のメニューで選ぶこともできます。",
+    a: "なりません。1オクターブ下や上で歌っても正解として判定します。歌いはじめの数秒であなたのオクターブを判定し、メロディの隣に線を描きます。",
   },
   {
     q: "線の色の意味は？",
@@ -140,11 +140,11 @@ const JA = [
   },
   {
     q: "録音は保存されますか？",
-    a: "各曲の直前の1回分の録音が、曲と一緒にこの端末に自動で残り、曲を開いたときに「前の録音を見る」で見られます。もう一度歌うと置き換わり、「自分の声を削除」で消せます。「自分の声だけ保存（WAV）」と「曲と一緒に保存（MP3）」は端末にファイルを保存します。アップロードはしません。",
+    a: "各曲の直前の1回分の録音が、曲と一緒にこの端末に自動で残り、次に曲を開くと一緒に開きます。もう一度歌うと置き換わり、「歌う」の横の「録音を削除」で消せます。「保存（MP3）」は端末にファイルを保存します。アップロードはしません。",
   },
   {
     q: "自分の歌を曲と一緒に保存できますか？",
-    a: "できます。歌ったあとの「保存（MP3）」で、聞こえているとおりのミックス（ボーカル・伴奏・自分の声の音量のとおり）を 1 つの MP3 ファイルにします。曲が入っているので、自分の練習用だけに使い、動画サイトや SNS への投稿・共有・配布はしないでください。曲の権利は権利者にあります。",
+    a: "できます。歌ったあとの「保存（MP3）」で、曲の全体を聞こえているとおりに（ボーカル・伴奏・自分の声の音量、キーとテンポのとおり）1 つの MP3 ファイルにします。「自分の声」をミュートすれば、選んだキー・テンポの曲だけを保存することもできます。曲が入っているので、自分の練習用だけに使い、動画サイトや SNS への投稿・共有・配布はしないでください。曲の権利は権利者にあります。",
   },
   {
     q: "おすすめキーはどう決めていますか？",
