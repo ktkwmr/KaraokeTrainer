@@ -415,7 +415,6 @@
             <div class="setrow">
               <button class="chip" id="mp3Btn" type="button" data-i18n="res.mp3">保存（MP3）</button>
             </div>
-            <p class="hint" id="keptNote" data-i18n="res.kept.note">各曲の直前の1回分の録音がこの端末に残り、次に曲を開くと一緒に開きます。もう一度歌うと置き換わります。</p>
             <p class="hint" id="mp3Note" data-i18n="res.mp3.note">「保存（MP3）」は、曲の全体を聞こえているとおりに（ボーカル・伴奏・自分の声の音量とミュート、キーとテンポのとおり）1つの MP3 にします。曲が入っているので、自分の練習用だけに使い、投稿・共有はしないでください。</p>
           </div>
           <div class="row">
@@ -710,7 +709,6 @@
           "res.del.title": "Delete your recording?",
           "res.del.body": "This deletes this take (your voice and its results) from this device. The song stays.",
           "res.del.done": "Your recording was deleted.",
-          "res.kept.note": "Your last take of each song is kept on this device and opens with the song next time. Singing again replaces it.",
           "prev.fail": "Could not open the last take.",
           "res.mp3": "Save (MP3)",
           "res.mp3.note": "“Save (MP3)” saves the whole song as you hear it – the vocal, the accompaniment and your voice, at their volumes and mutes, in the key and tempo you hear. It contains the song, so it is for your own practice only: do not post or share it.",
@@ -944,7 +942,6 @@
           "res.del.title": "録音を削除しますか？",
           "res.del.body": "この録音（あなたの声と答え合わせ）をこの端末から削除します。曲は残ります。",
           "res.del.done": "録音を削除しました。",
-          "res.kept.note": "各曲の直前の1回分の録音がこの端末に残り、次に曲を開くと一緒に開きます。もう一度歌うと置き換わります。",
           "prev.fail": "前の録音を開けませんでした。",
           "res.mp3": "保存（MP3）",
           "res.mp3.note": "「保存（MP3）」は、曲の全体を聞こえているとおりに（ボーカル・伴奏・自分の声の音量とミュート、キーとテンポのとおり）1つの MP3 にします。曲が入っているので、自分の練習用だけに使い、投稿・共有はしないでください。",
@@ -2679,7 +2676,6 @@
           li.appendChild(btn);
           ul.appendChild(li);
         });
-        $("keptNote").hidden = !!song.demo;
         $("mp3Btn").disabled = !take.audio;
         draw();
       }

@@ -269,8 +269,8 @@ const takesIn = () => page.evaluate(() => new Promise((res, rej) => {
 await page.waitForFunction(() => /last take kept/.test(document.querySelector("#recent").innerText), null, { timeout: 10000 });
 {
   const k = await takesIn();
-  const keep = await page.evaluate(() => ({ btn: !!document.querySelector("#keepBtn"), del: !document.querySelector("#delTakeBtn").hidden, note: !document.querySelector("#keptNote").hidden }));
-  if (k.length === 1 && k[0].audio > 0 && k[0].v === 3 && !keep.btn && keep.del && keep.note) ok("last take kept by itself in \"takes\" (no Keep button)");
+  const keep = await page.evaluate(() => ({ btn: !!document.querySelector("#keepBtn"), del: !document.querySelector("#delTakeBtn").hidden, note: !document.querySelector("#keptNote") }));
+  if (k.length === 1 && k[0].audio > 0 && k[0].v === 3 && !keep.btn && keep.del && keep.note) ok("last take kept by itself in \"takes\" (no Keep button, no note about it)");
   else fail("last take not kept: " + JSON.stringify({ k, keep }));
 }
 await page.waitForTimeout(1500); // the Service Worker caches the app files
