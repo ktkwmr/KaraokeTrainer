@@ -94,16 +94,21 @@ if (parseInt(res.match) >= 50) ok("on pitch " + res.match); else fail("on pitch 
 if (/−/.test(res.bias)) ok("flat bias seen: " + res.bias); else fail("expected a flat bias: " + res.bias);
 if (SHOTS) await page.screenshot({ path: join(SHOTS, "3-results.png"), fullPage: true });
 
-// Delay correction and "Measure the delay" are on the results (not in the settings): a large change moves the take off the melody;
-// back to the value it was sung with restores the score
+// Delay correction and "Measure the delay" are on the results (not in the settings): a change moves the take
+// (the line drawn on the roll); back to the value it was sung with restores it and the score. (The score itself
+// may not change: a note is judged by its median, and the test song's notes are longer than twice the slider's range.)
 const setDelay = (v) => page.evaluate((v) => { const r = document.querySelector("#latency"); r.value = v; r.dispatchEvent(new Event("input")); }, v);
+const rollPx = () => page.evaluate(() => document.querySelector("#roll").toDataURL());
 const delay0 = Number(await page.inputValue("#latency"));
+const px0 = await rollPx();
 await setDelay(500);
 const moved = await page.evaluate(() => ({ val: document.querySelector("#latencyVal").textContent, inSettings: !!document.querySelector("#setDlg #latency, #setDlg #calibBtn"), calibHere: !!document.querySelector("#results #calibBtn"), match: document.querySelector("#resMatch").textContent }));
+const pxMoved = await rollPx();
 await setDelay(delay0);
 const back = await page.evaluate(() => document.querySelector("#resMatch").textContent);
-if (moved.val === "500 ms" && !moved.inSettings && moved.calibHere && parseInt(moved.match) < parseInt(res.match) && back === res.match) ok(`delay correction on the results: ${delay0} → 500 ms: ${moved.match}, back: ${back}`);
-else fail("delay correction on the results: " + JSON.stringify({ delay0, moved, back, before: res.match }));
+const pxBack = await rollPx();
+if (moved.val === "500 ms" && !moved.inSettings && moved.calibHere && pxMoved !== px0 && pxBack === px0 && back === res.match) ok(`delay correction on the results: ${delay0} → 500 ms: line moved (${moved.match}), back: ${back}`);
+else fail("delay correction on the results: " + JSON.stringify({ delay0, moved, back, before: res.match, lineMoved: pxMoved !== px0, lineBack: pxBack === px0 }));
 
 // Compare: plays with your recording
 await page.click("#cmpPlay");

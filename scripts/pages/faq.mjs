@@ -40,7 +40,7 @@ const EN = [
   },
   {
     q: "What do the colours mean?",
-    a: `Green: within ±${G} cents of the note bar (the melody put on the nearest semitone, as on a karaoke machine), or of the next one if you are up to 0.1 s early or late; yellow: within ±${Y} cents; red: further off (100 cents = one semitone). Settings → “How strict” changes these ranges.`,
+    a: `Green: within ±${G} cents of the note bar (the melody put on the nearest semitone, as on a karaoke machine), or of the next one if you are up to 0.1 s early or late; yellow: within ±${Y} cents; red: further off (100 cents = one semitone). Settings → “How strict” changes these ranges. The line is coloured moment by moment; the bar of a note turns green when the middle (median) of your pitch over the note is in the green range, so vibrato does not make a note wrong.`,
   },
   {
     q: "Why do I need headphones?",
@@ -56,7 +56,7 @@ const EN = [
   },
   {
     q: "Is the percentage a score?",
-    a: "It is a rough guide, not a score: the share of the time you were within the green range, counted only where the original singer sings and you sang. The list of parts that went off, and listening to your recording, tell you more.",
+    a: "It is a rough guide, not a score: the share of the melody whose notes you sang on pitch (their bar turned green; a long note counts more than a short one), counted only where the original singer sings and you sang. The list of parts that went off, and listening to your recording, tell you more.",
   },
   {
     q: "Is my recording saved?",
@@ -120,7 +120,7 @@ const JA = [
   },
   {
     q: "線の色の意味は？",
-    a: `緑：バー（メロディをカラオケのように一番近い半音に置いたもの）の音とのズレが±${G}セント以内（0.1秒までの早い・遅いは隣の音と比べます）、黄：±${Y}セント以内、赤：それより外れ（100セント＝半音）。設定の「判定の厳しさ」で範囲を変えられます。`,
+    a: `緑：バー（メロディをカラオケのように一番近い半音に置いたもの）の音とのズレが±${G}セント以内（0.1秒までの早い・遅いは隣の音と比べます）、黄：±${Y}セント以内、赤：それより外れ（100セント＝半音）。設定の「判定の厳しさ」で範囲を変えられます。線は瞬間ごとの色です。バーは、その音の間のあなたの音程の真ん中（中央値）が緑の範囲なら緑になるので、ビブラートで揺れても外れになりません。`,
   },
   {
     q: "なぜヘッドホンが必要ですか？",
@@ -136,7 +136,7 @@ const JA = [
   },
   {
     q: "パーセントは点数ですか？",
-    a: "点数ではなく、おおまかな目安です。原曲の歌手が歌っていて、あなたも歌った部分のうち、緑の範囲に入っていた時間の割合です。ズレが大きかったところの一覧や、録音の聴き比べのほうが、多くのことがわかります。",
+    a: "点数ではなく、おおまかな目安です。原曲の歌手が歌っていて、あなたも歌った部分のうち、音程が合っていた（バーが緑になった）音の割合です。長い音ほど大きく数えます。ズレが大きかったところの一覧や、録音の聴き比べのほうが、多くのことがわかります。",
   },
   {
     q: "録音は保存されますか？",
