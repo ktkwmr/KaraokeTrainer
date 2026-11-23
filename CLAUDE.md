@@ -33,12 +33,14 @@
 - 曲は IndexedDB（`karaoketrainer` バージョン 2、`index`・`songs`・`takes`、キーはファイルの SHA-256 の先頭 128 ビット）に最近の `KEEP_SONGS`（8）曲まで。録音は歌い終わるたびに各曲の直前の 1 回分だけを `takes` に自動で保存（`keepTake()`。デモ曲と何も録れていない録音は除く。曲の `stems` は書き直さない）。曲を開いても答え合わせは自動で出さず、「前の録音を見る」（`prevBtn`）で開く。答え合わせの「自分の声を削除」（確認のダイアログつき）で消す。バージョン 1 で `songs` の `take` に入っていた録音は、曲を開いたときに `takes` へ移す。SharedArrayBuffer は IndexedDB に入らないので普通の配列にコピーして保存する。
 - 設定は `localStorage` の `karaoketrainer-state`（`v: 1`。ボーカル・伴奏の音量とミュートも）、マイ音域は `karaoketrainer-range`。音域は任意で、登録しなくても全機能が使える（おすすめキーの欄は控えめな案内だけ）。
 - 答え合わせには「閉じる」を付けない（閉じると録音を聴き直す方法が無くなるため。次に歌うか曲を替えるまで出したまま）。答え合わせを開いている間（`reviewing`）は、ミキサーに「自分の声」（`store.mine`、0〜200%、`take.gain` に掛ける）が出て、録音を鳴らす。原曲のボーカルのミュートはこの間だけ別（`reviewVocalMute`、歌い終わるたびにオン。保存しない）。音量は普段のスライダーと共通。
-- キー変更は `keyshift.js`（Band Stem Mixer（ktkwmr/BandStemMixer、MIT、同じ作者）からのコピー。`makeFft` は `dsp.js` から）。片方で直した不具合はもう片方にも移す案を出す。
+- キー変更は `keyshift.js`（Band Stem Mixer（ktkwmr/BandStemMixer、MIT、同じ作者）からのコピー。`makeFft` は `dsp.js` から。テンポ（`tempo`、出力の長さ、足りないフレーム数の修正）はこちらで足した）。片方で直した不具合はもう片方にも移す案を出す。
 - ページはクロスオリジン分離（`public/_headers` の COOP same-origin、COEP **credentialless**。ベースライン §6-6）。外部から読むファイルは CORS で。外部ホストを足したら `_headers` の CSP と、プライバシーの説明（`scripts/pages/privacy.mjs`、アプリ内の `privacy.body`、README）を同じ PR で直す。マイクは `Permissions-Policy: microphone=(self)`。
 - 大きなダウンロードの前の確認は `connectionRisk()`・`askNetwork()`（ベースライン §9-13）。分離の設定は `MODES`・`LADDER`（Band Stem Mixer と同じ考え方）。
 - URL・YouTube からの取り込みは作らない（著作権への配慮。仕様書 §4-1）。
 - **歌を曲と一緒に保存（MP3）は個人使用に限る**。保存のたびに確認のダイアログ（`useDlg`）を出し、ボタンの下にも注意書き（`res.mp3.note`）、ファイルの ID3 タグのコメント（`res.mp3.comment`）とファイル名（`-personal-use` / `-個人使用`）にも書く。共有・投稿を手伝う機能（共有ボタン・アップロード）は付けない。中身は答え合わせで聞こえているミックス（ボーカル・伴奏・自分の声のスライダーとミュートのとおり）で、歌った範囲だけ。歌ったときのキーと今のキーが違うときは保存しない。MP3 は `encoder.js`（Band Stem Mixer と同じ。lamejs（`@breezystack/lamejs`、LGPL-3.0）を改変せず CDN から別ファイルとして読む。バージョンは `encoder.js` の `LAME_URL` と `sw.js` の `CDN`）。
-- 区間ループ（A–B）とテンポ変更は入れない（2026-11-22 にユーザーが不要と判断。仕様書の未決事項）。答え合わせのズレた区間はタップでその 1 秒前から再生するだけ。
+- 区間ループ（A–B）は入れない（2026-11-22 にユーザーが不要と判断。仕様書の未決事項）。答え合わせのズレた区間はタップでその 1 秒前から再生するだけ。
+- テンポ変更（2026-11-23 にユーザーの希望で追加。キーの下、`TEMPO_MIN`〜`TEMPO_MAX`＝50〜150%、5% ずつ、曲を替えると 100%）。`keyshift.js` がキーと一緒に伸縮した伴奏・ボーカル（長さ＝元の長さ÷テンポ）を作る。**ページの位置はすべて元の曲の時間のまま**（サンプル・フレーム・秒・拍・バー・録音の線）で、`mixer.js` が 1 サンプルごとに `rate`（いま鳴っているトラックのテンポ＝`curRate`）だけ進み、トラックを位置÷`rate` で読む。端末の遅延（実時間）は曲の時間では ×`curRate`。録音（`take.audio`）は歌ったときのテンポ（`take.tempo`、％。無い録音は 100）の尺＝実時間で保存し、`lat`・`shift` も実時間。歌っている間はテンポを変えられない（新しいテンポの準備中は歌い始めない）。答え合わせで今のテンポが録音と違うときは、`stretchVoice()` が録音の歌った部分（前後 1 秒つき）を `keyshift.js` でそのテンポに伸縮した写し（`voice`、保存しない）を作り、`voiceAudio()` が再生・WAV・MP3 に使う（遅延の補正は `voiceShift()`＝`shiftSamples()`×録音のテンポ÷今のテンポ）。準備中は自分の声を鳴らさず `cmpTempo` に進み具合、WAV・MP3 は待ってもらう。
+- 音量のスライダー（ボーカル・伴奏・自分の声）はダブルタップ（ダブルクリック）で 100%（`pointerup` 2 回、350 ms 以内）。動かしたときと同じくミュートも外れる。
 - 記事は `scripts/pages/<slug>.mjs`（`guide`・`faq`）。アプリと共通の値は `scripts/pages/app.mjs` がアプリのファイルから読む。画面写真は `node scripts/render-guide-images.mjs`（デモ曲と、偽のマイクに流す歌声で撮る。モデル不要）。見た目を変えたら撮り直す。記事を足したら `build-pages.mjs` の `PAGES` と `index.html` の `intro.body`（英日）にも足す。
 - 動作確認は `scripts/test/`（偽のモデル・テスト用の曲と歌声・ローカルサーバー・E2E。README の「開発」）。本物のモデル・CDN・実機には Claude の環境から届かないので、確かめられなかったことは「未確認」と書き、ユーザーに確認手順を伝える（ベースライン §12-13・§12-14）。
 - トップページ（https://ktkwmr.com/）のアプリ一覧に載せたら、アプリ名・説明・アイコン・記事を変えたときに `ktkwmr/ktkwmr.com` の `scripts/pages/home.mjs` を直す PR を別に出す（ベースライン §2-16）。

@@ -210,7 +210,7 @@
     .mute .x { display: none; }
     .mute[aria-pressed="true"] .x { display: inline; }
     .mute[aria-pressed="true"] .wave { display: none; }
-    .keyval { font-family: var(--mono); font-size: 14px; font-weight: 700; min-width: 3ch; text-align: center; }
+    .keyval { font-family: var(--mono); font-size: 14px; font-weight: 700; min-width: 4.5ch; text-align: center; }
     .badge { appearance: none; height: 28px; padding: 0 10px; border: 1px dashed var(--ink); border-radius: 14px; background: var(--paper); color: var(--ink); font-size: 12px; font-weight: 700; cursor: pointer; }
     .keys { font-size: 12px; color: var(--subtle); padding: 10px 16px 14px; margin: 0; }
     kbd { font-family: var(--mono); font-size: 11px; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; color: var(--muted); background: var(--paper); }
@@ -402,6 +402,7 @@
                 <button class="chip" id="cmpPlay" type="button" data-i18n="cmp.play">Play from the start of the take</button>
               </div>
               <p class="hint" data-i18n="cmp.hint">Set the volumes below. The original vocal starts muted; turn it on to hear it with your voice.</p>
+              <p class="hint" id="cmpTempo" hidden></p>
             </div>
             <div class="stack">
               <label class="label" for="latency" data-i18n="set.delay">Delay correction</label>
@@ -440,7 +441,7 @@
               <span class="val mine" id="mineVal" hidden>100%</span>
               <button class="chip sq mute mine" hidden id="mineMute" type="button" aria-pressed="false" aria-label="Mute my voice" title="Mute my voice" data-i18n-attr="aria-label:mute.mine;title:mute.mine"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"></path><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7"></path><path class="wave" d="M18.5 5.5a9 9 0 0 1 0 13"></path><path class="x" d="m16 9 6 6M22 9l-6 6"></path></svg></button>
             </div>
-            <p class="hint" id="vocalHint" data-i18n="vol.hint">Vocal 0% = karaoke (no singer), 100% = the original. In between, the singer becomes a quiet guide.</p>
+            <p class="hint" id="vocalHint" data-i18n="vol.hint">Vocal 0% = karaoke (no singer), 100% = the original. In between, the singer becomes a quiet guide. Double-tap a slider to set it back to 100%.</p>
           </div>
           <div class="row">
             <span class="label" data-i18n="key.label">Key</span>
@@ -450,6 +451,13 @@
             <button class="badge" id="keySuggest" type="button" hidden></button>
             <span class="hint" id="keyBusy" hidden></span>
           </div>
+          <div class="row">
+            <span class="label" data-i18n="tempo.label">Tempo</span>
+            <button class="chip sq" id="tempoDown" type="button" aria-label="Slower" data-i18n-attr="aria-label:tempo.down">−</button>
+            <span class="keyval" id="tempoVal">100%</span>
+            <button class="chip sq" id="tempoUp" type="button" aria-label="Faster" data-i18n-attr="aria-label:tempo.up">+</button>
+            <span class="hint" id="tempoHint" data-i18n="tempo.hint">Slower or faster, in the same key.</span>
+          </div>
           <p class="keys" data-i18n-html="keys"><kbd>Space</kbd> play / pause · <kbd>Home</kbd> stop · <kbd>R</kbd> sing on / off · <kbd>←</kbd> <kbd>→</kbd> 5 seconds back / forward</p>
         </div>
       </section>
@@ -458,7 +466,7 @@
 
     <section class="intro" aria-labelledby="introTitle">
       <h1 id="introTitle" data-i18n="intro.title">Karaoke practice: sing along and see your pitch over the original melody</h1>
-      <div data-i18n-html="intro.body"><p>Karaoke Trainer is a free practice tool for people who love singing, no sheet music needed. Load a song file you have, and AI separates the singer's voice from the accompaniment and turns the singer's melody into <b>note bars</b>, as on a karaoke machine. Press “Sing” and your own pitch is drawn over it as you sing, so you can <b>see</b> where you went flat or sharp.</p><p>The <b>Vocal</b> slider goes from 0% (karaoke: the accompaniment only) to 100% (the original); in between, the singer becomes a quiet guide voice. You can change the key by up to 6 semitones up or down; the bars move with it. Singing an octave lower or higher than the original singer, as many men do with songs by women and the other way round, counts as on pitch.</p><p>When you stop, the app shows how much of the melody you sang on pitch, lists the parts that went off (tap one to sing it again), and lets you listen to your recording against the original singer's voice. If you measure your vocal range once, each song also shows the key that suits your voice. You can skip that: the practice works without it.</p><p>Everything runs <b>in your browser</b>: your song and your voice are not uploaded anywhere. The first song downloads the AI model (about 75 MB, once); songs you loaded are kept on this device and open at once next time, even offline. Use headphones while singing. Supported files: MP3, WAV, M4A (AAC), FLAC, OGG and most formats your browser can play, and video files such as MP4 (only the sound is used), up to 10 minutes. Free, no sign-up, no ads.</p><h2>Guides</h2><ul><li><a href="/karaoketrainer/guide/" target="_blank" rel="noopener">How to use Karaoke Trainer</a></li><li><a href="/karaoketrainer/faq/" target="_blank" rel="noopener">Frequently asked questions</a></li></ul></div>
+      <div data-i18n-html="intro.body"><p>Karaoke Trainer is a free practice tool for people who love singing, no sheet music needed. Load a song file you have, and AI separates the singer's voice from the accompaniment and turns the singer's melody into <b>note bars</b>, as on a karaoke machine. Press “Sing” and your own pitch is drawn over it as you sing, so you can <b>see</b> where you went flat or sharp.</p><p>The <b>Vocal</b> slider goes from 0% (karaoke: the accompaniment only) to 100% (the original); in between, the singer becomes a quiet guide voice. You can change the key by up to 6 semitones up or down; the bars move with it. The tempo can be slowed down to 50% (or sped up to 150%) without changing the key, to learn a fast passage. Singing an octave lower or higher than the original singer, as many men do with songs by women and the other way round, counts as on pitch.</p><p>When you stop, the app shows how much of the melody you sang on pitch, lists the parts that went off (tap one to sing it again), and lets you listen to your recording against the original singer's voice. If you measure your vocal range once, each song also shows the key that suits your voice. You can skip that: the practice works without it.</p><p>Everything runs <b>in your browser</b>: your song and your voice are not uploaded anywhere. The first song downloads the AI model (about 75 MB, once); songs you loaded are kept on this device and open at once next time, even offline. Use headphones while singing. Supported files: MP3, WAV, M4A (AAC), FLAC, OGG and most formats your browser can play, and video files such as MP4 (only the sound is used), up to 10 minutes. Free, no sign-up, no ads.</p><h2>Guides</h2><ul><li><a href="/karaoketrainer/guide/" target="_blank" rel="noopener">How to use Karaoke Trainer</a></li><li><a href="/karaoketrainer/faq/" target="_blank" rel="noopener">Frequently asked questions</a></li></ul></div>
     </section>
   </main>
 
@@ -750,7 +758,7 @@
           "vol.acc": "Accompaniment",
           "vol.mine": "My voice",
           "mute.mine": "Mute my voice",
-          "vol.hint": "Vocal 0% = karaoke (no singer), 100% = the original. In between, the singer becomes a quiet guide.",
+          "vol.hint": "Vocal 0% = karaoke (no singer), 100% = the original. In between, the singer becomes a quiet guide. Double-tap a slider to set it back to 100%.",
           "key.label": "Key",
           "key.down": "Key down a semitone",
           "key.up": "Key up a semitone",
@@ -763,6 +771,15 @@
           "key.noRange": "Find my key (measure my vocal range)",
           "key.busy": "Changing the key… {pct}%",
           "key.fail": "The key could not be changed: {msg}",
+          "tempo.label": "Tempo",
+          "tempo.down": "Slower (5%)",
+          "tempo.up": "Faster (5%)",
+          "tempo.hint": "Slower or faster, in the same key.",
+          "tempo.busy": "Changing the tempo… {pct}%",
+          "tempo.fail": "The tempo could not be changed: {msg}",
+          "tempo.wait": "The new tempo is still being prepared: sing in a moment.",
+          "cmp.tempo": "Changing the tempo of your voice… {pct}%",
+          "res.wait": "Your voice is still being prepared for this tempo: try again in a moment.",
           "keys": "<kbd>Space</kbd> play / pause · <kbd>Home</kbd> stop · <kbd>R</kbd> sing on / off · <kbd>←</kbd> <kbd>→</kbd> 5 seconds back / forward",
           "foot": "Your song and your voice are processed on this device and never uploaded. No account needed.",
           "net.title.cellular": "You are on mobile data",
@@ -839,7 +856,7 @@
           "help.body": "<li><b>Load a song</b> – Choose a song file you have (MP3, WAV, M4A, FLAC…, or a video such as MP4, of which only the sound is used; up to 10 minutes) or drop it on the box. The app separates the singer's voice from the accompaniment with AI and finds the melody. The first time it downloads the AI model (about 75 MB, once). Songs you loaded are kept on this device, so next time they open at once, even offline.</li><li><b>Listen</b> – Press ▶. The grey bars are the singer's melody, one bar per note: higher on the screen is a higher note. Use the “Vocal” slider: 0% is karaoke, 100% is the original, in between the singer becomes a quiet guide. The speaker buttons mute the vocal or the accompaniment. Pinch the line to zoom in or out in time; on a phone, drag it with one finger; on a computer, scroll with two fingers (or the wheel) to look ahead, back, up, or down. ▶ brings it back to where the song is playing.</li><li><b>Sing</b> – Put on headphones and press “Sing”. Your pitch is drawn as you sing: <b>green</b> = on pitch, <b>yellow</b> = close, <b>red</b> = off. A note counts as on pitch, and its bar fills with green, when the middle of your pitch over it is in the green range, so vibrato does not count against you. Singing an octave lower or higher than the original counts as on pitch; the app finds your octave in the first few seconds (or choose it).</li><li><b>Look back</b> – When you stop (or the song ends), you see how much was on pitch, the parts that went off (tap one to play it again from just before it), and you can listen to your recording against the original singer: a “My voice” slider appears next to Vocal and Accompaniment, and the original vocal starts muted (turn it on to hear both). Your last take of each song is kept on this device: next time, “See the last take” (next to “Sing”) opens it. Singing again replaces it, and “Delete my voice” deletes it. “Save with the song (MP3)” saves your voice with the accompaniment as one file, for your own practice only: do not post or share it.</li><li><b>Change the key</b> – − / + moves the song up or down by up to 6 semitones; the grey bars move with it.</li><li><b>Find your key (optional)</b> – Measure your vocal range once (⚙ → My vocal range) and each song shows a suggested key. You do not need it to practice.</li><li><b>If the line is late</b> – Bluetooth headphones and some devices add delay. After you sing, move the “Delay correction” slider on the results (your line moves with it), or press “Measure the delay” there.</li><li><b>Use songs you may use</b> – Use song files you bought or recorded. The app does not take songs from YouTube or other sites.</li>",
           "privacy.body": "<li><b>Your song and your voice stay on your device</b> – The song file is separated and analyzed only in your browser. The microphone is used only while you sing or measure your range, and your voice is analyzed and recorded only in your browser. Nothing is sent to a server. This app has no accounts, cookies, or ads.</li><li><b>Downloads</b> – To separate a song, your browser downloads the AI model from this site and the ONNX Runtime library from jsDelivr (a CDN); when you save your singing with the song as MP3, also the lamejs MP3 encoder from jsDelivr. Like any download, they receive your IP address and browser information. Nothing about your song or voice is sent.</li><li><b>Data saved in your browser</b> – The AI model, the songs you loaded (the separated vocals and accompaniment and the melody line, so they open at once next time), your last take of each song, your vocal range if you measured it, your settings, and the app itself (to work offline). Delete songs with ⚙ → “Delete saved songs”, the model with ⚙ → “Delete the AI model”, your range in “My vocal range”, or clear this site's data in your browser settings.</li><li><b>Server logs and page views</b> – This site is hosted on Cloudflare. Standard access logs (such as IP address, time, and the requested page) are kept for operation and security. Cloudflare Web Analytics counts page views without cookies (the page URL, referrer, browser information, and page load time).</li><li><b>Contact</b> – Questions and feedback: <a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">GitHub Issues</a>.</li><li><b>Full policy</b> – See the <a href=\"/karaoketrainer/privacy/\" target=\"_blank\" rel=\"noopener\">privacy policy</a> and <a href=\"/karaoketrainer/about/\" target=\"_blank\" rel=\"noopener\">about this site</a>.</li>",
           "intro.title": "Karaoke practice: sing along and see your pitch over the original melody",
-          "intro.body": "<p>Karaoke Trainer is a free practice tool for people who love singing, no sheet music needed. Load a song file you have, and AI separates the singer's voice from the accompaniment and turns the singer's melody into <b>note bars</b>, as on a karaoke machine. Press “Sing” and your own pitch is drawn over it as you sing, so you can <b>see</b> where you went flat or sharp.</p><p>The <b>Vocal</b> slider goes from 0% (karaoke: the accompaniment only) to 100% (the original); in between, the singer becomes a quiet guide voice. You can change the key by up to 6 semitones up or down; the bars move with it. Singing an octave lower or higher than the original singer, as many men do with songs by women and the other way round, counts as on pitch.</p><p>When you stop, the app shows how much of the melody you sang on pitch, lists the parts that went off (tap one to sing it again), and lets you listen to your recording against the original singer's voice. If you measure your vocal range once, each song also shows the key that suits your voice. You can skip that: the practice works without it.</p><p>Everything runs <b>in your browser</b>: your song and your voice are not uploaded anywhere. The first song downloads the AI model (about 75 MB, once); songs you loaded are kept on this device and open at once next time, even offline. Use headphones while singing. Supported files: MP3, WAV, M4A (AAC), FLAC, OGG and most formats your browser can play, and video files such as MP4 (only the sound is used), up to 10 minutes. Free, no sign-up, no ads.</p><h2>Guides</h2><ul><li><a href=\"/karaoketrainer/guide/\" target=\"_blank\" rel=\"noopener\">How to use Karaoke Trainer</a></li><li><a href=\"/karaoketrainer/faq/\" target=\"_blank\" rel=\"noopener\">Frequently asked questions</a></li></ul>",
+          "intro.body": "<p>Karaoke Trainer is a free practice tool for people who love singing, no sheet music needed. Load a song file you have, and AI separates the singer's voice from the accompaniment and turns the singer's melody into <b>note bars</b>, as on a karaoke machine. Press “Sing” and your own pitch is drawn over it as you sing, so you can <b>see</b> where you went flat or sharp.</p><p>The <b>Vocal</b> slider goes from 0% (karaoke: the accompaniment only) to 100% (the original); in between, the singer becomes a quiet guide voice. You can change the key by up to 6 semitones up or down; the bars move with it. The tempo can be slowed down to 50% (or sped up to 150%) without changing the key, to learn a fast passage. Singing an octave lower or higher than the original singer, as many men do with songs by women and the other way round, counts as on pitch.</p><p>When you stop, the app shows how much of the melody you sang on pitch, lists the parts that went off (tap one to sing it again), and lets you listen to your recording against the original singer's voice. If you measure your vocal range once, each song also shows the key that suits your voice. You can skip that: the practice works without it.</p><p>Everything runs <b>in your browser</b>: your song and your voice are not uploaded anywhere. The first song downloads the AI model (about 75 MB, once); songs you loaded are kept on this device and open at once next time, even offline. Use headphones while singing. Supported files: MP3, WAV, M4A (AAC), FLAC, OGG and most formats your browser can play, and video files such as MP4 (only the sound is used), up to 10 minutes. Free, no sign-up, no ads.</p><h2>Guides</h2><ul><li><a href=\"/karaoketrainer/guide/\" target=\"_blank\" rel=\"noopener\">How to use Karaoke Trainer</a></li><li><a href=\"/karaoketrainer/faq/\" target=\"_blank\" rel=\"noopener\">Frequently asked questions</a></li></ul>",
           "foot.meta": "<span>Karaoke Trainer · © 2026 ktkwmr</span><a href=\"/karaoketrainer/privacy/\" target=\"_blank\" rel=\"noopener\">Privacy policy</a><a href=\"/karaoketrainer/about/\" target=\"_blank\" rel=\"noopener\">About this site</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer\" target=\"_blank\" rel=\"noopener\">Source code on GitHub</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">Feedback</a><a href=\"https://ktkwmr.com/\" target=\"_blank\" rel=\"noopener\">More apps by ktkwmr</a>"
         },
         ja: {
@@ -989,7 +1006,7 @@
           "vol.acc": "伴奏",
           "vol.mine": "自分の声",
           "mute.mine": "自分の声をミュート",
-          "vol.hint": "ボーカル0%＝カラオケ（歌なし）、100%＝原曲どおり。間にすると、歌手の声が小さなガイドになります。",
+          "vol.hint": "ボーカル0%＝カラオケ（歌なし）、100%＝原曲どおり。間にすると、歌手の声が小さなガイドになります。スライダーをダブルタップすると 100% に戻ります。",
           "key.label": "キー",
           "key.down": "キーを半音下げる",
           "key.up": "キーを半音上げる",
@@ -1002,6 +1019,15 @@
           "key.noRange": "自分に合うキーを調べる（音域を測る）",
           "key.busy": "キーを変えています… {pct}%",
           "key.fail": "キーを変えられませんでした：{msg}",
+          "tempo.label": "テンポ",
+          "tempo.down": "遅くする（5%）",
+          "tempo.up": "速くする（5%）",
+          "tempo.hint": "キーはそのままで、遅く・速くします。",
+          "tempo.busy": "テンポを変えています… {pct}%",
+          "tempo.fail": "テンポを変えられませんでした：{msg}",
+          "tempo.wait": "新しいテンポを準備しています。少し待ってから歌ってください。",
+          "cmp.tempo": "自分の声のテンポを変えています… {pct}%",
+          "res.wait": "自分の声をこのテンポに合わせています。少し待ってからもう一度押してください。",
           "keys": "<kbd>Space</kbd> 再生／一時停止・<kbd>Home</kbd> 停止・<kbd>R</kbd> 歌うのオン／オフ・<kbd>←</kbd> <kbd>→</kbd> 5秒戻る／進む",
           "foot": "曲とあなたの声はこの端末の中で処理し、アップロードしません。登録不要。",
           "net.title.cellular": "モバイルデータ通信中です",
@@ -1078,7 +1104,7 @@
           "help.body": "<li><b>曲を読み込む</b> ― 手持ちの曲のファイル（MP3、WAV、M4A、FLAC など。MP4 などの動画も可で、音声だけを使う。10分まで）を選ぶか、枠にドロップします。AIが歌手の声と伴奏を分け、メロディを取り出します。初回はAIモデル（約75MB、1回だけ）をダウンロードします。読み込んだ曲はこの端末に保存されるので、次からはすぐに（オフラインでも）開けます。</li><li><b>聴く</b> ― ▶ を押します。グレーのバーが歌手のメロディで（1つの音に1本）、画面の上ほど高い音です。「ボーカル」のスライダーは 0% でカラオケ、100% で原曲どおり、間にすると歌手の声が小さなガイドになります。スピーカーのボタンでボーカルや伴奏をミュートできます。線はピンチで時間方向に拡大・縮小でき、スマホでは1本指のドラッグ、パソコンでは2本指のスクロール（またはホイール）で前後・上下を見られます。▶ を押すと再生位置に戻ります。</li><li><b>歌う</b> ― ヘッドホンをつけて「歌う」を押します。歌うとあなたの音程が線で描かれます。<b>緑</b>＝合っている、<b>黄</b>＝惜しい、<b>赤</b>＝外れ。音ごとに、その間のあなたの音程の真ん中が緑の範囲なら正解で、バーが緑に塗られます（ビブラートで揺れても外れになりません）。原曲より1オクターブ下や上で歌っても正解です。最初の数秒であなたのオクターブを自動で判定します（選ぶこともできます）。</li><li><b>答え合わせ</b> ― 止めると（または曲が終わると）、音程が合っていた割合と、ズレが大きかったところが表示されます（タップでその少し前から再生）。自分の録音と原曲の歌手の声を聴き比べることもできます（「ボーカル」「伴奏」の下に「自分の声」のスライダーが出ます。原曲のボーカルは最初はミュートで、オンにすると重ねて聴けます）。各曲の直前の1回分の録音はこの端末に残り、次に開いたときは「歌う」の横の「前の録音を見る」で見られます。もう一度歌うと置き換わり、「自分の声を削除」で消せます。「曲と一緒に保存（MP3）」で、あなたの声と伴奏を1つのファイルにできます。自分の練習用だけに使い、投稿・共有はしないでください。</li><li><b>キーを変える</b> ― − / ＋ で曲を最大6半音まで上げ下げできます。グレーのバーも一緒に動きます。</li><li><b>自分に合うキー（任意）</b> ― 一度音域を測っておくと（⚙ →「マイ音域」）、曲ごとにおすすめのキーが表示されます。練習には必要ありません。</li><li><b>線が遅れるとき</b> ― Bluetoothのヘッドホンや一部の端末では遅れが出ます。歌ったあと、答え合わせの「遅延の補正」を動かすと線も一緒に動きます。そこにある「遅延を測る」で測ることもできます。</li><li><b>使ってよい曲で</b> ― 購入した曲や自分で録音した曲のファイルを使ってください。YouTube などのサイトから曲を取り込む機能はありません。</li>",
           "privacy.body": "<li><b>曲と声は端末の中だけ</b> ― 曲のファイルの分離と解析は、ブラウザの中だけで行います。マイクは歌っているときと音域を測るときだけ使い、声の解析と録音もブラウザの中だけで行います。サーバーには何も送りません。アカウント・Cookie・広告はありません。</li><li><b>ダウンロード</b> ― 曲を分離するために、ブラウザがこのサイトからAIモデルを、jsDelivr（CDN）から ONNX Runtime のライブラリをダウンロードします。歌を曲と一緒に MP3 で保存するときは、MP3 を作る lamejs も jsDelivr からダウンロードします。通常のダウンロードと同じく、IPアドレスとブラウザの情報が相手に届きます。曲や声の情報は送りません。</li><li><b>ブラウザに保存するもの</b> ― AIモデル、読み込んだ曲（次回すぐ開けるよう、分離したボーカルと伴奏、メロディの線）、各曲の直前の録音、測った場合はマイ音域、設定、オフラインで使うためのアプリ本体。曲は ⚙ →「保存した曲を削除」、モデルは ⚙ →「AIモデルを削除」、音域は「マイ音域」で削除できます。ブラウザの設定でこのサイトのデータを消すこともできます。</li><li><b>サーバーのログとアクセス数</b> ― このサイトは Cloudflare で公開しています。運用と安全のため、通常のアクセスログ（IPアドレス、日時、ページなど）が残ります。Cloudflare Web Analytics で、Cookie を使わずにページの表示回数を数えています（ページのURL、参照元、ブラウザの情報、読み込み時間）。</li><li><b>お問い合わせ</b> ― ご質問・ご意見は <a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">GitHub Issues</a> へ。</li><li><b>詳しくは</b> ― <a href=\"/karaoketrainer/ja/privacy/\" target=\"_blank\" rel=\"noopener\">プライバシーポリシー</a>と<a href=\"/karaoketrainer/ja/about/\" target=\"_blank\" rel=\"noopener\">運営者情報</a>をご覧ください。</li>",
           "intro.title": "カラオケ練習：原曲のメロディと自分の音程を重ねて見られる無料ツール",
-          "intro.body": "<p>Karaoke Trainer（カラオケトレーナー）は、楽譜が読めなくても使える歌の練習ツールです。手持ちの曲のファイルを読み込むと、AIが歌手の声と伴奏を分け、歌手のメロディをカラオケのような<b>音のバー</b>にします。「歌う」を押して歌うと、あなたの音程がその上に重ねて描かれるので、どこで高すぎたか・低すぎたかが<b>目で見て</b>わかります。</p><p><b>ボーカル</b>のスライダーは、0%（カラオケ：伴奏だけ）から100%（原曲どおり）まで。間にすると、歌手の声が小さなガイドボーカルになります。最大6半音までキーを変えることもでき、バーも一緒に動きます。男性が女性の曲を（またはその逆を）1オクターブ下や上で歌うのはよくあることなので、オクターブ違いは正解として判定します。</p><p>止めると、メロディのうち音程が合っていた割合と、ズレが大きかったところの一覧（タップでそこから歌い直せます）が表示され、自分の録音と原曲の歌手の声を聴き比べられます。一度自分の音域を測っておくと、曲ごとに自分の声に合うキーも表示されます。測らなくても練習には使えます。</p><p>すべて<b>ブラウザの中</b>で動き、曲もあなたの声もアップロードしません。最初の曲でAIモデル（約75MB、1回だけ）をダウンロードします。読み込んだ曲はこの端末に保存され、次からはすぐに（オフラインでも）開けます。歌うときはヘッドホンを使ってください。対応形式：MP3、WAV、M4A（AAC）、FLAC、OGG など、ブラウザで再生できるほとんどの形式と、MP4 などの動画（音声だけを使う）。10分まで。無料・登録不要・広告なし。</p><h2>ガイド</h2><ul><li><a href=\"/karaoketrainer/ja/guide/\" target=\"_blank\" rel=\"noopener\">Karaoke Trainer の使い方</a></li><li><a href=\"/karaoketrainer/ja/faq/\" target=\"_blank\" rel=\"noopener\">よくある質問</a></li></ul>",
+          "intro.body": "<p>Karaoke Trainer（カラオケトレーナー）は、楽譜が読めなくても使える歌の練習ツールです。手持ちの曲のファイルを読み込むと、AIが歌手の声と伴奏を分け、歌手のメロディをカラオケのような<b>音のバー</b>にします。「歌う」を押して歌うと、あなたの音程がその上に重ねて描かれるので、どこで高すぎたか・低すぎたかが<b>目で見て</b>わかります。</p><p><b>ボーカル</b>のスライダーは、0%（カラオケ：伴奏だけ）から100%（原曲どおり）まで。間にすると、歌手の声が小さなガイドボーカルになります。最大6半音までキーを変えることもでき、バーも一緒に動きます。キーはそのままでテンポを 50%（速くするなら 150%）まで変えられるので、速いところをゆっくり覚えることもできます。男性が女性の曲を（またはその逆を）1オクターブ下や上で歌うのはよくあることなので、オクターブ違いは正解として判定します。</p><p>止めると、メロディのうち音程が合っていた割合と、ズレが大きかったところの一覧（タップでそこから歌い直せます）が表示され、自分の録音と原曲の歌手の声を聴き比べられます。一度自分の音域を測っておくと、曲ごとに自分の声に合うキーも表示されます。測らなくても練習には使えます。</p><p>すべて<b>ブラウザの中</b>で動き、曲もあなたの声もアップロードしません。最初の曲でAIモデル（約75MB、1回だけ）をダウンロードします。読み込んだ曲はこの端末に保存され、次からはすぐに（オフラインでも）開けます。歌うときはヘッドホンを使ってください。対応形式：MP3、WAV、M4A（AAC）、FLAC、OGG など、ブラウザで再生できるほとんどの形式と、MP4 などの動画（音声だけを使う）。10分まで。無料・登録不要・広告なし。</p><h2>ガイド</h2><ul><li><a href=\"/karaoketrainer/ja/guide/\" target=\"_blank\" rel=\"noopener\">Karaoke Trainer の使い方</a></li><li><a href=\"/karaoketrainer/ja/faq/\" target=\"_blank\" rel=\"noopener\">よくある質問</a></li></ul>",
           "foot.meta": "<span>Karaoke Trainer・© 2026 ktkwmr</span><a href=\"/karaoketrainer/ja/privacy/\" target=\"_blank\" rel=\"noopener\">プライバシーポリシー</a><a href=\"/karaoketrainer/ja/about/\" target=\"_blank\" rel=\"noopener\">運営者情報</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer\" target=\"_blank\" rel=\"noopener\">ソースコード（GitHub）</a><a href=\"https://github.com/ktkwmr/KaraokeTrainer/issues\" target=\"_blank\" rel=\"noopener\">フィードバック</a><a href=\"https://ktkwmr.com/ja/\" target=\"_blank\" rel=\"noopener\">ktkwmr のほかのアプリ</a>"
         }
       };
@@ -1865,6 +1891,12 @@
       let song = null;     // { hash, name, duration, stems (original key), line, beats, demo }
       let cur = null;      // the stems in the current key
       let semis = 0;       // key change
+      // Tempo in percent (TEMPO_MIN…TEMPO_MAX). The stems in cur are stretched to it, but every position in the
+      // page stays in the song's own time (samples, frames and seconds of the original): mixer.js moves through
+      // the song tempo / 100 times as fast. Your recording is at the scale of the tempo it was sung at.
+      let tempo = 100;
+      const TEMPO_MIN = 50, TEMPO_MAX = 150, TEMPO_STEP = 5;
+      function tf() { return tempo / 100; }
       let melody = null;   // { low, high } of the line (5th–95th percentile, original key)
       let view = { lo: 55, hi: 76 }; // MIDI range shown in the roll (original key)
       let length = 0;      // samples
@@ -1885,7 +1917,11 @@
         song = s;
         cur = s.stems;
         semis = 0;
+        tempo = 100;
+        curRate = 1;
         take = null;
+        cancelVoice();
+        voice = null;
         $("results").hidden = true;
         setReviewing(false);
         length = s.stems[0][0].length;
@@ -1907,6 +1943,7 @@
         $("timeEnd").textContent = fmtTime(length / SR);
         renderPrev();
         renderKey();
+        renderTempo();
         try {
           await ensureAudio();
           loadTracks(false);
@@ -1948,8 +1985,9 @@
       function loadTracks(keep) {
         if (!node || !cur) return;
         const tracks = [cur[0], cur[1]];
-        if (take && take.audio) tracks.push([take.audio]);
-        node.port.postMessage({ type: "load", tracks: tracks, keep: keep });
+        const v = voiceAudio();
+        if (v) tracks.push([v]);
+        node.port.postMessage({ type: "load", tracks: tracks, length: length, rate: curRate, keep: keep });
         sendGains();
         sendOffsets();
       }
@@ -1961,7 +1999,7 @@
       function vocalMuted() { return reviewing ? reviewVocalMute : store.vocalMute; }
       function gains() {
         const v = vocalMuted() ? 0 : store.vocal / 100, a = store.accMute ? 0 : store.acc / 100;
-        const mine = reviewing && take && take.audio && !store.mineMute ? (take.gain * store.mine) / 100 : 0;
+        const mine = reviewing && voiceAudio() && !store.mineMute ? (take.gain * store.mine) / 100 : 0;
         return [v, a, mine];
       }
       function sendGains() {
@@ -1972,6 +2010,64 @@
         reviewing = on;
         renderVols();
         sendGains();
+        renderCmpTempo();
+      }
+      // The tempo of the tracks playing now (curRate), in percent
+      function curTempo() { return Math.round(curRate * 100); }
+      function renderCmpTempo() {
+        const busy = reviewing && !!(take && take.audio) && !voiceAudio();
+        $("cmpTempo").hidden = !busy;
+        if (busy) $("cmpTempo").textContent = t("cmp.tempo", { pct: Math.floor(voiceDone * 100) });
+      }
+
+      // ---------- Your recording at the tempo now playing ----------
+      // take.audio is at the tempo you sang at. At another tempo, a copy stretched by keyshift.js (only the part
+      // you sang, the key unchanged) is played and saved instead: voice = { take, tempo, audio }, at the scale of
+      // the tracks at that tempo (sample i = song sample i · tempo / 100). Until it is ready your voice is silent.
+      let voice = null, voiceJob = null, voiceJobOf = null, voiceDone = 0;
+      function cancelVoice() { if (voiceJob) voiceJob.terminate(); voiceJob = null; voiceJobOf = null; }
+      function voiceAudio() {
+        if (!take || !take.audio) return null;
+        if (take.tempo === curTempo()) return take.audio;
+        return voice && voice.take === take && voice.tempo === curTempo() ? voice.audio : null;
+      }
+      function stretchVoice(target) {
+        const tk = take;
+        if (!tk || !tk.audio || singing) return;
+        if (tk.tempo === target || (voice && voice.take === tk && voice.tempo === target)) { renderCmpTempo(); return; }
+        if (voiceJob && voiceJobOf === tk.tempo + "/" + target) return;
+        cancelVoice();
+        let a = -1, z = -1;
+        for (let k = 0; k < tk.rawCovered.length; k++) if (tk.rawCovered[k]) { if (a < 0) a = k; z = k; }
+        if (a < 0) return;
+        const r = tk.tempo / 100, k = tk.tempo / target;
+        const s0 = Math.max(0, Math.floor(((a / FPS) * SR) / r) - SR), s1 = Math.min(tk.audio.length, Math.ceil((((z + 1) / FPS) * SR) / r) + SR);
+        const part = tk.audio.slice(s0, s1);
+        let w;
+        try { w = new Worker("keyshift.js", { type: "module" }); } catch (e) { return; }
+        voiceJob = w;
+        voiceJobOf = tk.tempo + "/" + target;
+        voiceDone = 0;
+        renderCmpTempo();
+        w.onmessage = function (e) {
+          const m = e.data;
+          if (m.type === "progress") {
+            voiceDone = m.done;
+            renderCmpTempo();
+          } else if (m.type === "done") {
+            const out = sharedInt16(Math.ceil(tk.audio.length * k) + 1);
+            const o = Math.round(s0 * k);
+            out.set(m.left.subarray(0, Math.max(0, Math.min(m.left.length, out.length - o))), o);
+            voice = { take: tk, tempo: target, audio: out };
+            cancelVoice();
+            if (take === tk && curTempo() === target) loadTracks(true);
+            renderCmpTempo();
+          } else if (m.type === "error") {
+            cancelVoice();
+            showError(t("tempo.fail", { msg: m.message }));
+          }
+        };
+        w.postMessage({ left: part, right: part, semis: 0, tempo: target / tk.tempo, size: 2048 });
       }
       function onPlayerMessage(e) {
         const m = e.data;
@@ -1994,7 +2090,7 @@
       // Song time you hear now (the worklet runs ahead of the speaker by the output latency)
       function nowSec() {
         if (!playing) return pos / SR;
-        return (pos + ((performance.now() - posAt) / 1000) * SR) / SR - outLatency();
+        return (pos + ((performance.now() - posAt) / 1000) * SR * curRate) / SR - outLatency() * curRate;
       }
 
       // ---------- Transport ----------
@@ -2067,13 +2163,29 @@
       $("vocalVol").addEventListener("input", function () { store.vocal = Number(this.value); setVocalMute(false); renderVols(); sendGains(); saveState(); });
       $("accVol").addEventListener("input", function () { store.acc = Number(this.value); store.accMute = false; renderVols(); sendGains(); saveState(); });
       $("mineVol").addEventListener("input", function () { store.mine = Number(this.value); store.mineMute = false; renderVols(); sendGains(); saveState(); });
+      // Double tap (or double click) on a volume slider: back to 100% (and unmuted, as moving it does)
+      ["vocalVol", "accVol", "mineVol"].forEach(function (id) {
+        const el = $(id);
+        let last = 0, lastX = 0;
+        el.addEventListener("pointerup", function (e) {
+          const now = performance.now();
+          if (now - last < 350 && Math.abs(e.clientX - lastX) < 40) {
+            last = 0;
+            el.value = 100;
+            el.dispatchEvent(new Event("input"));
+            return;
+          }
+          last = now; lastX = e.clientX;
+        });
+      });
       $("vocalMute").addEventListener("click", function () { setVocalMute(!vocalMuted()); renderVols(); sendGains(); saveState(); });
       $("accMute").addEventListener("click", function () { store.accMute = !store.accMute; renderVols(); sendGains(); saveState(); });
       $("mineMute").addEventListener("click", function () { store.mineMute = !store.mineMute; renderVols(); sendGains(); saveState(); });
 
-      // ---------- Key change (keyshift.js, one worker per track) ----------
+      // ---------- Key and tempo change (keyshift.js, one worker per track) ----------
       let keyJobs = [];
-      let keyTarget = 0;
+      let keyTarget = "";
+      let curRate = 1; // the tempo the stems in cur are at (tempo / 100 once they are ready)
       function cancelKey() { keyJobs.forEach(function (w) { w.terminate(); }); keyJobs = []; $("keyBusy").hidden = true; }
       function renderKey() {
         $("keyVal").textContent = (semis > 0 ? "+" : "") + semis;
@@ -2081,20 +2193,41 @@
         $("keyUp").disabled = semis >= 6;
         renderSuggest();
       }
+      function renderTempo() {
+        $("tempoVal").textContent = tempo + "%";
+        $("tempoDown").disabled = !song || singing || tempo <= TEMPO_MIN;
+        $("tempoUp").disabled = !song || singing || tempo >= TEMPO_MAX;
+      }
       function changeKey(next) {
         if (!song) return;
         next = Math.max(-6, Math.min(6, next));
         if (next === semis && !keyJobs.length) return;
-        cancelKey();
-        keyTarget = next;
         semis = next;
         renderKey();
         draw();
-        if (next === 0) { cur = song.stems; loadTracks(true); return; }
+        restretch("key");
+      }
+      // The tempo is not changed while you sing (your recording and line are at the tempo you started with)
+      function changeTempo(next) {
+        if (!song || singing) return;
+        next = Math.max(TEMPO_MIN, Math.min(TEMPO_MAX, next));
+        if (next === tempo) return;
+        tempo = next;
+        renderTempo();
+        restretch("tempo");
+      }
+      // Makes the stems in the current key and tempo (what: "key" | "tempo", for the messages). The old ones
+      // play until the new ones are ready.
+      function restretch(what) {
+        cancelKey();
+        const next = semis, rate = tf(), target = next + "/" + tempo;
+        keyTarget = target;
+        stretchVoice(tempo);
+        if (next === 0 && tempo === 100) { cur = song.stems; curRate = 1; loadTracks(true); sendGains(); renderCmpTempo(); return; }
         const progress = [0, 0];
         const out = [];
         $("keyBusy").hidden = false;
-        $("keyBusy").textContent = t("key.busy", { pct: 0 });
+        $("keyBusy").textContent = t(what + ".busy", { pct: 0 });
         song.stems.forEach(function (st, i) {
           const w = new Worker("keyshift.js", { type: "module" });
           keyJobs.push(w);
@@ -2102,26 +2235,30 @@
             const m = e.data;
             if (m.type === "progress") {
               progress[i] = m.done;
-              $("keyBusy").textContent = t("key.busy", { pct: Math.floor(((progress[0] + progress[1]) / 2) * 100) });
+              $("keyBusy").textContent = t(what + ".busy", { pct: Math.floor(((progress[0] + progress[1]) / 2) * 100) });
             } else if (m.type === "done") {
               out[i] = [m.left, m.right];
               w.terminate();
-              if (out[0] && out[1] && keyTarget === next) {
+              if (out[0] && out[1] && keyTarget === target) {
                 keyJobs = [];
                 $("keyBusy").hidden = true;
                 cur = out;
+                curRate = rate;
                 loadTracks(true);
+                renderCmpTempo();
               }
             } else if (m.type === "error") {
               cancelKey();
-              showError(t("key.fail", { msg: m.message }));
+              showError(t(what + ".fail", { msg: m.message }));
             }
           };
-          w.postMessage({ left: st[0], right: st[1], semis: next, size: 2048 });
+          w.postMessage({ left: st[0], right: st[1], semis: next, tempo: rate, size: 2048 });
         });
       }
       $("keyDown").addEventListener("click", function () { changeKey(semis - 1); });
       $("keyUp").addEventListener("click", function () { changeKey(semis + 1); });
+      $("tempoDown").addEventListener("click", function () { changeTempo(tempo - TEMPO_STEP); });
+      $("tempoUp").addEventListener("click", function () { changeTempo(tempo + TEMPO_STEP); });
 
       // Suggested key from your vocal range (only when a range is saved; otherwise a quiet hint)
       function suggestKey() {
@@ -2229,7 +2366,7 @@
           if (history.length > 3) history.shift();
           if (!isNaN(midi) && history.length === 3 && history.every(function (x) { return !isNaN(x); })) midi = median(history);
           // Song position at the window's centre (its centre is 512 · (w − 1) samples from the block's start)
-          const center = m.pos + (end - 1024 - 2048) * step;
+          const center = m.pos + (end - 1024 - 2048) * step * curRate;
           onPitch(midi, center, m.playing);
         }
         if (singing && m.playing && take) recordBlock(m, step);
@@ -2241,7 +2378,9 @@
       // time, lat ms, subtracted); line / covered: the same moved by the change of the delay correction since
       // (shift ms, later +), so moving the delay correction on the results moves this take too. While singing
       // they are the same arrays.
-      let take = null; // { line, covered, rawLine, rawCovered, audio, start, semis, singOct, diffs, gain, lat, shift }
+      // tempo: the tempo (%) it was sung at; audio is at that scale (sample i = song sample i · tempo / 100), so
+      // it is your voice as you sang it, and lat / shift are in real time (song time · tempo / 100).
+      let take = null; // { line, covered, rawLine, rawCovered, audio, start, semis, tempo, singOct, diffs, gain, lat, shift }
       let singOctManual = null; // null = auto
       function latencyMs() { return store.latency != null ? store.latency : autoLatency(); }
       function latencySec() { return latencyMs() / 1000; }
@@ -2317,7 +2456,7 @@
       function newTake() {
         const frames = Math.ceil((length / SR) * FPS) + 1;
         const line = new Float32Array(frames).fill(NaN), covered = new Uint8Array(frames);
-        return { line: line, covered: covered, rawLine: line, rawCovered: covered, audio: null, start: pos, semis: semis, singOct: null, diffs: [], gain: 1, lat: latencyMs(), shift: 0, lastK: -1, lastV: NaN };
+        return { line: line, covered: covered, rawLine: line, rawCovered: covered, audio: null, start: pos, semis: semis, tempo: curTempo(), singOct: null, diffs: [], gain: 1, lat: latencyMs(), shift: 0, lastK: -1, lastV: NaN };
       }
       function onPitch(midi, center, isPlaying) {
         // Live note (also while paused, and when measuring the range)
@@ -2328,7 +2467,7 @@
           if (!isNaN(midi)) { $("liveNote").textContent = noteName(midi); $("liveCents").textContent = ""; }
           return;
         }
-        const tt = center / SR - latencySec();
+        const tt = center / SR - latencySec() * curRate;
         const k = Math.round(tt * FPS);
         if (k < 0 || k >= take.rawLine.length) return;
         if (!isNaN(midi)) {
@@ -2357,18 +2496,19 @@
         take.lastK = k;
         take.lastV = midi;
       }
+      // The recording is at the take's tempo: index = song sample / rate
       function recordBlock(m, step) {
-        const lat = latencySec();
-        if (!take.audio) take.audio = sharedInt16(length);
+        const lat = latencySec(), rate = take.tempo / 100;
+        if (!take.audio) take.audio = sharedInt16(Math.ceil(length / rate));
         const a = take.audio;
-        const base = m.pos - lat * SR;
+        const base = m.pos / rate - lat * SR;
         for (let i = 0; i < m.data.length; i++) {
           const j = Math.round(base + i * step);
-          if (j < 0 || j >= length) continue;
+          if (j < 0 || j >= a.length) continue;
           const v = m.data[i];
           a[j] = v >= 1 ? 32767 : v <= -1 ? -32768 : Math.round(v * 32767);
         }
-        const k0 = Math.max(0, Math.round((base / SR) * FPS)), k1 = Math.min(take.covered.length - 1, Math.round(((base + m.data.length * step) / SR) * FPS));
+        const k0 = Math.max(0, Math.round(((base * rate) / SR) * FPS)), k1 = Math.min(take.covered.length - 1, Math.round((((base + m.data.length * step) * rate) / SR) * FPS));
         for (let k = k0; k <= k1; k++) take.rawCovered[k] = 1;
       }
 
@@ -2380,9 +2520,14 @@
           if (!ok) return;
           if ($("phonesAgain").checked) { store.phonesOk = true; saveState(); }
         }
+        // Not while the stems for a new tempo are being made (the take is at the tempo it starts at)
+        if (tempo !== curTempo()) { toast(t("tempo.wait")); return; }
         showError("");
         if (!(await startMic("sing"))) return;
         singing = true;
+        renderTempo();
+        cancelVoice();
+        voice = null;
         take = newTake();
         $("results").hidden = true;
         setReviewing(false);
@@ -2395,6 +2540,7 @@
       function stopSinging(showResults) {
         if (!singing) return;
         singing = false;
+        renderTempo();
         stopMic("sing");
         renderSing();
         if (playing) pause();
@@ -2427,15 +2573,17 @@
         }
         reviewVocalMute = true;
         applyShift();
+        stretchVoice(tempo);
         loadTracks(true);
         // Kept by itself as the song's last take (replacing the one before)
         tk.saving = keepTake(tk, sg);
         if (show) showResults();
       }
       function restoreTake(saved) {
-        take = { line: saved.line, covered: saved.covered, rawLine: saved.line, rawCovered: saved.covered, audio: saved.audio ? toShared(saved.audio) : null, start: saved.start, semis: saved.semis, singOct: saved.singOct != null ? saved.singOct : null, diffs: [], gain: saved.gain || 1, lat: saved.lat != null ? saved.lat : latencyMs(), shift: 0 };
+        take = { line: saved.line, covered: saved.covered, rawLine: saved.line, rawCovered: saved.covered, audio: saved.audio ? toShared(saved.audio) : null, start: saved.start, semis: saved.semis, tempo: saved.tempo || 100, singOct: saved.singOct != null ? saved.singOct : null, diffs: [], gain: saved.gain || 1, lat: saved.lat != null ? saved.lat : latencyMs(), shift: 0 };
         reviewVocalMute = true;
         applyShift();
+        stretchVoice(tempo);
         loadTracks(true);
         showResults();
       }
@@ -2446,7 +2594,7 @@
       function applyShift() {
         const tk = take;
         tk.shift = tk.lat - latencyMs();
-        const f = Math.round((tk.shift / 1000) * FPS);
+        const f = Math.round((tk.shift / 1000) * FPS * (tk.tempo / 100));
         const n = tk.rawLine.length;
         tk.line = new Float32Array(n).fill(NaN);
         tk.covered = new Uint8Array(n);
@@ -2460,10 +2608,14 @@
         tk.singOct = d.length >= 30 ? Math.max(-2, Math.min(2, Math.round(median(d) / 12))) : null;
         renderOct();
         sendOffsets();
+        renderCmpTempo();
       }
       function shiftSamples() { return take ? Math.round((take.shift / 1000) * SR) : 0; }
-      function mineAt(j) { const i = j - shiftSamples(); return i >= 0 && i < take.audio.length ? take.audio[i] : 0; }
-      function sendOffsets() { if (node) node.port.postMessage({ type: "offsets", offsets: [0, 0, shiftSamples()] }); }
+      // j: a sample of the tracks playing now
+      // The same in samples of the tracks playing now (your recording at this tempo: voiceAudio())
+      function voiceShift() { return take ? Math.round((shiftSamples() * take.tempo) / curTempo()) : 0; }
+      function mineAt(j) { const v = voiceAudio(), i = j - voiceShift(); return v && i >= 0 && i < v.length ? v[i] : 0; }
+      function sendOffsets() { if (node) node.port.postMessage({ type: "offsets", offsets: [0, 0, voiceShift()] }); }
 
       // ---------- Results ----------
       function analyzeTake() {
@@ -2576,7 +2728,7 @@
         try {
           const info = await dbGet("index", sg.hash);
           if (!info) return; // the song itself is not saved (storage full, or removed meanwhile)
-          const saved = { v: TAKE_V, line: tk.rawLine, covered: tk.rawCovered, singOct: tk.singOct, lat: tk.lat, audio: plain(tk.audio), start: tk.start, semis: tk.semis, gain: tk.gain };
+          const saved = { v: TAKE_V, line: tk.rawLine, covered: tk.rawCovered, singOct: tk.singOct, lat: tk.lat, audio: plain(tk.audio), start: tk.start, semis: tk.semis, tempo: tk.tempo, gain: tk.gain };
           info.take = true;
           info.bytes = pcmBytes(sg.stems) + tk.audio.length * 2;
           await dbPut([["takes", { hash: sg.hash, take: saved }], ["index", info]]);
@@ -2614,6 +2766,8 @@
         if (take !== tk) return;
         if (playing) pause();
         take = null;
+        cancelVoice();
+        voice = null;
         $("results").hidden = true;
         setReviewing(false);
         loadTracks(true);
@@ -2641,10 +2795,13 @@
       });
       $("wavBtn").addEventListener("click", function () {
         if (!take || !take.audio) return;
+        // Your voice as you hear it: at the tempo now playing
+        if (tempo !== curTempo() || !voiceAudio()) { toast(t("res.wait")); return; }
         let a = -1, z = -1;
         for (let k = 0; k < take.covered.length; k++) if (take.covered[k]) { if (a < 0) a = k; z = k; }
         if (a < 0) return;
-        const s0 = Math.floor((a / FPS) * SR), s1 = Math.min(length, Math.ceil(((z + 1) / FPS) * SR));
+        const rate = curRate;
+        const s0 = Math.floor(((a / FPS) * SR) / rate), s1 = Math.min(voiceAudio().length, Math.ceil((((z + 1) / FPS) * SR) / rate));
         const n = s1 - s0;
         const buf = new ArrayBuffer(44 + n * 2), dv = new DataView(buf);
         const str = function (o, s) { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); };
@@ -2667,7 +2824,9 @@
         let a = -1, z = -1;
         for (let k = 0; k < take.covered.length; k++) if (take.covered[k]) { if (a < 0) a = k; z = k; }
         if (a < 0) return null;
-        return { s0: Math.max(0, Math.floor((a / FPS - 0.5) * SR)), s1: Math.min(length, Math.ceil(((z + 1) / FPS) * SR)) };
+        // In samples of the tracks playing now (and of your voice at this tempo)
+        const rate = curRate;
+        return { s0: Math.max(0, Math.floor(((a / FPS - 0.5) * SR) / rate)), s1: Math.min(cur[0][0].length, Math.ceil((((z + 1) / FPS) * SR) / rate)) };
       }
       function encodeMp3(left, right) {
         return new Promise(function (resolve, reject) {
@@ -2720,6 +2879,7 @@
       $("mp3Btn").addEventListener("click", async function () {
         if (!take || !take.audio || !song || mp3Busy) return;
         if (semis !== take.semis) { toast(t("res.mp3.key", { v: (take.semis > 0 ? "+" : "") + take.semis })); return; }
+        if (tempo !== curTempo() || !voiceAudio()) { toast(t("res.wait")); return; }
         const span = takeSpan();
         if (!span) return;
         const [gv, ga, gm] = gains();
@@ -3456,6 +3616,7 @@
       renderSettings();
       renderRangeBox();
       renderKey();
+      renderTempo();
       renderSing();
       setGhost(true);
       draw();

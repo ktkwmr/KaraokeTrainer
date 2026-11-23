@@ -6,16 +6,22 @@
 // isolated page they are SharedArrayBuffers shared with the page (no copy). If the device runs at another
 // rate, they are resampled on the fly (linear interpolation).
 //
+// Tempo: the vocal and accompaniment may be time-stretched by the page (slower or faster, same pitch). The
+// position stays in the song's own time (44.1 kHz samples of the original), so the melody line, the beats and
+// your takes need no change: it moves by rate per sample, and the tracks are read at pos / rate. Your
+// recording is stored at the same scale (it is played only at the tempo it was sung at).
+//
 // Messages from the page:
-//   { type: "load", tracks, keep? }   (keep: same song, keep the position and play state)
+//   { type: "load", tracks, length, rate, keep? }   (length: the song's length in its own time; rate: the
+//      tempo the tracks were stretched to, 1 = original; keep: same song, keep the position and play state)
 //   { type: "play" } / { type: "pause" } / { type: "seek", pos }  (pos in 44.1 kHz samples)
 //   { type: "gains", gains: [n] }
-//   { type: "offsets", offsets: [n] }  (samples a track is played later (+) or earlier (−); your recording's
+//   { type: "offsets", offsets: [n] }  (track samples a track is played later (+) or earlier (−); your recording's
 //      position, nudged on the results)
 //   { type: "mic", on }     (send microphone blocks to the page)
 //   { type: "clicks", count, interval, start }  (calibration clicks, seconds; start: delay before the first)
 // Messages to the page:
-//   { type: "pos", pos, playing }  (about 30 times a second)
+//   { type: "pos", pos, playing }  (song time; about 30 times a second)
 //   { type: "ended" }
 //   { type: "mic", data: Float32Array(BLOCK), pos, playing, frame }  (pos: song position at the block's first
 //      sample, 44.1 kHz samples; frame: this context's frame count at that sample)
@@ -31,6 +37,7 @@ class Player extends AudioWorkletProcessor {
     this.tracks = null;
     this.count = 0;
     this.length = 0;
+    this.rate = 1;
     this.pos = 0;
     this.playing = false;
     this.step = SRC_RATE / sampleRate;
@@ -53,7 +60,8 @@ class Player extends AudioWorkletProcessor {
   onMessage(msg) {
     if (msg.type === "load") {
       this.tracks = msg.tracks;
-      this.length = msg.tracks ? msg.tracks[0][0].length : 0;
+      this.rate = msg.rate || 1;
+      this.length = msg.tracks ? msg.length || Math.round(msg.tracks[0][0].length * this.rate) : 0;
       const before = this.count;
       this.count = msg.tracks ? Math.min(MAX, msg.tracks.length) : 0;
       for (let s = before; s < this.count; s++) this.cur[s] = this.target[s];
@@ -118,8 +126,9 @@ class Player extends AudioWorkletProcessor {
       }
       let l = 0, r = 0;
       if (active && this.pos < last) {
-        const p = Math.floor(this.pos);
-        const f = this.pos - p;
+        const x = this.pos / this.rate;
+        const p = Math.floor(x);
+        const f = x - p;
         for (let s = 0; s < this.count; s++) {
           const g = this.cur[s] / 32768;
           if (g === 0) continue;
@@ -129,7 +138,7 @@ class Player extends AudioWorkletProcessor {
           l += (L[q] + (L[q + 1] - L[q]) * f) * g;
           r += (R[q] + (R[q + 1] - R[q]) * f) * g;
         }
-        this.pos += this.step;
+        this.pos += this.step * this.rate;
         if (this.pos >= last) { this.pos = last; ended = true; }
       }
       // Calibration clicks (a short 1 kHz beep)

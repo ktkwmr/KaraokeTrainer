@@ -95,12 +95,13 @@ export default {
 <div class="note"><p><b>The MP3 is for your personal use only.</b> It contains the song, and the rights to the song belong to its rights holders. Use it to listen back to your own practice, and do not upload it to video or social media sites, send it to others, or distribute it. The app asks you to confirm this each time, and writes it into the file's tag (comment).</p></div>
 <p>The numbers are a guide for practice, not a score. The line and the list tell you more: where you go flat at the end of a long note, which jump you overshoot, which phrase starts late.</p>
 
-<h2 id="practice">Vocal volume and key</h2>
+<h2 id="practice">Vocal volume, key and tempo</h2>
 <ul>
   <li><b>Vocal</b> – 0% is karaoke (the accompaniment only), 100% is the original. In between, the singer becomes a quiet guide: useful while you are learning a song, then turn it down to 0%.</li>
   <li><b>Accompaniment</b> – the volume of everything else.</li>
-  <li><b>Mute</b> – the speaker button next to each slider turns that part off and on again without losing its volume.</li>
+  <li><b>Mute</b> – the speaker button next to each slider turns that part off and on again without losing its volume. Double-tap (or double-click) a slider to set it back to 100%.</li>
   <li><b>Key</b> – − / + moves the whole song down or up a semitone at a time, up to 6, without changing the tempo. The grey bars move with it. It takes a few seconds to prepare.</li>
+  <li><b>Tempo</b> – − / + makes the song slower or faster by 5% at a time, from 50% to 150%, without changing the key. Learn a fast passage at 80%, then bring it back to 100%. The bars and the beat lines stay with the song. It cannot be changed while you sing. On the results, your recorded voice follows the tempo too (after a few seconds to prepare), so you can listen to a take sung at 80% at 100%, and “Save with the song” saves it at the tempo you hear.</li>
 </ul>
 
 <h2 id="range">Finding your key (optional)</h2>
@@ -217,12 +218,13 @@ export default {
 <div class="note"><p><b>MP3 は個人の練習用にだけ使ってください。</b>曲が入っていて、曲の権利は権利者にあります。自分の練習を聴き返すためだけに使い、動画サイトや SNS への投稿、ほかの人に送ること、配布はしないでください。保存のたびに確認が出て、ファイルのタグ（コメント）にも書き込まれます。</p></div>
 <p>数字は練習の目安で、点数ではありません。線と一覧のほうが多くを教えてくれます。伸ばした音の終わりで下がる、跳ぶ音で行き過ぎる、歌い出しが遅れる、といったクセが見えてきます。</p>
 
-<h2 id="practice">ボーカルの音量とキー</h2>
+<h2 id="practice">ボーカルの音量・キー・テンポ</h2>
 <ul>
   <li><b>ボーカル</b> ― 0%でカラオケ（伴奏だけ）、100%で原曲どおり。間にすると歌手の声が小さなガイドになります。覚えるまではガイドを残し、慣れたら0%に。</li>
   <li><b>伴奏</b> ― ボーカル以外の音量。</li>
-  <li><b>ミュート</b> ― 各スライダーの横のスピーカーのボタンで、音量を変えずにそのパートを消したり戻したりできます。</li>
+  <li><b>ミュート</b> ― 各スライダーの横のスピーカーのボタンで、音量を変えずにそのパートを消したり戻したりできます。スライダーをダブルタップ（ダブルクリック）すると 100% に戻ります。</li>
   <li><b>キー</b> ― − / ＋ で、テンポを変えずに曲全体を半音ずつ、最大6半音まで上げ下げします。グレーのバーも一緒に動きます。準備に数秒かかります。</li>
+  <li><b>テンポ</b> ― − / ＋ で、キーを変えずに曲を 5% ずつ、50%〜150% の間で遅く・速くします。速いところは 80% で覚えてから 100% に戻す、という使い方ができます。バーと拍の線も曲と一緒に動きます。歌っている間は変えられません。答え合わせでは録音した自分の声もテンポに合わせて変わるので（準備に数秒かかります）、80% で歌った録音を 100% で聴き直すこともできます。「曲と一緒に保存」も聞こえているテンポで保存します。</li>
 </ul>
 
 <h2 id="range">自分に合うキーを探す（任意）</h2>

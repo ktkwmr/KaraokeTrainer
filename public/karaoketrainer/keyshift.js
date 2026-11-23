@@ -1,5 +1,7 @@
 // Key change worker (module worker, started by index.html: one per track, so they run in parallel).
-// From Band Stem Mixer (ktkwmr/BandStemMixer, MIT, same author), unchanged except for where makeFft comes from.
+// From Band Stem Mixer (ktkwmr/BandStemMixer, MIT, same author), changed only where makeFft comes from and to
+// add the tempo (Karaoke Trainer): the stretch is by the pitch ratio / tempo, and the resampling by the pitch
+// ratio, so the part comes out length / tempo samples long (the same pitch when semis is 0).
 // Shifts a stereo part up or down by whole semitones without changing its length or tempo: a phase vocoder
 // stretches it in time by the pitch ratio (identity phase locking: the bins around each spectral peak keep
 // their phase relation to the peak, which keeps the sound clearer), and the result is resampled back to
@@ -7,7 +9,8 @@
 // imaginary part).
 //
 // Messages from the page:
-//   { left: Int16Array, right: Int16Array, semis, size }  (44.1 kHz; size: FFT size, 4096 for the bass)
+//   { left: Int16Array, right: Int16Array, semis, tempo?, size }  (44.1 kHz; tempo: 1 = original, 0.8 = 80%;
+//      size: FFT size, 4096 for the bass)
 // Messages to the page:
 //   { type: "progress", done }  (0–1, a few times a second)
 //   { type: "done", left: Int16Array, right: Int16Array }  (shared memory when the page is cross-origin isolated)
@@ -23,10 +26,11 @@ function makeArray(n) {
 const TWO_PI = 2 * Math.PI;
 const wrap = (p) => p - TWO_PI * Math.round(p / TWO_PI);
 
-export function shiftStereo(L, R, outL, outR, semis, N, progress) {
-  const n = L.length;
+// outL, outR: round(L.length / tempo) long
+export function shiftStereo(L, R, outL, outR, semis, N, progress, tempo = 1) {
+  const n = L.length, nOut = outL.length;
   const r = Math.pow(2, semis / 12);
-  const Hs = N / 4, Ha = Hs / r, half = N / 2;
+  const Hs = N / 4, Ha = (Hs * tempo) / r, half = N / 2;
   const fft = makeFft(N);
   const win = new Float64Array(N);
   for (let i = 0; i < N; i++) win[i] = 0.5 - 0.5 * Math.cos((TWO_PI * i) / N);
@@ -45,7 +49,8 @@ export function shiftStereo(L, R, outL, outR, semis, N, progress) {
   const y = [new Float32Array(RB), new Float32Array(RB)];
   const outs = [outL, outR];
   let out = 0, cleared = 0, lastPos = 0;
-  const frames = Math.ceil((n + half) / Ha) + 1;
+  // Enough frames to read the input to its end and to write the whole output
+  const frames = Math.max(Math.ceil((n + half) / Ha) + 1, Math.ceil((nOut * r + 2 + half) / Hs));
   for (let m = 0; m < frames; m++) {
     const pos = Math.round(m * Ha), start = pos - half;
     for (let i = 0; i < N; i++) {
@@ -114,7 +119,7 @@ export function shiftStereo(L, R, outL, outR, semis, N, progress) {
     }
     // Everything before the next frame's start is final: resample it back to the original length
     const ready = (m + 1) * Hs - half;
-    while (out < n && out * r + 1 < ready) {
+    while (out < nOut && out * r + 1 < ready) {
       const t = out * r, j = Math.floor(t), f = t - j;
       for (let c = 0; c < 2; c++) {
         const v = (y[c][j & mask] * (1 - f) + y[c][(j + 1) & mask] * f) * gain;
@@ -131,13 +136,15 @@ export function shiftStereo(L, R, outL, outR, semis, N, progress) {
 if (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) {
   self.onmessage = (e) => {
     const { left, right, semis, size } = e.data;
+    const tempo = e.data.tempo || 1;
     try {
-      const outL = makeArray(left.length), outR = makeArray(left.length);
+      const n = Math.round(left.length / tempo);
+      const outL = makeArray(n), outR = makeArray(n);
       let last = 0;
       shiftStereo(left, right, outL, outR, semis, size || 2048, (done) => {
         const now = Date.now();
         if (now - last > 150) { last = now; self.postMessage({ type: "progress", done: done }); }
-      });
+      }, tempo);
       self.postMessage({ type: "done", left: outL, right: outR }, outL.buffer instanceof ArrayBuffer ? [outL.buffer, outR.buffer] : []);
     } catch (err) {
       self.postMessage({ type: "error", message: String((err && err.message) || err) });
