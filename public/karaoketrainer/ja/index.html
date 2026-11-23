@@ -197,6 +197,9 @@
     .time { font-family: var(--mono); font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; }
     .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
     .row .label { min-width: 7em; }
+    .tempo input[type=range] { flex: 1 1 120px; width: auto; min-width: 0; }
+    .tempo .val { min-width: 4.5ch; text-align: right; }
+    .tempo .busy { flex-basis: 100%; }
     .sing { appearance: none; height: 44px; padding: 0 18px; border: 2px solid var(--ink); border-radius: 22px; background: var(--paper); color: var(--ink); font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; touch-action: manipulation; }
     .sing .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--off); }
     .sing[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
@@ -451,14 +454,14 @@
             <span class="keyval" id="keyVal">0</span>
             <button class="chip sq" id="keyUp" type="button" aria-label="キーを半音上げる" data-i18n-attr="aria-label:key.up">+</button>
             <button class="badge" id="keySuggest" type="button" hidden></button>
-            <span class="hint" id="keyBusy" hidden></span>
           </div>
-          <div class="row">
-            <span class="label" data-i18n="tempo.label">テンポ</span>
+          <div class="row tempo">
+            <label class="label" for="tempoRange" data-i18n="tempo.label">テンポ</label>
             <button class="chip sq" id="tempoDown" type="button" aria-label="遅くする（5%）" data-i18n-attr="aria-label:tempo.down">−</button>
-            <span class="keyval" id="tempoVal">100%</span>
+            <input type="range" id="tempoRange" min="50" max="150" step="1" value="100" />
             <button class="chip sq" id="tempoUp" type="button" aria-label="速くする（5%）" data-i18n-attr="aria-label:tempo.up">+</button>
-            <span class="hint" id="tempoHint" data-i18n="tempo.hint">キーはそのままで、遅く・速くします。</span>
+            <span class="val" id="tempoVal">100%</span>
+            <span class="hint busy" id="keyBusy" aria-live="polite" hidden></span>
           </div>
           <p class="keys" data-i18n-html="keys"><kbd>Space</kbd> 再生／一時停止・<kbd>Home</kbd> 停止・<kbd>R</kbd> 歌うのオン／オフ・<kbd>←</kbd> <kbd>→</kbd> 5秒戻る／進む</p>
         </div>
@@ -776,7 +779,6 @@
           "tempo.label": "Tempo",
           "tempo.down": "Slower (5%)",
           "tempo.up": "Faster (5%)",
-          "tempo.hint": "Slower or faster, in the same key.",
           "tempo.busy": "Changing the tempo… {pct}%",
           "tempo.fail": "The tempo could not be changed: {msg}",
           "tempo.wait": "The new tempo is still being prepared: sing in a moment.",
@@ -1024,7 +1026,6 @@
           "tempo.label": "テンポ",
           "tempo.down": "遅くする（5%）",
           "tempo.up": "速くする（5%）",
-          "tempo.hint": "キーはそのままで、遅く・速くします。",
           "tempo.busy": "テンポを変えています… {pct}%",
           "tempo.fail": "テンポを変えられませんでした：{msg}",
           "tempo.wait": "新しいテンポを準備しています。少し待ってから歌ってください。",
@@ -2165,8 +2166,8 @@
       $("vocalVol").addEventListener("input", function () { store.vocal = Number(this.value); setVocalMute(false); renderVols(); sendGains(); saveState(); });
       $("accVol").addEventListener("input", function () { store.acc = Number(this.value); store.accMute = false; renderVols(); sendGains(); saveState(); });
       $("mineVol").addEventListener("input", function () { store.mine = Number(this.value); store.mineMute = false; renderVols(); sendGains(); saveState(); });
-      // Double tap (or double click) on a volume slider: back to 100% (and unmuted, as moving it does)
-      ["vocalVol", "accVol", "mineVol"].forEach(function (id) {
+      // Double tap (or double click) on a volume slider or the tempo: back to 100% (and unmuted, as moving it does)
+      ["vocalVol", "accVol", "mineVol", "tempoRange"].forEach(function (id) {
         const el = $(id);
         let last = 0, lastX = 0;
         el.addEventListener("pointerup", function (e) {
@@ -2188,7 +2189,7 @@
       let keyJobs = [];
       let keyTarget = "";
       let curRate = 1; // the tempo the stems in cur are at (tempo / 100 once they are ready)
-      function cancelKey() { keyJobs.forEach(function (w) { w.terminate(); }); keyJobs = []; $("keyBusy").hidden = true; }
+      function cancelKey() { clearTimeout(restretchTimer); keyJobs.forEach(function (w) { w.terminate(); }); keyJobs = []; $("keyBusy").hidden = true; }
       function renderKey() {
         $("keyVal").textContent = (semis > 0 ? "+" : "") + semis;
         $("keyDown").disabled = semis <= -6;
@@ -2197,6 +2198,8 @@
       }
       function renderTempo() {
         $("tempoVal").textContent = tempo + "%";
+        $("tempoRange").value = tempo;
+        $("tempoRange").disabled = !song || singing;
         $("tempoDown").disabled = !song || singing || tempo <= TEMPO_MIN;
         $("tempoUp").disabled = !song || singing || tempo >= TEMPO_MAX;
       }
@@ -2219,9 +2222,19 @@
         restretch("tempo");
       }
       // Makes the stems in the current key and tempo (what: "key" | "tempo", for the messages). The old ones
-      // play until the new ones are ready.
+      // play until the new ones are ready. It starts RESTRETCH_WAIT ms after the last change, so pressing − / +
+      // a few times or dragging the tempo slider makes them once.
+      const RESTRETCH_WAIT = 500;
+      let restretchTimer = 0;
       function restretch(what) {
         cancelKey();
+        $("keyBusy").hidden = false;
+        $("keyBusy").textContent = t(what + ".busy", { pct: 0 });
+        restretchTimer = setTimeout(function () { restretchNow(what); }, RESTRETCH_WAIT);
+      }
+      function restretchNow(what) {
+        cancelKey();
+        if (!song) return;
         const next = semis, rate = tf(), target = next + "/" + tempo;
         keyTarget = target;
         stretchVoice(tempo);
@@ -2261,6 +2274,7 @@
       $("keyUp").addEventListener("click", function () { changeKey(semis + 1); });
       $("tempoDown").addEventListener("click", function () { changeTempo(tempo - TEMPO_STEP); });
       $("tempoUp").addEventListener("click", function () { changeTempo(tempo + TEMPO_STEP); });
+      $("tempoRange").addEventListener("input", function () { changeTempo(Number(this.value)); });
 
       // Suggested key from your vocal range (only when a range is saved; otherwise a quiet hint)
       function suggestKey() {

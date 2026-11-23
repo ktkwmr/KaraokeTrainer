@@ -173,9 +173,17 @@ await page.click("#keyDown");
 await page.click("#keyDown");
 await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
 const len100 = await mp3Size();
-await page.click("#tempoDown");
-await page.click("#tempoDown");
+// The tempo slider dragged from 100% to 90% in 1% steps: the stems (and my voice) are made once, after it stops
+let started = 0;
+page.on("worker", (w) => { if (/keyshift\.js/.test(w.url())) started++; });
+await page.evaluate(async () => {
+  const r = document.querySelector("#tempoRange");
+  for (let v = 99; v >= 90; v--) { r.value = v; r.dispatchEvent(new Event("input")); await new Promise((f) => setTimeout(f, 40)); }
+});
+const busyNow = await page.evaluate(() => !document.querySelector("#keyBusy").hidden && document.querySelector("#keyBusy").closest(".tempo") !== null);
 await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
+if (busyNow && started === 3) ok("tempo slider 100 → 90% in 1% steps: made once (" + started + " workers: 2 stems + my voice), message in the tempo row");
+else fail("tempo slider: " + JSON.stringify({ busyNow, started }));
 {
   await page.waitForFunction(() => document.querySelector("#cmpTempo").hidden, null, { timeout: 60000 });
   const st = await page.evaluate(() => document.querySelector("#tempoVal").textContent);
@@ -204,9 +212,16 @@ await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null
     const r = indexedDB.open("karaoketrainer");
     r.onsuccess = () => { const g = r.result.transaction("takes").objectStore("takes").getAll(); g.onsuccess = () => { r.result.close(); res(g.result.some((x) => x.take.tempo === 90)); }; };
   }), null, { timeout: 10000 }).then(() => ok("take kept with tempo 90"), () => fail("take not kept with its tempo"));
+  // − / + move 5% at a time; the double tap on the slider goes back to 100%
   await page.click("#tempoUp");
+  const v95 = await page.textContent("#tempoVal");
   await page.click("#tempoUp");
   await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
+  await page.click("#tempoDown");
+  await page.dblclick("#tempoRange");
+  await page.waitForFunction(() => document.querySelector("#keyBusy").hidden, null, { timeout: 60000 });
+  const v100 = await page.evaluate(() => document.querySelector("#tempoVal").textContent + " " + document.querySelector("#tempoRange").value);
+  if (v95 === "95%" && v100 === "100% 100") ok("tempo + is 5%; double click on the tempo slider: back to 100%"); else fail("tempo buttons / double click: " + JSON.stringify({ v95, v100 }));
   // Back at 100%: the take sung at 90% is stretched to it
   await page.waitForFunction(() => document.querySelector("#cmpTempo").hidden, null, { timeout: 60000 });
   const len90take = await mp3Size();

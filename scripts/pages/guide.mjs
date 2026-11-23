@@ -101,7 +101,7 @@ export default {
   <li><b>Accompaniment</b> – the volume of everything else.</li>
   <li><b>Mute</b> – the speaker button next to each slider turns that part off and on again without losing its volume. Double-tap (or double-click) a slider to set it back to 100%.</li>
   <li><b>Key</b> – − / + moves the whole song down or up a semitone at a time, up to 6, without changing the tempo. The grey bars move with it. It takes a few seconds to prepare.</li>
-  <li><b>Tempo</b> – − / + makes the song slower or faster by 5% at a time, from 50% to 150%, without changing the key. Learn a fast passage at 80%, then bring it back to 100%. The bars and the beat lines stay with the song. It cannot be changed while you sing. On the results, your recorded voice follows the tempo too (after a few seconds to prepare), so you can listen to a take sung at 80% at 100%, and “Save with the song” saves it at the tempo you hear.</li>
+  <li><b>Tempo</b> – the slider makes the song slower or faster from 50% to 150% in 1% steps, and − / + by 5%, without changing the key; double-tap the slider for 100%. It is prepared a moment after you stop moving it (the progress is shown under it, as for the key). Learn a fast passage at 80%, then bring it back to 100%. The bars and the beat lines stay with the song. It cannot be changed while you sing. On the results, your recorded voice follows the tempo too (after a few seconds to prepare), so you can listen to a take sung at 80% at 100%, and “Save with the song” saves it at the tempo you hear.</li>
 </ul>
 
 <h2 id="range">Finding your key (optional)</h2>
@@ -224,7 +224,7 @@ export default {
   <li><b>伴奏</b> ― ボーカル以外の音量。</li>
   <li><b>ミュート</b> ― 各スライダーの横のスピーカーのボタンで、音量を変えずにそのパートを消したり戻したりできます。スライダーをダブルタップ（ダブルクリック）すると 100% に戻ります。</li>
   <li><b>キー</b> ― − / ＋ で、テンポを変えずに曲全体を半音ずつ、最大6半音まで上げ下げします。グレーのバーも一緒に動きます。準備に数秒かかります。</li>
-  <li><b>テンポ</b> ― − / ＋ で、キーを変えずに曲を 5% ずつ、50%〜150% の間で遅く・速くします。速いところは 80% で覚えてから 100% に戻す、という使い方ができます。バーと拍の線も曲と一緒に動きます。歌っている間は変えられません。答え合わせでは録音した自分の声もテンポに合わせて変わるので（準備に数秒かかります）、80% で歌った録音を 100% で聴き直すこともできます。「曲と一緒に保存」も聞こえているテンポで保存します。</li>
+  <li><b>テンポ</b> ― スライダーで 1% ずつ、− / ＋ で 5% ずつ、キーを変えずに曲を 50%〜150% の間で遅く・速くします。スライダーをダブルタップすると 100% に戻ります。動かし終えて少しすると準備が始まり、その下に進み具合が出ます（キーを変えたときも同じ場所に出ます）。速いところは 80% で覚えてから 100% に戻す、という使い方ができます。バーと拍の線も曲と一緒に動きます。歌っている間は変えられません。答え合わせでは録音した自分の声もテンポに合わせて変わるので（準備に数秒かかります）、80% で歌った録音を 100% で聴き直すこともできます。「曲と一緒に保存」も聞こえているテンポで保存します。</li>
 </ul>
 
 <h2 id="range">自分に合うキーを探す（任意）</h2>
