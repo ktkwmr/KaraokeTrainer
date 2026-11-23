@@ -111,11 +111,11 @@ const pxBack = await rollPx();
 if (moved.val === "500 ms" && !moved.inSettings && moved.calibHere && pxMoved !== px0 && pxBack === px0 && back === res.match) ok(`delay correction on the results: ${delay0} → 500 ms: line moved (${moved.match}), back: ${back}`);
 else fail("delay correction on the results: " + JSON.stringify({ delay0, moved, back, before: res.match, lineMoved: pxMoved !== px0, lineBack: pxBack === px0 }));
 
-// Compare: plays with your recording
-await page.click("#cmpPlay");
+// Review: plays with your recording (no compare / WAV buttons); "Delete the recording" sits in the sing row
+await page.click("#playBtn");
 await page.waitForTimeout(800);
-const mix = await page.evaluate(() => ({ mine: !document.querySelector("#mineVol").hidden, vocalMuted: document.querySelector("#vocalMute").getAttribute("aria-pressed") }));
-if (mix.mine && mix.vocalMuted === "true") ok("review: my voice slider shown, original vocal muted"); else fail("review mix: " + JSON.stringify(mix));
+const mix = await page.evaluate(() => ({ mine: !document.querySelector("#mineVol").hidden, vocalMuted: document.querySelector("#vocalMute").getAttribute("aria-pressed"), gone: !document.querySelector("#cmpPlay, #wavBtn"), del: !document.querySelector("#delTakeBtn").hidden && !!document.querySelector("#delTakeBtn").closest(".row #singBtn ~ #delTakeBtn, .row") && document.querySelector("#delTakeBtn").parentElement === document.querySelector("#singBtn").parentElement }));
+if (mix.mine && mix.vocalMuted === "true" && mix.gone && mix.del) ok("review: my voice slider shown, original vocal muted, no compare / WAV, delete next to Sing"); else fail("review mix: " + JSON.stringify(mix));
 await page.click("#vocalMute"); // the original vocal on: it goes into the MP3 too
 await page.click("#playBtn");
 
@@ -134,7 +134,7 @@ const tagged = mp3.subarray(0, 3).toString() === "ID3";
 const tagSize = (mp3[6] << 21) | (mp3[7] << 14) | (mp3[8] << 7) | mp3[9];
 const frame = mp3[10 + tagSize] === 0xff && (mp3[11 + tagSize] & 0xe0) === 0xe0;
 const comment = mp3.subarray(0, 10 + tagSize).toString("utf16le").includes("personal use");
-if (/original vocal/.test(what)) ok("MP3 mix follows the mutes: " + what); else fail("MP3 mix without the original vocal: " + what);
+if (/vocal \+ accompaniment \+ your voice/.test(what)) ok("MP3 mix follows the mutes: " + what); else fail("MP3 mix: " + what);
 if (tagged && frame && comment && mp3.length > 20000) ok(`MP3 saved: ${download.suggestedFilename()} (${(mp3.length / 1024).toFixed(0)} KB, ${what})`);
 else fail(`MP3: tag ${tagged}, frame ${frame}, comment ${comment}, ${mp3.length} bytes`);
 await page.click("#playBtn"); // play again
@@ -207,7 +207,8 @@ else fail("tempo slider: " + JSON.stringify({ busyNow, started }));
   await page.click("#singBtn");
   await page.waitForSelector("#results:not([hidden])");
   const after = await page.evaluate(() => ({ note: !document.querySelector("#cmpTempo").hidden, match: document.querySelector("#resMatch").textContent, up: document.querySelector("#tempoUp").disabled }));
-  if (dis && !after.note && !after.up && after.match !== "–") ok(`take at 90%: tempo locked while singing, my voice plays, ${after.match} on pitch`); else fail("take at 90%: " + JSON.stringify({ dis, after }));
+  // (the fake voice plays at its own speed, not with the song at 90%, so the score itself means nothing here)
+  if (dis && !after.note && !after.up) ok(`take at 90%: tempo locked while singing, my voice plays (${after.match})`); else fail("take at 90%: " + JSON.stringify({ dis, after }));
   await page.waitForFunction(() => new Promise((res) => {
     const r = indexedDB.open("karaoketrainer");
     r.onsuccess = () => { const g = r.result.transaction("takes").objectStore("takes").getAll(); g.onsuccess = () => { r.result.close(); res(g.result.some((x) => x.take.tempo === 90)); }; };
@@ -242,7 +243,7 @@ const takesIn = () => page.evaluate(() => new Promise((res, rej) => {
 await page.waitForFunction(() => /last take kept/.test(document.querySelector("#recent").innerText), null, { timeout: 10000 });
 {
   const k = await takesIn();
-  const keep = await page.evaluate(() => ({ btn: !!document.querySelector("#keepBtn"), del: !document.querySelector("#delTakeBtn").disabled, note: !document.querySelector("#keptNote").hidden }));
+  const keep = await page.evaluate(() => ({ btn: !!document.querySelector("#keepBtn"), del: !document.querySelector("#delTakeBtn").hidden, note: !document.querySelector("#keptNote").hidden }));
   if (k.length === 1 && k[0].audio > 0 && k[0].v === 3 && !keep.btn && keep.del && keep.note) ok("last take kept by itself in \"takes\" (no Keep button)");
   else fail("last take not kept: " + JSON.stringify({ k, keep }));
 }
@@ -317,7 +318,7 @@ await page.click("#playBtn");
 await page.waitForTimeout(2500);
 const tNow = await page.textContent("#timeNow");
 if (tNow !== "0:00") ok("plays offline (" + tNow + ")"); else fail("did not play offline");
-// Delete my voice: asks first, then the take is gone from the screen and this device; the song stays
+// Delete the recording: asks first, then the take is gone from the screen and this device; the song stays
 await page.click("#delTakeBtn");
 await page.waitForSelector("#confirmDlg[open]");
 await page.click("#confirmOk");
@@ -325,8 +326,9 @@ await page.waitForSelector("#results", { state: "hidden" });
 {
   const k = await takesIn();
   const st = await page.evaluate(() => ({ prev: !document.querySelector("#prevBtn").hidden, mine: !document.querySelector("#mineVol").hidden, recent: document.querySelector("#recent").innerText }));
-  if (!k.length && !st.prev && !st.mine && !/last take kept/.test(st.recent) && /\S/.test(st.recent)) ok("Delete my voice: take deleted, the song stays");
-  else fail("Delete my voice: " + JSON.stringify({ k, st }));
+  const delGone = await page.evaluate(() => document.querySelector("#delTakeBtn").hidden);
+  if (!k.length && !st.prev && !st.mine && delGone && !/last take kept/.test(st.recent) && /\S/.test(st.recent)) ok("Delete the recording: take deleted, the song stays");
+  else fail("Delete the recording: " + JSON.stringify({ k, st, delGone }));
 }
 await context.setOffline(false);
 

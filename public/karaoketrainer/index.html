@@ -195,6 +195,8 @@
     .time { font-family: var(--mono); font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; }
     .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
     .row .label { min-width: 7em; }
+    .row .end { margin-left: auto; }
+    .row .break { flex-basis: 100%; }
     .tempo input[type=range] { flex: 1 1 120px; width: auto; min-width: 0; }
     .tempo .val { min-width: 4.5ch; text-align: right; }
     .tempo .busy { flex-basis: 100%; }
@@ -379,13 +381,16 @@
           </div>
           <div class="row">
             <button class="sing" id="singBtn" type="button" aria-pressed="false"><span class="dot" aria-hidden="true"></span><span id="singLabel" data-i18n="sing">Sing</span></button>
-            <select class="sel" id="octSel" aria-label="Your octave" data-i18n-attr="aria-label:oct.label">
-              <option value="auto" data-i18n="oct.auto">Octave: auto</option>
-              <option value="0" data-i18n="oct.same">Same octave as the original</option>
-              <option value="-1" data-i18n="oct.down">An octave lower</option>
-              <option value="1" data-i18n="oct.up">An octave higher</option>
-            </select>
             <button class="chip" id="prevBtn" type="button" data-i18n="prev" hidden>See the last take</button>
+            <button class="chip end" id="delTakeBtn" type="button" data-i18n="res.del" hidden>Delete the recording</button>
+            <div class="break">
+              <select class="sel" id="octSel" aria-label="Your octave" data-i18n-attr="aria-label:oct.label">
+                <option value="auto" data-i18n="oct.auto">Octave: auto</option>
+                <option value="0" data-i18n="oct.same">Same octave as the original</option>
+                <option value="-1" data-i18n="oct.down">An octave lower</option>
+                <option value="1" data-i18n="oct.up">An octave higher</option>
+              </select>
+            </div>
             <p class="hint" id="singHint" data-i18n="sing.hint">Use headphones: from a speaker, the microphone hears the song too.</p>
           </div>
           <div id="results" class="results" hidden aria-labelledby="resultsTitle">
@@ -398,14 +403,6 @@
             <div class="stack">
               <span class="label" data-i18n="res.worst">Where it went off – tap to sing that part again</span>
               <ul class="worst" id="worst"></ul>
-            </div>
-            <div class="stack">
-              <span class="label" data-i18n="res.compare">Listen and compare (with the accompaniment)</span>
-              <div class="setrow">
-                <button class="chip" id="cmpPlay" type="button" data-i18n="cmp.play">Play from the start of the take</button>
-              </div>
-              <p class="hint" data-i18n="cmp.hint">Set the volumes below. The original vocal starts muted; turn it on to hear it with your voice.</p>
-              <p class="hint" id="cmpTempo" hidden></p>
             </div>
             <div class="stack">
               <label class="label" for="latency" data-i18n="set.delay">Delay correction</label>
@@ -421,13 +418,12 @@
               </div>
               <p class="hint" data-i18n="calib.hint">To measure it: with your headphones on, press the button and say “ta” in time with each of the 8 beeps.</p>
             </div>
+            <p class="hint" id="cmpTempo" hidden></p>
             <div class="setrow">
-              <button class="chip" id="mp3Btn" type="button" data-i18n="res.mp3">Save with the song (MP3)</button>
-              <button class="chip" id="wavBtn" type="button" data-i18n="res.wav">Save my voice only (WAV)</button>
-              <button class="chip" id="delTakeBtn" type="button" data-i18n="res.del">Delete my voice</button>
+              <button class="chip" id="mp3Btn" type="button" data-i18n="res.mp3">Save (MP3)</button>
             </div>
             <p class="hint" id="keptNote" data-i18n="res.kept.note">Your last take of each song is kept on this device, so you can see it again next time (“See the last take”). Singing again replaces it.</p>
-            <p class="hint" id="mp3Note" data-i18n="res.mp3.note">“Save with the song” saves your voice with the accompaniment (and the original vocal too when it is on), at the volumes you hear. It contains the song, so it is for your own practice only: do not post or share it.</p>
+            <p class="hint" id="mp3Note" data-i18n="res.mp3.note">“Save (MP3)” saves the mix you hear – the vocal, the accompaniment and your voice, at their volumes and mutes – over the part you sang. It contains the song, so it is for your own practice only: do not post or share it.</p>
           </div>
           <div class="row">
             <div class="mixgrid">
@@ -727,21 +723,22 @@
           "res.high": "{n} cents high",
           "res.low": "{n} cents low",
           "res.missed": "mostly not sung",
-          "res.compare": "Listen and compare (with the accompaniment)",
           "res.keepFail": "Could not keep this take on this device (storage full?). You can still listen and save it as a file now.",
-          "res.del": "Delete my voice",
+          "res.del": "Delete the recording",
           "res.del.title": "Delete your recording?",
           "res.del.body": "This deletes this take (your voice and its results) from this device. The song stays.",
           "res.del.done": "Your recording was deleted.",
           "res.kept.note": "Your last take of each song is kept on this device, so you can see it again next time (“See the last take”). Singing again replaces it.",
           "prev": "See the last take",
           "prev.fail": "Could not open the last take.",
-          "res.wav": "Save my voice only (WAV)",
-          "res.mp3": "Save with the song (MP3)",
-          "res.mp3.note": "“Save with the song” saves your voice with the accompaniment (and the original vocal too when it is on), at the volumes you hear. It contains the song, so it is for your own practice only: do not post or share it.",
-          "res.mp3.key": "Change the key back to {v} (the key you sang in) to save it with the song.",
-          "res.mp3.what": "{time} · your voice + accompaniment{orig} · MP3 192 kbps",
-          "res.mp3.orig": " + original vocal",
+          "res.mp3": "Save (MP3)",
+          "res.mp3.note": "“Save (MP3)” saves the mix you hear – the vocal, the accompaniment and your voice, at their volumes and mutes – over the part you sang. It contains the song, so it is for your own practice only: do not post or share it.",
+          "res.mp3.key": "Change the key back to {v} (the key you sang in) to save it.",
+          "res.mp3.what": "{time} · {parts} · MP3 192 kbps",
+          "res.mp3.part.vocal": "vocal",
+          "res.mp3.part.acc": "accompaniment",
+          "res.mp3.part.mine": "your voice",
+          "res.mp3.join": " + ",
           "res.mp3.silent": "Your voice is muted. Turn up “My voice” to save.",
           "res.mp3.encoding": "Making the MP3… {pct}%",
           "res.mp3.done": "Saved. For your personal use only.",
@@ -751,8 +748,6 @@
           "use.title": "For your personal use only",
           "use.body": "This MP3 contains the song's accompaniment with your voice. The rights to the song belong to its rights holders, so use the file only to listen back to your own practice. Do not upload it to video or social media sites, send it to others, or distribute it. The file is saved only on this device.",
           "use.ok": "I understand, save",
-          "cmp.play": "Play from the start of the take",
-          "cmp.hint": "Set the volumes below. The original vocal starts muted; turn it on to hear it with your voice.",
           "res.delay.hint": "If your line sits to the right of the grey bars (your voice sounds late), make it larger; if to the left, smaller. This take's line moves with it, and the next takes use it too.",
           "vol.vocal": "Vocal",
           "mute.vocal": "Mute the vocal",
@@ -974,21 +969,22 @@
           "res.high": "{n}セント高い",
           "res.low": "{n}セント低い",
           "res.missed": "ほとんど歌っていない",
-          "res.compare": "聴き比べ（伴奏つき）",
           "res.keepFail": "この録音を端末に残せませんでした（容量不足かもしれません）。今は聴いたり、ファイルに保存したりできます。",
-          "res.del": "自分の声を削除",
+          "res.del": "録音を削除",
           "res.del.title": "録音を削除しますか？",
           "res.del.body": "この録音（あなたの声と答え合わせ）をこの端末から削除します。曲は残ります。",
           "res.del.done": "録音を削除しました。",
           "res.kept.note": "各曲の直前の1回分の録音がこの端末に残り、次に開いたときも見られます（「前の録音を見る」）。もう一度歌うと置き換わります。",
           "prev": "前の録音を見る",
           "prev.fail": "前の録音を開けませんでした。",
-          "res.wav": "自分の声だけ保存（WAV）",
-          "res.mp3": "曲と一緒に保存（MP3）",
-          "res.mp3.note": "「曲と一緒に保存」は、聞こえている音量のまま、あなたの声と伴奏を（原曲のボーカルをオンにしているときはそれも）1つの MP3 にします。曲が入っているので、自分の練習用だけに使い、投稿・共有はしないでください。",
-          "res.mp3.key": "曲と一緒に保存するには、キーを {v}（歌ったときのキー）に戻してください。",
-          "res.mp3.what": "{time}・あなたの声＋伴奏{orig}・MP3 192 kbps",
-          "res.mp3.orig": "＋原曲のボーカル",
+          "res.mp3": "保存（MP3）",
+          "res.mp3.note": "「保存（MP3）」は、聞こえているとおりのミックス（ボーカル・伴奏・自分の声の音量とミュートのとおり）を、歌った範囲だけ 1 つの MP3 にします。曲が入っているので、自分の練習用だけに使い、投稿・共有はしないでください。",
+          "res.mp3.key": "保存するには、キーを {v}（歌ったときのキー）に戻してください。",
+          "res.mp3.what": "{time}・{parts}・MP3 192 kbps",
+          "res.mp3.part.vocal": "ボーカル",
+          "res.mp3.part.acc": "伴奏",
+          "res.mp3.part.mine": "自分の声",
+          "res.mp3.join": "＋",
           "res.mp3.silent": "自分の声がミュートです。「自分の声」の音量を上げてから保存してください。",
           "res.mp3.encoding": "MP3 を作っています… {pct}%",
           "res.mp3.done": "保存しました。個人の練習用にだけお使いください。",
@@ -998,8 +994,6 @@
           "use.title": "個人の練習用にだけ使ってください",
           "use.body": "この MP3 には、曲の伴奏とあなたの声が入っています。曲の権利は権利者にあるので、ファイルは自分の練習を聴き返すためだけに使ってください。動画サイトや SNS への投稿、ほかの人に送ること、配布はしないでください。ファイルはこの端末にだけ保存されます。",
           "use.ok": "わかったうえで保存",
-          "cmp.play": "録音の最初から再生",
-          "cmp.hint": "音量は下のスライダーで。原曲のボーカルは最初はミュートです。オンにすると自分の声と重ねて聴けます。",
           "res.delay.hint": "自分の線がグレーのバーより右にある（声が遅れて聞こえる）ときは大きく、左にあるときは小さくします。この録音の線も一緒に動き、次に歌うときもこの値を使います。",
           "vol.vocal": "ボーカル",
           "mute.vocal": "ボーカルをミュート",
@@ -2725,18 +2719,12 @@
           ul.appendChild(li);
         });
         $("keptNote").hidden = !!song.demo;
-        $("wavBtn").disabled = !take.audio;
         $("mp3Btn").disabled = !take.audio;
         draw();
       }
-      $("cmpPlay").addEventListener("click", function () {
-        if (!take) return;
-        seekTo(take.start / SR);
-        play();
-      });
       // ---------- Your last take of each song, kept on this device ("takes") ----------
       // Saved each time you stop (not the demo song, not a take with nothing recorded); singing again replaces
-      // it, "Delete my voice" deletes it. Opening the song does not show it: "See the last take" does.
+      // it, "Delete the recording" (next to "Sing") deletes it. Opening the song does not show it: "See the last take" does.
       async function keepTake(tk, sg) {
         if (!sg || sg.demo || !tk.audio || tk.rawCovered.indexOf(1) < 0) return;
         try {
@@ -2746,7 +2734,7 @@
           info.take = true;
           info.bytes = pcmBytes(sg.stems) + tk.audio.length * 2;
           await dbPut([["takes", { hash: sg.hash, take: saved }], ["index", info]]);
-          if (song === sg) song.hasTake = true;
+          if (song === sg) { song.hasTake = true; renderPrev(); }
           renderRecent();
         } catch (e) {
           console.warn(e);
@@ -2755,6 +2743,8 @@
       }
       function renderPrev() {
         $("prevBtn").hidden = !(song && song.hasTake && !singing && $("results").hidden);
+        // "Delete the recording": the take on screen and / or the one kept for this song
+        $("delTakeBtn").hidden = !(song && !singing && ((take && take.audio) || song.hasTake));
       }
       $("prevBtn").addEventListener("click", async function () {
         if (!song || singing) return;
@@ -2770,14 +2760,14 @@
         }
       });
       $("delTakeBtn").addEventListener("click", async function () {
-        if (!take || !song) return;
+        if (!song || singing || !(take || song.hasTake)) return;
         const tk = take, sg = song;
         $("confirmTitle").textContent = t("res.del.title");
         $("confirmBody").textContent = t("res.del.body");
         if (!(await askDlg($("confirmDlg"), "confirmOk", "confirmCancel"))) return;
-        if (take !== tk) return;
-        if (tk.saving) await tk.saving; // a save still going on would put it back
-        if (take !== tk) return;
+        if (take !== tk || song !== sg || singing) return;
+        if (tk && tk.saving) await tk.saving; // a save still going on would put it back
+        if (take !== tk || song !== sg || singing) return;
         if (playing) pause();
         take = null;
         cancelVoice();
@@ -2806,26 +2796,6 @@
         renderRecent();
         draw();
         toast(t("res.del.done"));
-      });
-      $("wavBtn").addEventListener("click", function () {
-        if (!take || !take.audio) return;
-        // Your voice as you hear it: at the tempo now playing
-        if (tempo !== curTempo() || !voiceAudio()) { toast(t("res.wait")); return; }
-        let a = -1, z = -1;
-        for (let k = 0; k < take.covered.length; k++) if (take.covered[k]) { if (a < 0) a = k; z = k; }
-        if (a < 0) return;
-        const rate = curRate;
-        const s0 = Math.floor(((a / FPS) * SR) / rate), s1 = Math.min(voiceAudio().length, Math.ceil((((z + 1) / FPS) * SR) / rate));
-        const n = s1 - s0;
-        const buf = new ArrayBuffer(44 + n * 2), dv = new DataView(buf);
-        const str = function (o, s) { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); };
-        str(0, "RIFF"); dv.setUint32(4, 36 + n * 2, true); str(8, "WAVE"); str(12, "fmt ");
-        dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true); dv.setUint32(24, SR, true);
-        dv.setUint32(28, SR * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true); str(36, "data"); dv.setUint32(40, n * 2, true);
-        const g = take.gain;
-        for (let i = 0; i < n; i++) dv.setInt16(44 + i * 2, Math.max(-32768, Math.min(32767, Math.round(mineAt(s0 + i) * g))), true);
-        const name = baseName() + "-my-voice.wav";
-        saveBlob(name, new Blob([buf], { type: "audio/wav" }));
       });
       // ---------- Your singing with the song, as MP3 (personal use only) ----------
       // The mix is what you hear while reviewing (the three sliders and mutes, the original vocal only when on),
@@ -2898,8 +2868,10 @@
         if (!span) return;
         const [gv, ga, gm] = gains();
         if (!gm) { toast(t("res.mp3.silent")); return; }
+        // The mix as you hear it: each part at its volume (a muted part is left out)
         const withOrig = gv > 0;
-        $("useWhat").textContent = t("res.mp3.what", { time: fmtTime((span.s1 - span.s0) / SR), orig: withOrig ? t("res.mp3.orig") : "" });
+        const parts = [gv ? "vocal" : "", ga ? "acc" : "", "mine"].filter(Boolean).map(function (k) { return t("res.mp3.part." + k); });
+        $("useWhat").textContent = t("res.mp3.what", { time: fmtTime((span.s1 - span.s0) / SR), parts: parts.join(t("res.mp3.join")) });
         if (!(await askDlg($("useDlg"), "useOk", "useCancel"))) return;
         mp3Busy = true;
         $("mp3Btn").disabled = true;

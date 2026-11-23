@@ -87,10 +87,10 @@ export default {
   <li><b>On pitch</b> – the share of the melody you sang on pitch: the notes whose bar turned green, a long note counting more than a short one. It counts only where the original singer sings and you sang, so pauses do not count against you.</li>
   <li><b>Average</b> – whether you tend to be higher (+) or lower (−) than the melody, in cents.</li>
   <li><b>Where it went off</b> – the phrases that were furthest off, with how far and in which direction. <b>Tap one</b> and the song plays from a second before that phrase, so you can sing it again right away.</li>
-  <li><b>Listen and compare</b> – while the results are open, a “My voice” slider appears under “Vocal” and “Accompaniment”, so you can set each volume and mute each one. The original vocal starts muted after you sing; turn it on to hear it with your voice. “Play from the start of the take” plays from where you started singing.</li>
+  <li><b>Listen again</b> – while the results are open, ▶ plays your recording with the song, and a “My voice” slider appears under “Vocal” and “Accompaniment”, so you can set each volume and mute each one. The original vocal starts muted after you sing; turn it on to hear it with your voice.</li>
   <li><b>Delay correction</b> – every device takes a moment to play the sound and to hear the microphone (Bluetooth headphones much more), and the app subtracts this delay. If your line sits to the right of the grey bars even though you sang in time (your voice sounds behind the accompaniment), make the value larger; if to the left, smaller. Your line, the numbers, what you hear, and the saved files move with it, and your next takes use the new value too. To measure it instead, press <b>“Measure the delay”</b> with your headphones on and say “ta” with each of the 8 beeps.</li>
-  <li><b>Your last take is kept</b> on this device with the song, by itself: next time you open the song, press <b>“See the last take”</b> (next to “Sing”) to see the results and listen again. Only the last take of each song is kept: singing again replaces it. <b>Delete my voice</b> deletes it (the song stays).</li>
-  <li><b>Save with the song (MP3)</b> saves your voice with the accompaniment as one MP3 file (192 kbps): at the volumes you hear, with the original vocal too when it is on. It covers the part you sang. <b>Save my voice only (WAV)</b> saves just your voice.</li>
+  <li><b>Your last take is kept</b> on this device with the song, by itself: next time you open the song, press <b>“See the last take”</b> (next to “Sing”) to see the results and listen again. Only the last take of each song is kept: singing again replaces it. <b>“Delete the recording”</b> at the right end of the “Sing” row deletes it (the song stays).</li>
+  <li><b>Save (MP3)</b> saves the mix you hear as one MP3 file (192 kbps): the vocal, the accompaniment and your voice at their volumes and mutes. It covers the part you sang.</li>
 </ul>
 <div class="note"><p><b>The MP3 is for your personal use only.</b> It contains the song, and the rights to the song belong to its rights holders. Use it to listen back to your own practice, and do not upload it to video or social media sites, send it to others, or distribute it. The app asks you to confirm this each time, and writes it into the file's tag (comment).</p></div>
 <p>The numbers are a guide for practice, not a score. The line and the list tell you more: where you go flat at the end of a long note, which jump you overshoot, which phrase starts late.</p>
@@ -210,10 +210,10 @@ export default {
   <li><b>音程が合っていた</b> ― メロディのうち、音程が合っていた（バーが緑になった）音の割合です。長い音ほど大きく数えます。原曲の歌手が歌っていて、あなたも歌った部分だけで数えるので、休んだところは減点になりません。</li>
   <li><b>平均</b> ― メロディより高め（＋）か低め（−）かの傾向（セント）。</li>
   <li><b>ズレが大きかったところ</b> ― 一番ズレたフレーズと、どれだけ・どちらにズレたか。<b>タップすると</b>、そのフレーズの1秒前から曲が流れるので、すぐに歌い直せます。</li>
-  <li><b>聴き比べ</b> ― 答え合わせを開いている間は「ボーカル」「伴奏」の下に「自分の声」のスライダーが出て、それぞれの音量とミュートを別々に変えられます。歌い終わった直後は原曲のボーカルがミュートです。オンにすると自分の声と重ねて聴けます。「録音の最初から再生」で、歌いはじめた位置から再生します。</li>
+  <li><b>聴き直す</b> ― 答え合わせを開いている間は、▶ で録音した自分の声が曲と一緒に流れ、「ボーカル」「伴奏」の下に「自分の声」のスライダーが出て、それぞれの音量とミュートを別々に変えられます。歌い終わった直後は原曲のボーカルがミュートです。オンにすると自分の声と重ねて聴けます。</li>
   <li><b>遅延の補正</b> ― どの端末でも、音を出すのとマイクで聞くのに少し時間がかかり（Bluetooth のヘッドホンではずっと長くなります）、アプリはこの遅れを差し引いて線を描きます。合わせて歌ったのに線がグレーのバーより右にある（声が伴奏より遅れて聞こえる）ときは値を大きく、左にあるときは小さくします。線・数字・聞こえる音・保存するファイルが一緒に動き、次に歌うときもこの値を使います。<b>「遅延を測る」</b>を押し、ヘッドホンをつけて8回の「ピッ」に合わせて「タッ」と声を出せば、測って合わせることもできます。</li>
-  <li><b>直前の録音は自動で残ります</b>（曲と一緒にこの端末に保存）。次にその曲を開いたら、「歌う」の横の<b>「前の録音を見る」</b>で、答え合わせを見たり聴き直したりできます。残るのは各曲の直前の1回分だけで、もう一度歌うと置き換わります。<b>自分の声を削除</b>で消せます（曲は残ります）。</li>
-  <li><b>曲と一緒に保存（MP3）</b>で、あなたの声と伴奏を 1 つの MP3 ファイル（192 kbps）にします。聞こえている音量のままで、原曲のボーカルをオンにしているときはそれも入ります。保存するのは歌った範囲です。<b>自分の声だけ保存（WAV）</b>は、あなたの声だけを保存します。</li>
+  <li><b>直前の録音は自動で残ります</b>（曲と一緒にこの端末に保存）。次にその曲を開いたら、「歌う」の横の<b>「前の録音を見る」</b>で、答え合わせを見たり聴き直したりできます。残るのは各曲の直前の1回分だけで、もう一度歌うと置き換わります。「歌う」の列の右端の<b>「録音を削除」</b>で消せます（曲は残ります）。</li>
+  <li><b>保存（MP3）</b>で、聞こえているとおりのミックス（ボーカル・伴奏・自分の声の音量とミュートのとおり）を 1 つの MP3 ファイル（192 kbps）にします。保存するのは歌った範囲です。</li>
 </ul>
 <div class="note"><p><b>MP3 は個人の練習用にだけ使ってください。</b>曲が入っていて、曲の権利は権利者にあります。自分の練習を聴き返すためだけに使い、動画サイトや SNS への投稿、ほかの人に送ること、配布はしないでください。保存のたびに確認が出て、ファイルのタグ（コメント）にも書き込まれます。</p></div>
 <p>数字は練習の目安で、点数ではありません。線と一覧のほうが多くを教えてくれます。伸ばした音の終わりで下がる、跳ぶ音で行き過ぎる、歌い出しが遅れる、といったクセが見えてきます。</p>

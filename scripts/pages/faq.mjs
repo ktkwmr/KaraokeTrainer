@@ -64,7 +64,7 @@ const EN = [
   },
   {
     q: "Can I save my singing with the song?",
-    a: "Yes. After singing, “Save with the song (MP3)” saves your voice with the accompaniment as one MP3 file. It contains the song, so it is for your own practice only: do not upload it to video or social media sites, share it, or distribute it. The rights to the song belong to its rights holders.",
+    a: "Yes. After singing, “Save (MP3)” saves the mix you hear (the vocal, the accompaniment and your voice, at their volumes) as one MP3 file. It contains the song, so it is for your own practice only: do not upload it to video or social media sites, share it, or distribute it. The rights to the song belong to its rights holders.",
   },
   {
     q: "How is the suggested key chosen?",
@@ -80,7 +80,7 @@ const EN = [
   },
   {
     q: "How do I delete my data?",
-    a: "⚙ → “Delete saved songs” deletes the songs and their last takes (one song's take only: “Delete my voice” on its results); ⚙ → “Delete the AI model” deletes the model; “My vocal range” → “Delete” deletes your range. Clearing this site's data in the browser settings deletes everything.",
+    a: "⚙ → “Delete saved songs” deletes the songs and their last takes (one song's take only: “Delete the recording” next to “Sing”); ⚙ → “Delete the AI model” deletes the model; “My vocal range” → “Delete” deletes your range. Clearing this site's data in the browser settings deletes everything.",
   },
 ];
 
@@ -144,7 +144,7 @@ const JA = [
   },
   {
     q: "自分の歌を曲と一緒に保存できますか？",
-    a: "できます。歌ったあとの「曲と一緒に保存（MP3）」で、あなたの声と伴奏を 1 つの MP3 ファイルにします。曲が入っているので、自分の練習用だけに使い、動画サイトや SNS への投稿・共有・配布はしないでください。曲の権利は権利者にあります。",
+    a: "できます。歌ったあとの「保存（MP3）」で、聞こえているとおりのミックス（ボーカル・伴奏・自分の声の音量のとおり）を 1 つの MP3 ファイルにします。曲が入っているので、自分の練習用だけに使い、動画サイトや SNS への投稿・共有・配布はしないでください。曲の権利は権利者にあります。",
   },
   {
     q: "おすすめキーはどう決めていますか？",
@@ -160,7 +160,7 @@ const JA = [
   },
   {
     q: "データを削除するには？",
-    a: "⚙ →「保存した曲を削除」で曲とその録音（1曲の録音だけなら、答え合わせの「自分の声を削除」）、⚙ →「AIモデルを削除」でモデル、「マイ音域」→「削除」で音域を削除できます。ブラウザの設定でこのサイトのデータを消すと、すべて削除されます。",
+    a: "⚙ →「保存した曲を削除」で曲とその録音（1曲の録音だけなら、「歌う」の横の「録音を削除」）、⚙ →「AIモデルを削除」でモデル、「マイ音域」→「削除」で音域を削除できます。ブラウザの設定でこのサイトのデータを消すと、すべて削除されます。",
   },
 ];
 
