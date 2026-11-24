@@ -46,6 +46,8 @@ context.on("request", (r) => { const u = new URL(r.url()); if (!u.href.startsWit
 await page.goto(APP);
 await page.waitForSelector("#practice.ghost");
 if (await page.evaluate(() => crossOriginIsolated)) ok("cross-origin isolated"); else fail("not cross-origin isolated");
+await page.waitForFunction(() => /about \d+ MB/.test(document.querySelector("#modelState").textContent));
+if (!(await page.isHidden("#modelBox"))) ok("no model yet: " + (await page.textContent("#modelState"))); else fail("model note hidden before the download");
 if (SHOTS) await page.screenshot({ path: join(SHOTS, "1-start.png") });
 
 // Load the song: separation with the fake model
@@ -358,6 +360,7 @@ ja.on("pageerror", (e) => errors.push("ja: " + e));
 ja.on("console", (m) => { if (m.type() === "error") errors.push("ja: " + m.text()); });
 await ja.goto(APP + "ja/");
 await ja.waitForSelector("#recent .open");
+await ja.waitForSelector("#modelBox", { state: "hidden" }).then(() => ok("model on this device: no model note"), () => fail("model note shown with the model on this device"));
 const title = await ja.textContent("#introTitle");
 if (/カラオケ/.test(title)) ok("ja page: " + title); else fail("ja page title: " + title);
 await ja.click("#recent .open");

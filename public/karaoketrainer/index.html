@@ -333,7 +333,7 @@
             <p class="hint" data-i18n="keepOpen">Keep this screen open until it finishes. On a phone, it stops while the screen is off or another app is open.</p>
           </div>
           <p class="err" id="err" role="alert" hidden></p>
-          <div class="model">
+          <div class="model" id="modelBox">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
             <span id="modelState" data-i18n="model.checking">Checking the AI model…</span>
           </div>
@@ -621,7 +621,6 @@
           "loading": "Loading…",
           "keepOpen": "Keep this screen open until it finishes. On a phone, it stops while the screen is off or another app is open.",
           "model.checking": "Checking the AI model…",
-          "model.ready": "The AI model is on this device (no download needed).",
           "model.missing": "The first song downloads the AI model (about {mb} MB, once).",
           "model.nocache": "This browser cannot keep the AI model, so it is downloaded each time (about {mb} MB).",
           "stage.download": "Downloading the AI model…",
@@ -854,7 +853,6 @@
           "loading": "読み込み中…",
           "keepOpen": "終わるまでこの画面を開いたままにしてください。スマホでは、画面が消えたりほかのアプリを開いたりすると止まります。",
           "model.checking": "AIモデルを確認しています…",
-          "model.ready": "AIモデルはこの端末にあります（ダウンロード不要）。",
           "model.missing": "最初の曲でAIモデルをダウンロードします（約{mb}MB、1回だけ）。",
           "model.nocache": "このブラウザはAIモデルを保存できないため、毎回ダウンロードします（約{mb}MB）。",
           "stage.download": "AIモデルをダウンロードしています…",
@@ -1248,7 +1246,9 @@
             }
           } catch (e) {}
         }
-        $("modelState").textContent = modelCached ? t("model.ready") : t(cacheUsable ? "model.missing" : "model.nocache", { mb: MODEL_MB });
+        // Only worth saying while there is something to download.
+        $("modelBox").hidden = modelCached;
+        if (!modelCached) $("modelState").textContent = t(cacheUsable ? "model.missing" : "model.nocache", { mb: MODEL_MB });
       }
 
       function askNetwork() {
