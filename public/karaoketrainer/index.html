@@ -290,6 +290,18 @@
     .site-foot a { color: inherit; text-decoration: none; }
     .site-foot a:hover { text-decoration: underline; }
     .site-foot .meta { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0; }
+
+    /* Links to two related apps on ktkwmr.com, right below the app (definitions: related-apps.json in ktkwmr/webapp-baseline, §9-18) */
+    .related { display: grid; grid-template-columns: repeat(2, minmax(0, 340px)); gap: 10px 12px; margin: 4px 0 0; }
+    @media (max-width: 600px) { .related { grid-template-columns: minmax(0, 1fr); } }
+    .related a { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 9px 14px; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--paper); color: var(--ink); text-decoration: none; touch-action: manipulation; transition: background-color .12s, border-color .12s, transform .1s ease-out; }
+    .related a > span { display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; }
+    .related b { font-size: 14px; font-weight: 700; line-height: 1.4; }
+    .related small { color: var(--subtle); font-size: 12px; line-height: 1.4; }
+    .related svg { flex: none; color: var(--muted); }
+    .related a:active { background: var(--line); transform: scale(.98); }
+    @media (hover: hover) { .related a:hover { border-color: var(--ink); background: var(--hover-fill); } }
+    @media (prefers-reduced-motion: reduce) { .related a { transition: none; } .related a:active { transform: none; } }
   </style>
 </head>
 <body>
@@ -452,6 +464,11 @@
       </section>
     </div>
     <div class="foot"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><span data-i18n="foot">Your song and your voice are processed on this device and never uploaded. No account needed.</span></div>
+    <!-- 関連アプリへのリンク（2 つ。同じタブ・同じ言語のページへ。定義の正本は ktkwmr/webapp-baseline の related-apps.json） -->
+    <nav class="related" aria-label="Related apps" data-i18n-attr="aria-label:rel.label">
+      <a href="/vocalladder/" data-i18n-attr="href:rel.1.href"><span><b data-i18n="rel.1.text">Widen your range with vocal warm-ups</b><small>Vocal Ladder</small></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></a>
+      <a href="/notenamer/" data-i18n-attr="href:rel.2.href"><span><b data-i18n="rel.2.text">See the note names of a melody</b><small>Note Namer</small></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></a>
+    </nav>
 
     <section class="intro" aria-labelledby="introTitle">
       <h1 id="introTitle" data-i18n="intro.title">Karaoke practice: sing along and see your pitch over the original melody</h1>
@@ -775,6 +792,11 @@
           "menu.privacy": "Privacy",
           "menu.about": "About",
           "menu.apps": "More apps",
+          "rel.label": "Related apps",
+          "rel.1.text": "Widen your range with vocal warm-ups",
+          "rel.1.href": "/vocalladder/",
+          "rel.2.text": "See the note names of a melody",
+          "rel.2.href": "/notenamer/",
           "menu.songs": "Delete saved songs",
           "menu.model": "Delete the AI model",
           "songs.del.title": "Delete all saved songs?",
@@ -1007,6 +1029,11 @@
           "menu.privacy": "プライバシー",
           "menu.about": "このアプリについて",
           "menu.apps": "ほかのアプリ",
+          "rel.label": "関連アプリ",
+          "rel.1.text": "発声練習で音域を広げる",
+          "rel.1.href": "/vocalladder/ja/",
+          "rel.2.text": "メロディの音名を楽譜で確認",
+          "rel.2.href": "/notenamer/ja/",
           "menu.songs": "保存した曲を削除",
           "menu.model": "AIモデルを削除",
           "songs.del.title": "保存したすべての曲を削除しますか？",
