@@ -29,7 +29,11 @@ A free karaoke practice app in the browser: load a song file you have, AI separa
 
 Your song and your voice are processed only in your browser and never uploaded. The microphone is used only while singing or measuring. The browser downloads the AI model from this site and ONNX Runtime Web from jsDelivr (and the lamejs MP3 encoder when you save your singing with the song). Saved in the browser: the model, the songs you loaded, recordings you chose to keep, your range, and settings. Cloudflare Web Analytics (no cookies) counts page views. No ads, no accounts.
 
+Only if you choose “Accept all” in the cookie banner, Google Analytics (through Cloudflare Zaraz, sent from Cloudflare's servers with a shortened IP address) records how the app is used: pages viewed and for how long, buttons tapped and settings changed, playing time, the kind and length of the songs opened and how the separation went, and the results shown after you sing. File names, the music itself, and your voice are never sent. Change your choice from “Cookie settings” at the bottom of the page. See [docs/analytics.md](docs/analytics.md).
+
 曲と声はブラウザの中だけで処理し、アップロードしません。マイクは歌うとき・測るときだけ使います。ブラウザは AI モデルをこのサイトから、ONNX Runtime Web を jsDelivr から（歌を曲と一緒に MP3 で保存するときは lamejs も）ダウンロードします。ブラウザに保存するのは、モデル・読み込んだ曲・残した録音・音域・設定です。アクセス数は Cloudflare Web Analytics（Cookie なし）で数えます。広告・アカウントなし。
+
+Cookie のバナーで「すべて同意」を選んだ場合に限り、Google アナリティクス（Cloudflare Zaraz 経由。Cloudflare のサーバーから IP アドレスの末尾を削って送信）でアプリの使われ方（見たページと時間、押したボタンと変えた設定、再生した時間、開いた曲の種類と長さ・分離の結果、歌ったあとの答え合わせの結果）を記録します。ファイル名・曲そのもの・あなたの声は送りません。選択はページ下の「Cookie の設定」から変えられます。
 
 Full policy / 詳しくは: https://ktkwmr.com/karaoketrainer/privacy/
 
