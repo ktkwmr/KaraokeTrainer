@@ -35,6 +35,7 @@
 - 設定は `localStorage` の `karaoketrainer-state`（`v: 1`。ボーカル・伴奏の音量とミュートも）、マイ音域は `karaoketrainer-range`。音域は任意で、登録しなくても全機能が使える（おすすめキーの欄は控えめな案内だけ）。
 - 答え合わせには「閉じる」を付けない（閉じると録音を聴き直す方法が無くなるため。次に歌うか曲を替えるまで出したまま）。答え合わせを開いている間（`reviewing`）は、ミキサーに「自分の声」（`store.mine`、0〜200%、`take.gain` に掛ける）が出て、録音を鳴らす。原曲のボーカルのミュートはこの間だけ別（`reviewVocalMute`、歌い終わるたびにオン。保存しない）。音量は普段のスライダーと共通。
 - キー変更は `keyshift.js`（Band Stem Mixer（ktkwmr/BandStemMixer、MIT、同じ作者）からのコピー。`makeFft` は `dsp.js` から。テンポ（`tempo`、出力の長さ、足りないフレーム数の修正）はこちらで足した）。片方で直した不具合はもう片方にも移す案を出す。
+- 利用状況の計測（Cloudflare Zaraz → GA4、同意バナーで同意した人だけ。ベースライン §17）: `usage-events.js`（ベースラインの雛形のコピー。タップ `kt_tap`・設定の変更 `kt_change`・滞在時間 `kt_engaged`）と、主な機能の `track()`（`index.html` の `chooseFile()`・`openSaved()`・`runSeparation()`・`attempt()`・`finishTake()`→`showResults()`・MP3 の保存）。ファイル名・曲名・曲の音・自分の声（録音）・音程の線は送らない（種類・長さ・数・結果だけ）。イベントを足したら `docs/analytics.md` の表と GA4 のカスタム定義、送る内容を変えたらプライバシーの説明も直す。
 - ページはクロスオリジン分離（`public/_headers` の COOP same-origin、COEP **credentialless**。ベースライン §6-6）。外部から読むファイルは CORS で。外部ホストを足したら `_headers` の CSP と、プライバシーの説明（`scripts/pages/privacy.mjs`、アプリ内の `privacy.body`、README）を同じ PR で直す。マイクは `Permissions-Policy: microphone=(self)`。
 - 大きなダウンロードの前の確認は `connectionRisk()`・`askNetwork()`（ベースライン §9-13）。分離の設定は `MODES`・`LADDER`（Band Stem Mixer と同じ考え方）。
 - URL・YouTube からの取り込みは作らない（著作権への配慮。仕様書 §4-1）。

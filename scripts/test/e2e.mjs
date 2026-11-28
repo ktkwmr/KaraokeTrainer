@@ -34,6 +34,8 @@ await context.route(ORT_URL + "**", (route) => {
   route.fulfill({ status: 200, body: readFileSync(file), headers: { "content-type": file.endsWith(".wasm") ? "application/wasm" : "text/javascript", "access-control-allow-origin": "*", "cross-origin-resource-policy": "cross-origin" } });
 });
 await context.route(LAME_URL, (route) => route.fulfill({ status: 200, body: readFileSync(LAME_FILE), headers: { "content-type": "text/javascript", "access-control-allow-origin": "*", "cross-origin-resource-policy": "cross-origin" } }));
+// Cloudflare Zaraz (analytics) is there only on the real site: a stand-in that keeps the events (docs/analytics.md)
+await context.route("**/cdn-cgi/zaraz/i.js", (route) => route.fulfill({ status: 200, body: "window.__events = []; window.zaraz = { track(n, p) { window.__events.push([n, p]); }, showConsentModal() {} };", headers: { "content-type": "text/javascript" } }));
 await context.route("https://static.cloudflareinsights.com/**", (route) => route.fulfill({ status: 200, body: "", headers: { "content-type": "text/javascript", "access-control-allow-origin": "*" } }));
 
 const errors = [];
@@ -102,6 +104,13 @@ console.log("     results:", JSON.stringify(res), "octave:", oct);
 const noOctMenu = await page.evaluate(() => !document.querySelector("#octSel, #prevBtn"));
 if (oct === -1 && noOctMenu) ok("octave detected as lower (no octave menu, no \"See the last take\")"); else fail("octave: " + JSON.stringify({ oct, noOctMenu }));
 if (parseInt(res.match) >= 50) ok("on pitch " + res.match); else fail("on pitch low: " + res.match);
+// Usage events (Zaraz stand-in): the song opened, separated, and the take's results; never the file name
+{
+  const ev = await page.evaluate(() => window.__events || []);
+  const sep = ev.find(([n, p]) => n === "kt_separate" && p.result === "ok"), sing = ev.find(([n]) => n === "kt_sing");
+  if (ev.some(([n, p]) => n === "kt_open" && p.result === "new") && sep && sing && sing[1].match === parseInt(res.match) && !JSON.stringify(ev).includes("song.wav")) ok("usage events: open, separate (" + sep[1].backend + "), sing (" + sing[1].match + "%)");
+  else fail("usage events: " + JSON.stringify(ev.filter(([n]) => n !== "kt_tap")));
+}
 if (/−/.test(res.bias)) ok("flat bias seen: " + res.bias); else fail("expected a flat bias: " + res.bias);
 if (SHOTS) await page.screenshot({ path: join(SHOTS, "3-results.png"), fullPage: true });
 
